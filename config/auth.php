@@ -36,6 +36,12 @@ return [
     */
 
     'guards' => [
+
+        'api_marketers' => [
+            'driver' => 'jwt',
+            'provider' => 'marketers',
+        ],
+
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -63,6 +69,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+        'marketers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Marketer::class,  
         ],
 
         // 'users' => [

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Users\Tables;
+namespace App\Filament\Resources\Socials\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -9,7 +9,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class UsersTable
+class SocialsTable
 {
     public static function configure(Table $table): Table
     {
@@ -17,10 +17,14 @@ class UsersTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
+                TextColumn::make('ar_name')
                     ->searchable(),
-                    TextColumn::make('role')
+                TextColumn::make('link')
+                    ->searchable(),
+                TextColumn::make('is_active')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('icon')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
