@@ -22,7 +22,13 @@ class SocialResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Social';
+    protected static ?string $recordTitleAttribute = 'وسائل التواصل';
+     
+    
+    protected static ?string $title = 'وسائل التواصل';
+    protected static ?string $modelLabel = 'وسيلة تواصل';
+    protected static ?string $navigationLabel = 'وسائل التواصل';
+    protected static ?string $pluralModelLabel = 'وسائل التواصل';
     protected static ?int $navigationSort = 3;
     public static function form(Schema $schema): Schema
     {

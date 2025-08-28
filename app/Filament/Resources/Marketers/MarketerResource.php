@@ -22,7 +22,14 @@ class MarketerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Marketer';
+    
+
+    protected static ?string $recordTitleAttribute = 'مسوق';
+    
+    protected static ?string $title = 'المسوقين';
+    protected static ?string $modelLabel = 'مسوق';
+    protected static ?string $navigationLabel = 'المسوقين';
+    protected static ?string $pluralModelLabel = 'المسوقين';
     protected static ?int $navigationSort = 2;
     public static function form(Schema $schema): Schema
     {

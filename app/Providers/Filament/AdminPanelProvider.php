@@ -31,11 +31,14 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->passwordReset() 
             ->colors([
-                'primary' => Color::Amber ,
+                'primary' =>Color::Red ,
             ])
             ->sidebarWidth('14rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->brandLogo(asset('storage/images/logo.jpeg'))
+            ->brandLogoHeight('75px')
+            ->favicon(asset('storage/images/logo.jpeg'))
             ->pages([
                 Dashboard::class,
             ])
