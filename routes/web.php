@@ -13,6 +13,19 @@ Route::get('/storagelink', function () {
     $exitCode = Artisan::call('storage:link');
     return 'ok';
 });
+Route::get('/routeclear', function () {
+    $exitCode = Artisan::call('route:cache'); 
+    return 'ok';
+  });
+  Route::get('/cashclear', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('view:clear');
+    $exitCode = Artisan::call('optimize');
+    // $exitCode = Artisan::call('icons:cache');
+  
+    return 'ok';
+  });
 Route::get('/', [HomeController::class, 'index'])->name('site.home') ;
 /*
 Route::prefix('marketer')->group(function () {
