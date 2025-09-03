@@ -18,7 +18,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -36,9 +35,11 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('14rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->brandLogo(asset('storage/images/logo.jpeg'))
+          //  ->brandLogo(asset('storage/images/logo.jpeg'))
+          ->brandLogo(config('filesystems.disks.public.url').'/images/logo.jpeg')
+        
             ->brandLogoHeight('75px')
-            ->favicon(asset('storage/images/logo.jpeg'))
+            ->favicon(config('filesystems.disks.public.url').'/images/logo.jpeg')
             ->pages([
                 Dashboard::class,
             ])
