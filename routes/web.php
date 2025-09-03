@@ -9,7 +9,10 @@ use App\Http\Controllers\Web\HomeController;
 //     return view('welcome');
 // });
 
-
+Route::get('/storagelink', function () {
+    $exitCode = Artisan::call('storage:link');
+    return 'ok';
+});
 Route::get('/', [HomeController::class, 'index'])->name('site.home') ;
 /*
 Route::prefix('marketer')->group(function () {
