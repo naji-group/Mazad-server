@@ -22,8 +22,12 @@ $table->string('email')->nullable();
 $table->string('image')->nullable();
 $table->string('provider')->nullable();
 $table->string('provider_user_id')->nullable();
+$table->string('provider_token')->nullable();
+$table->string('provider_refresh_token')->nullable();
+ 
 $table->foreignId('social_id')->nullable();
 $table->timestamp('email_verified_at')->nullable();
+
 
             $table->timestamps();
         });

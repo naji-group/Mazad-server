@@ -23,10 +23,14 @@ class Marketer extends Authenticatable implements JWTSubject
 'email',
 'email_verified_at',
 'image',
+'local_image',
 'provider',
 'provider_user_id',
 'social_id',
+'provider_token',
+'provider_refresh_token',
     ];
+    protected $appends= ['status_conv'];
        /**
      * The attributes that should be hidden for serialization.
      *
@@ -78,4 +82,14 @@ class Marketer extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MarketerSocial::class, 'marketer_id');
     }
+ 
+    public function getStatusConvAttribute(){
+           $conv="";
+          if($this->is_active==1){
+           $conv='فعال';
+          }else{
+           $conv='غير فعال';
+          }      
+               return  $conv;
+        }
 }

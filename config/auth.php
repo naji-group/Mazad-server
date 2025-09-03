@@ -46,6 +46,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'web_marketers' => [
+            'driver' => 'session',
+            'provider' => 'webmarketers',
+        ],
     ],
 
     /*
@@ -69,6 +73,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+        'webmarketers' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\Marketer::class),
         ],
         'marketers' => [
             'driver' => 'eloquent',

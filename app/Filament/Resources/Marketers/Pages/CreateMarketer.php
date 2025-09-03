@@ -9,3 +9,4 @@ class CreateMarketer extends CreateRecord
 {
     protected static string $resource = MarketerResource::class;
 }
+

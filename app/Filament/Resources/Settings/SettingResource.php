@@ -30,6 +30,7 @@ class SettingResource extends Resource
     protected static ?string $navigationLabel = 'الاعدادات';
     protected static ?string $pluralModelLabel = 'الاعدادات';
     protected static ?int $navigationSort = 4;
+
     public static function form(Schema $schema): Schema
     {
         return SettingForm::configure($schema);

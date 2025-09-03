@@ -57,9 +57,9 @@ class MarketerResource extends Resource
     {
         return [
             'index' => ListMarketers::route('/'),
-            'create' => CreateMarketer::route('/create'),
+           // 'create' => CreateMarketer::route('/create'),
             'view' => ViewMarketer::route('/{record}'),
-            'edit' => EditMarketer::route('/{record}/edit'),
+          //  'edit' => EditMarketer::route('/{record}/edit'),
         ];
     }
 }

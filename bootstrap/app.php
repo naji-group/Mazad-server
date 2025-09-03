@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\Api\AuthenticateMarketer;
+use App\Http\Middleware\Web\AuthWebMarketer;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -13,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth_marketer' => AuthenticateMarketer::class
+            'auth_marketer' => AuthenticateMarketer::class,
+            'auth_web_marketer' => AuthWebMarketer::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
