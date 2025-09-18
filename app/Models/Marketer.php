@@ -17,6 +17,8 @@ class Marketer extends Authenticatable implements JWTSubject
     protected $fillable = [
       'first_name',
 'last_name',
+'full_name',
+'login_type',
 'username',
 'password',
 'is_active',

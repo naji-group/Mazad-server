@@ -12,6 +12,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 //Route::post('registermarketer', [MarketerController::class, 'register']);
 Route::post('loginmarketer', [MarketerController::class, 'login']);
+Route::post('loginmarketerbyprovider', [MarketerController::class, 'loginprovider']);
+
 //Route::get('loginmarketer/{provider}', 'SocialController@redirect');
 Route::get('loginmarketerprovider/{provider}', [MarketerController::class, 'provider_redirect'])->name('api_provider_redirect')->middleware('web');
  

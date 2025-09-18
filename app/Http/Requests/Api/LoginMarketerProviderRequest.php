@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginMarketerRequest extends FormRequest
+class LoginMarketerProviderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,11 @@ class LoginMarketerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|string|max:100',
-            'password' => 'required|max:100',
+            'email' => 'required|string|max:100|email',
+            'name'=>'nullable',
+             'provider_token'=>'nullable',
+             'provider_user_id'=>'nullable',
+             'image'=>'nullable',
            // 'password' => 'required_without:email',
          //   'email'    => 'required_without_all:username,password|email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
         ];
@@ -32,7 +35,7 @@ class LoginMarketerRequest extends FormRequest
 {
  
    return[     
-     'username.required'=>'The username is required',
+     'email.required'=>'The email is required',
   //   'name.alpha_num'=>'The name format must be alphabet',
     // 'unique.unique'=>'The name is already exist',
   //  'email.required'=>'Email is required',

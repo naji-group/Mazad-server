@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginMarketerRequest;
+use App\Http\Requests\Api\LoginMarketerProviderRequest;
+
 use Illuminate\Http\Request;
 
 
@@ -57,7 +59,13 @@ class MarketerController extends Controller
                     return response()->json(['error' => 'notexist'], 401);
                 }
                 //ok 
-
+                $user->login_type='local';
+                $user->save(); 
+                // $user = Marketer::find($user->id)->update(
+                //     [                       
+                //        'login_type'=>'local',                       
+                //     ]
+                // );
                 if (!$token = auth('api_marketers')->fromUser($user)) {
                     return response()->json(['error' => 'notexist'], 401);
                 }
@@ -79,7 +87,55 @@ class MarketerController extends Controller
 
     }
     //provider
-
+    function loginprovider(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LoginMarketerProviderRequest();
+        //  $storrequest->request()=$formdata ;
+        //   $storrequest=  $formdata ;
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+            $user_email = $formdata['email'];           
+            // $googleUser = Socialite::driver($provider)->stateless()->user();
+             $user = Marketer::where('email',$user_email)->where('is_active', 1)->first();
+ 
+             if ($user) {   
+                $user->name=$formdata['name'];    
+                $user->provider_token=isset($formdata['provider_token'])?$formdata['provider_token']:""; 
+                $user->provider_user_id=isset( $formdata['provider_user_id'])?$formdata['provider_user_id']:""; 
+                $user->image=isset($formdata['image'])?$formdata['image']:""; 
+                $user->login_type='provider'; 
+                $user->provider='google'; 
+                $user->save();  
+                //  $user = Marketer::find($dbuser->id)->update(
+                //      [
+                //          'name' => $formdata['name'],                        
+                //         // 'email' => $googleUser->getEmail(),
+                //          'provider_token' =>  isset($formdata['provider_token'])?$formdata['provider_token']:"",  
+                //          'provider_user_id' => isset( $formdata['provider_user_id'])?$formdata['provider_user_id']:"",                        
+                //          'image' => isset($formdata['image'])?$formdata['image']:"",
+                //          'login_type'=>'provider',
+                //          'provider' => 'google',
+                //      ]
+                //  );
+                 if (!$token = auth('api_marketers')->fromUser($user)) {
+                     return response()->json(['error' => 'notexist'], 401);
+                 }                
+                 return response()->json([
+                     'token' => $token,
+                     // 'user'=> $user,   
+                 ]);
+             } else {
+                 return response()->json(['error' =>   'notexist'], 401);
+             }
+        }
+        }
     public function provider_redirect($provider)
     {
         if ($provider == 'google') {
