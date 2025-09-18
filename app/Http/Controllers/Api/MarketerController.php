@@ -106,7 +106,7 @@ class MarketerController extends Controller
              $user = Marketer::where('email',$user_email)->where('is_active', 1)->first();
  
              if ($user) {   
-                $user->name=$formdata['name'];    
+                $user->name=isset($formdata['name'])?$formdata['name']:"";    
                 $user->provider_token=isset($formdata['provider_token'])?$formdata['provider_token']:""; 
                 $user->provider_user_id=isset( $formdata['provider_user_id'])?$formdata['provider_user_id']:""; 
                 $user->image=isset($formdata['image'])?$formdata['image']:""; 
