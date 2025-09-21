@@ -5,7 +5,8 @@ namespace App\Filament\Resources\Marketers\Schemas;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 use Filament\Infolists\Components\IconEntry;
-
+use App\Models\Marketer;
+use App\Filament\Forms\Components\ImageWithPreview;
 class MarketerInfolist
 {
     public static function configure(Schema $schema): Schema
@@ -31,6 +32,15 @@ class MarketerInfolist
                     ->label('تاريخ الانشاء')
                     ->dateTime()
                 ,
+                ImageWithPreview::make('local_image_preview')
+                ->imageUrl(fn(Marketer $record) =>config('filesystems.disks.public.url').'/'. $record->local_image )
+                ->label('الصورة الحالية')
+                // ->imageUrl($this->post?->getFirstMediaUrl( $this->media_folder) )
+               // ->altText('Current Image')
+                ->imageHeight(120)
+               ->hiddenOn('create') 
+                // ->live()
+                ->nullable(),
                 // TextEntry::make('updated_at')
                 //     ->dateTime(),
             ]);

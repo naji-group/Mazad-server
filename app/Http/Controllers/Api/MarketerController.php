@@ -5,15 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginMarketerRequest;
 use App\Http\Requests\Api\LoginMarketerProviderRequest;
-
+use App\Http\Controllers\Api\HelpController;
+use App\Http\Requests\Api\ProfileMarketerRequest;
 use Illuminate\Http\Request;
-
-
-use App\Http\Requests\Api\Client\StoreClientRequest;
 use App\Models\Marketer;
 use App\Http\Requests\Api\StoreMarketerRequest;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Requests\Api\UpdateMarketerRequest;
+
+use Illuminate\Support\Facades\Storage;
+use File;
+use Illuminate\Support\Carbon;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 //use Illuminate\Support\Facades\Auth;
 
 // use Illuminate\Support\Facades\Hash;
@@ -22,7 +27,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
 //use App\Http\Middleware\Api\AuthenticateClient;
 //use JWTAuth;
-use Carbon\Carbon;
+use App\Http\Resources\MarketerProfileResource;
 class MarketerController extends Controller
 {
 
@@ -59,8 +64,8 @@ class MarketerController extends Controller
                     return response()->json(['error' => 'notexist'], 401);
                 }
                 //ok 
-                $user->login_type='local';
-                $user->save(); 
+                $user->login_type = 'local';
+                $user->save();
                 // $user = Marketer::find($user->id)->update(
                 //     [                       
                 //        'login_type'=>'local',                       
@@ -83,7 +88,7 @@ class MarketerController extends Controller
             else {
                 return response()->json('not valid');
             }
-               }
+        }
 
     }
     //provider
@@ -101,18 +106,18 @@ class MarketerController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         } else {
-            $user_email = $formdata['email'];           
+            $user_email = $formdata['email'];
             // $googleUser = Socialite::driver($provider)->stateless()->user();
-             $user = Marketer::where('email',$user_email)->where('is_active', 1)->first();
- 
-             if ($user) {   
-                $user->name=isset($formdata['name'])?$formdata['name']:"";    
-                $user->provider_token=isset($formdata['provider_token'])?$formdata['provider_token']:""; 
-                $user->provider_user_id=isset( $formdata['provider_user_id'])?$formdata['provider_user_id']:""; 
-                $user->image=isset($formdata['image'])?$formdata['image']:""; 
-                $user->login_type='provider'; 
-                $user->provider='google'; 
-                $user->save();  
+            $user = Marketer::where('email', $user_email)->where('is_active', 1)->first();
+
+            if ($user) {
+                $user->name = isset($formdata['name']) ? $formdata['name'] : "";
+                $user->provider_token = isset($formdata['provider_token']) ? $formdata['provider_token'] : "";
+                $user->provider_user_id = isset($formdata['provider_user_id']) ? $formdata['provider_user_id'] : "";
+                $user->image = isset($formdata['image']) ? $formdata['image'] : "";
+                $user->login_type = 'provider';
+                $user->provider = 'google';
+                $user->save();
                 //  $user = Marketer::find($dbuser->id)->update(
                 //      [
                 //          'name' => $formdata['name'],                        
@@ -124,22 +129,143 @@ class MarketerController extends Controller
                 //          'provider' => 'google',
                 //      ]
                 //  );
-                 if (!$token = auth('api_marketers')->fromUser($user)) {
-                     return response()->json(['error' => 'notexist'], 401);
-                 }                
-                 return response()->json([
-                     'token' => $token,
-                     // 'user'=> $user,   
-                 ]);
-             } else {
-                 return response()->json(['error' =>   'notexist'], 401);
-             }
+                if (!$token = auth('api_marketers')->fromUser($user)) {
+                    return response()->json(['error' => 'notexist'], 401);
+                }
+                return response()->json([
+                    'token' => $token,
+                    // 'user'=> $user,   
+                ]);
+            } else {
+                return response()->json(['error' => 'notexist'], 401);
+            }
         }
+    }
+
+    //Profile
+    public function updateprofile(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new UpdateMarketerRequest();
+
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+            $authuser = auth('api_marketers')->user();
+            if (!($authuser->id == $formdata["id"])) {
+                return response()->json('notexist', 401);
+            } else {
+                $authuser->full_name = $formdata["full_name"];
+
+
+                if (isset($formdata['password'])) {
+                    $password = trim($formdata['password']);
+                    $authuser->password = bcrypt($password);
+
+                }
+                if ($request->hasFile('local_image')) {
+                    $file = $request->file('local_image');
+                    $this->storeImage($file, $authuser);
+                }
+                $authuser->save();
+                return response()->json($authuser->id);
+            }
         }
+    }
+
+    public function storeImage($file, $user)
+    {
+
+        $oldimage = $user->local_image;
+        //  $oldimagename = basename($oldimage);
+        $strgCtrlr = new HelpController();
+        $path = $strgCtrlr->path['marketers'];
+        //  $oldimagepath =  $oldimagename;
+        //save photo
+
+        if ($file !== null) {
+
+            $filename = rand(10000, 99999) . $user->id . ".webp";
+            //  $filename = rand(10000, 99999) . $user->id . '.'.$file->getClientOriginalExtension();
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file);
+            $image = $image->toWebp(75);
+            if (!File::isDirectory(Storage::url('/' . $path))) {
+                Storage::makeDirectory('public/' . $path);
+            }
+            $newpath = $path . '/' . $filename;
+            $image->save(storage_path('app/public') . '/' . $newpath);
+            //   $url = url('storage/app/public' . '/' . $this->path . '/' . $filename);
+            // Expert::find($id)->update([
+            //     "image" => $filename
+            // ]);
+            // Storage::delete("public/" . $oldimage);
+
+            $pathImg = storage_path('app/public/' . $oldimage);
+            if (File::exists($pathImg)) {
+                File::delete($pathImg);
+            }
+            //  \Log::debug('pathImg', [
+            //         'pathImg' => $pathImg ,
+
+
+            //     ]);
+
+        }
+        $user->local_image = $newpath;
+        $user->save();
+        //     $filePath = storage_path('app/public/' .$newpath);
+        //    $strgCtrlr->changemod($filePath);
+        return 1;
+    }
+
+    public function getprofile(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new ProfileMarketerRequest();
+
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+            $authuser = auth('api_marketers')->user();
+            if (!($authuser->id == $formdata["id"])) {
+                return response()->json('notexist', 401);
+            } else {
+                $user = Marketer::where('is_active', 1)->where('id', $authuser->id)
+                    ->select(
+                        'id',
+                        'full_name',
+                         'login_type', 
+                        'is_active',
+                        //'email',
+                        'local_image',
+                    )->first();
+
+                if (!$user) {
+                    return response()->json('notexist', 401);
+
+                }
+                $resuser = new MarketerProfileResource($user);
+                return response()->json($resuser);
+            }
+        }
+    }
+
+
     public function provider_redirect($provider)
     {
         if ($provider == 'google') {
-            
+
             return Socialite::driver($provider)->redirect();
         } else {
             return response()->json(['error' => $provider . 'not allowed'], 422);

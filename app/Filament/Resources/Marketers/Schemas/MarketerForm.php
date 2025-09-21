@@ -12,10 +12,13 @@ use Filament\Support\Enums\MaxWidth;
 use App\Models\Marketer;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Forms\Components\ImageWithPreview;
+use App\Http\Controllers\Api\HelpController;
+
 class MarketerForm
 {
     public static function configure(Schema $schema): Schema
     {
+
         return $schema
             ->components([
                 // TextInput::make('first_name')
@@ -47,6 +50,13 @@ class MarketerForm
                      //  ->disabled()
                        //  ->hiddenOn('create')
                         ->columnSpan(2),
+                        TextInput::make('full_name')
+                        ->label('الاسم الكامل')
+                           // ->default(null)
+                            //->required()
+                            ->hiddenOn('create') 
+                            ->maxLength(1000)
+                            ->columnSpan(2),
                 TextInput::make('password')
                 ->label('كلمة المرور')
                     ->password()
@@ -75,12 +85,25 @@ class MarketerForm
                    ->hiddenOn('create') 
                     // ->live()
                     ->nullable(),
+                    ImageWithPreview::make('local_image_preview')
+                    ->imageUrl(fn(Marketer $record) =>config('filesystems.disks.public.url').'/'. $record->local_image )
+                    ->label('الصورة الحالية')
+                    // ->imageUrl($this->post?->getFirstMediaUrl( $this->media_folder) )
+                   // ->altText('Current Image')
+                    ->imageHeight(120)
+                   ->hiddenOn('create') 
+                    // ->live()
+                    ->nullable(),
                     FileUpload::make('local_image')
+                    ->label('صورة')
                     ->image()
+                    ->previewable(false)
+                   // ->fetchFileInformation(false)
                     ->disk('public')
                     ->directory('images/marketers')
                     ->visibility('public')
-                  -> previewable(),
+                 // -> previewable()
+                  ,
                 // TextInput::make('email')
                 //     ->label('Email address')
                 //     ->email()

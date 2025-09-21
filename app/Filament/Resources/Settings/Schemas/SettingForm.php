@@ -6,7 +6,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
-
+use Filament\Forms\Components\Toggle;
 class SettingForm
 {
     public static function configure(Schema $schema): Schema
@@ -18,6 +18,8 @@ class SettingForm
                 Textarea::make('value')
                     ->default(null)
                     ->columnSpanFull(),
+                    TextInput::make('code')
+                    ->default(null),
                 TextInput::make('category')
                     ->default(null),
                 TextInput::make('type')
@@ -25,6 +27,12 @@ class SettingForm
                 TextInput::make('sequence')
                     ->numeric()
                     ->default(null),
+                    Toggle::make('has_image')
+                    ->label('Has Image')
+                        
+                        ->default(null),
+                        TextInput::make('dir')
+                        ->default(null),
                 FileUpload::make('image')
                     ->image(),
                 // TextInput::make('create_user_id')

@@ -17,6 +17,8 @@ class Setting extends Model
 'image',
 'create_user_id',
 'update_user_id',
-
+'code',
+'has_image',
+'dir',
     ];
 }

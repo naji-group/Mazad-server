@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\Api\HelpController;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,7 +33,25 @@ class Marketer extends Authenticatable implements JWTSubject
 'provider_token',
 'provider_refresh_token',
     ];
-    protected $appends= ['status_conv'];
+    protected $appends= ['status_conv','local_image_url'];
+    public function getLocalImageUrlAttribute(){
+        $conv="";
+        $helpCtrlr = new HelpController(); 
+        if(is_null($this->local_image) ){
+             $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
+        }else if($this->local_image==''){
+            $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
+        } else {
+            $conv = $helpCtrlr->getpublicurl($this->local_image);
+            //$conv =  $url.$this->local_image;
+        }     
+       
+            return  $conv;
+     }
+
+     public function getFullNameAttribute(){
+  return (string)  ($value ?? "") ; 
+     }
        /**
      * The attributes that should be hidden for serialization.
      *

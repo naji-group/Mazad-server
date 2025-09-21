@@ -9,6 +9,7 @@ use App\Filament\Resources\Settings\Pages\ViewSetting;
 use App\Filament\Resources\Settings\Schemas\SettingForm;
 use App\Filament\Resources\Settings\Schemas\SettingInfolist;
 use App\Filament\Resources\Settings\Tables\SettingsTable;
+ 
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,13 +23,13 @@ class SettingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'اعدادات';
+   // protected static ?string $recordTitleAttribute = 'اعدادات';
     
     
-    protected static ?string $title = 'الاعدادات';
-    protected static ?string $modelLabel = 'اعدادات';
-    protected static ?string $navigationLabel = 'الاعدادات';
-    protected static ?string $pluralModelLabel = 'الاعدادات';
+  //  protected static ?string $title = 'الاعدادات';
+   // protected static ?string $modelLabel = 'اعدادات';
+  //  protected static ?string $navigationLabel = 'الاعدادات';
+   // protected static ?string $pluralModelLabel = 'الاعدادات';
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
@@ -52,7 +53,10 @@ class SettingResource extends Resource
             //
         ];
     }
-
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->role=='admin';
+    }
     public static function getPages(): array
     {
         return [
@@ -60,6 +64,7 @@ class SettingResource extends Resource
             'create' => CreateSetting::route('/create'),
             'view' => ViewSetting::route('/{record}'),
             'edit' => EditSetting::route('/{record}/edit'),
+             
         ];
     }
 }

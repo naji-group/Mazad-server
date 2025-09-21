@@ -18,6 +18,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+// use Filament\Navigation\NavigationItem;
+// use App\Filament\Pages\SettingPage;
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -41,10 +43,16 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('50px')
             ->favicon(config('filesystems.disks.public.url').'/images/logo.jpeg')
            
-
             ->pages([
                 Dashboard::class,
             ])
+            // ->navigationItems([
+            //     NavigationItem::make('الاعدادات')
+            //         ->url(fn () => SettingPage::getUrl())
+            //        // ->icon('heroicon-o-plus')
+            //        // ->sort(5)
+            //         ->isActiveWhen(fn (): bool => request()->routeIs(SettingPage::getUrl())), // Optional: Set sort order
+            // ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
