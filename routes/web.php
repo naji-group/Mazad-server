@@ -26,6 +26,10 @@ Route::get('/routeclear', function () {
   
     return 'ok';
   });
+  Route::get('/migtables', function () {
+    $exitCode = Artisan::call('migrate'); 
+    return 'ok';
+  });
 Route::get('/', [HomeController::class, 'index'])->name('site.home') ;
 /*
 Route::prefix('marketer')->group(function () {
