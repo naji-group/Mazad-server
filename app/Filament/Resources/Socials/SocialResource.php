@@ -56,9 +56,9 @@ class SocialResource extends Resource
     {
         return [
             'index' => ListSocials::route('/'),
-            'create' => CreateSocial::route('/create'),
+          // 'create' => CreateSocial::route('/create'),
             'view' => ViewSocial::route('/{record}'),
-            'edit' => EditSocial::route('/{record}/edit'),
+           // 'edit' => EditSocial::route('/{record}/edit'),
         ];
     }
 }

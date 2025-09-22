@@ -8,39 +8,44 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
+use Filament\Tables\Columns\IconColumn;
+use Illuminate\Support\HtmlString;
 class SocialsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+        ->recordUrl(false)
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
                 TextColumn::make('ar_name')
+                ->label('وسيلة التواصل')
                     ->searchable(),
+                TextColumn::make('name')
+                ->label('الرمز')
+               
+                    ->searchable(),
+              
                 TextColumn::make('link')
-                    ->searchable(),
-                TextColumn::make('is_active')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('icon')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
+                ->label('عنوان الحساب')             
+                    ->searchable()
+                    ->url(function ($record) {
+                        return   $record->link;
+                   
+                    })
+                    ->openUrlInNewTab()
+                  ,
+                    IconColumn::make('is_active')
+                    ->label('الحالة')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->boolean(), 
+              
             ])
             ->filters([
                 //
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()->slideOver(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Validator;
 //use App\Http\Middleware\Api\AuthenticateClient;
 //use JWTAuth;
 use App\Http\Resources\MarketerProfileResource;
+use App\Http\Requests\Api\DeleteMarketerRequest;
 class MarketerController extends Controller
 {
 
@@ -387,12 +388,12 @@ class MarketerController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout_client()
+    public function logout_marketer()
     {
         $user_id = auth('api_marketers')->user()->id;
-        Marketer::find($user_id)->update([
-            'token' => '',
-        ]);
+        // Marketer::find($user_id)->update([
+        //     'token' => '',
+        // ]);
         auth('api_marketers')->logout();
 
         return response()->json('ok');
@@ -404,8 +405,65 @@ class MarketerController extends Controller
         return response()->json('Success');
     }
 
+  
+    public function deleteaccount(Request $filerequest)
+    {
+        $formdata = $filerequest->all();
+        $storrequest = new DeleteMarketerRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
 
+            $id = $formdata['id'];
+            $authuser = auth()->user();
+            if (!($authuser->id == $id)) {
+                return response()->json('notexist', 401);
+            } else {
+                // ClientDelOrder::where('client_id', $id)->delete();
+                // $client = Client::find($id);
+                // $setctrlr = new SettingController();
+                // $mailctrlr = new MailController();
+                // $delorder = new ClientDelOrder();
+                // $delorder->client_id = $id;
+                // $delorder->email = $formdata['email'];
+                // $delorder->mobile = $formdata['mobile'];
+                // $delorder->reason =isset($formdata['reason'])?$formdata['reason']:"-";
+                // $delorder->state = 'w';
+                // $delorder->save();
+                $authuser->is_active=0;
+                $authuser->update([
+                          'is_active' => 0,
+                     ]);
+                // Client::find($id)->update([
+                //     'is_active' => 0,
+                // ]);
 
+                auth('api_marketers')->logout();
+
+                // $admin_email = $setctrlr->findbyname('admin_email')->value;
+                // $data = [
+                //     'com_title' => config('app.name', 'Rouh'),
+                //     'client_name' => $client->user_name,
+                //     'client_email' => $delorder->email,
+                //     'client_mobile' => $delorder->mobile,
+                //     'reason' => $delorder->reason,
+                //     'order_id' => $delorder->id,
+                // ];
+                // //admin
+                // if ($admin_email) {
+                //     $mailctrlr->send_del_mail($admin_email, $data, 'admin');
+                // }
+                // // client
+                // $mailctrlr->send_del_mail($delorder->email, $data, 'client');
+                return response()->json($id);
+            }
+        }
+    }
     /**
      * Refresh a token.
      *
