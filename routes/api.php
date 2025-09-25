@@ -25,7 +25,7 @@ Route::middleware('auth_marketer:api_marketers')->prefix('marketer')->group(func
     Route::post('getprofile', [MarketerController::class, 'getprofile']);
     Route::post('/logout', [MarketerController::class, 'logout_marketer']);
     Route::post('/deleteaccount', [MarketerController::class, 'deleteaccount']);
-    Route::post('/profile', function () {
-       return response()->json("ok");
-    }) ;
+    Route::post('getsocials', [MarketerController::class, 'getsocials']);
+    Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
+    
 }); 

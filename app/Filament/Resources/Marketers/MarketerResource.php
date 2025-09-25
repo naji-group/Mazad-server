@@ -10,12 +10,18 @@ use App\Filament\Resources\Marketers\Schemas\MarketerForm;
 use App\Filament\Resources\Marketers\Schemas\MarketerInfolist;
 use App\Filament\Resources\Marketers\Tables\MarketersTable;
 use App\Models\Marketer;
+// use App\Models\Social;
+//use App\Models\MarketerSocial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
+ 
+// use Filament\Forms\Components\Toggle;
+// use Filament\Schemas\Components\Section;
+// use Filament\Schemas\Components\Group;
+// use Filament\Forms\Components\TextInput;
 class MarketerResource extends Resource
 {
     protected static ?string $model = Marketer::class;
@@ -33,7 +39,9 @@ class MarketerResource extends Resource
     protected static ?int $navigationSort = 2;
     public static function form(Schema $schema): Schema
     {
-        return MarketerForm::configure($schema);
+
+        return  MarketerForm::configure($schema);
+ 
     }
 
     public static function infolist(Schema $schema): Schema
@@ -52,14 +60,19 @@ class MarketerResource extends Resource
             //
         ];
     }
-
+     
     public static function getPages(): array
     {
         return [
             'index' => ListMarketers::route('/'),
            // 'create' => CreateMarketer::route('/create'),
             'view' => ViewMarketer::route('/{record}'),
-          //  'edit' => EditMarketer::route('/{record}/edit'),
+            'edit' => EditMarketer::route('/{record}/edit'),
         ];
     }
+
+ 
+ 
+ 
+
 }

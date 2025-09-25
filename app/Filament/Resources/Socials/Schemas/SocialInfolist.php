@@ -12,10 +12,10 @@ class SocialInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('ar_name')
+                TextEntry::make('name')
                 ->label('وسيلة التواصل')
                 ->default(null),
-                TextEntry::make('name')
+                TextEntry::make('code')
                 ->label('الرمز'),              
                 TextEntry::make('link')
                 ->url(fn (Social $record): string => $record->link)
@@ -23,8 +23,7 @@ class SocialInfolist
                 ->label('عنوان الحساب'),
                 IconEntry::make('is_active')
                 ->label('الحالة')
-                ->boolean()
-            ,
+                ->boolean(),
              
             ]);
     }

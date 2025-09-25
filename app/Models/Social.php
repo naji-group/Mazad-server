@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Social extends Model
 {
     protected $table = 'socials';
-    protected $fillable = [      
-'name',
-'link',
-'is_active',
-'icon',
-    ]; 
+    protected $fillable = [
+        'name',
+        'code',
+        'link',
+        'is_active',
+        'icon',
+        'sequence',
+    ];
 
     public function marketersocials(): HasMany
     {

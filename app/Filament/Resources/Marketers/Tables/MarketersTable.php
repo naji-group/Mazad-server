@@ -29,6 +29,9 @@ class MarketersTable
                     TextColumn::make('email')
                 ->label('الايميل')                    
                     ->searchable(),
+                    TextColumn::make('full_name')
+                    ->label('الاسم الكامل')
+                        ->searchable(), 
                         IconColumn::make('is_active')
                         ->label('الحالة')
                         ->sortable()
@@ -60,7 +63,7 @@ class MarketersTable
             ->recordActions([
                 ViewAction::make(),
             
-                EditAction::make()->slideOver(),
+                EditAction::make(),
                 DeleteAction::make(),
             ])
      

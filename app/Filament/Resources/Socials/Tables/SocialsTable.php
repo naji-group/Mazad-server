@@ -17,13 +17,15 @@ class SocialsTable
         return $table
         ->recordUrl(false)
             ->columns([
-                TextColumn::make('ar_name')
-                ->label('وسيلة التواصل')
-                    ->searchable(),
                 TextColumn::make('name')
+                ->label('وسيلة التواصل')
+                    ->searchable()   ->disabledClick()
+                    ,
+                TextColumn::make('code')
                 ->label('الرمز')
                
-                    ->searchable(),
+                    ->searchable()
+                    ->disabledClick(),
               
                 TextColumn::make('link')
                 ->label('عنوان الحساب')             
@@ -51,6 +53,8 @@ class SocialsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]) 
+               ->reorderable('sequence')
+            ;
     }
 }

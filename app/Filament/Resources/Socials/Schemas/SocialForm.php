@@ -12,10 +12,10 @@ class SocialForm
     {
         return $schema
             ->components([
-                TextInput::make('ar_name')
+                TextInput::make('name')
                     ->label('وسيلة التواصل')
                     ->default(null),
-                TextInput::make('name')
+                TextInput::make('code')
                     ->label('الرمز')
                     ->default(null)
                     ->required()

@@ -49,9 +49,9 @@ class Marketer extends Authenticatable implements JWTSubject
             return  $conv;
      }
 
-     public function getFullNameAttribute(){
-  return (string)  ($value ?? "") ; 
-     }
+//      public function getFullNameAttribute(){
+//   return (string)  ($value ?? "") ; 
+//      }
        /**
      * The attributes that should be hidden for serialization.
      *

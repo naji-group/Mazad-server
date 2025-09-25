@@ -6,7 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginMarketerRequest;
 use App\Http\Requests\Api\LoginMarketerProviderRequest;
 use App\Http\Controllers\Api\HelpController;
+use App\Http\Requests\Api\MarketerSocialRequest;
 use App\Http\Requests\Api\ProfileMarketerRequest;
+use App\Http\Requests\Api\UpdateSocialMarketerRequest;
+use App\Http\Resources\MarketerSocialResource;
+use App\Models\MarketerSocial;
+use App\Models\Social;
 use Illuminate\Http\Request;
 use App\Models\Marketer;
 use App\Http\Requests\Api\StoreMarketerRequest;
@@ -29,6 +34,7 @@ use Illuminate\Support\Facades\Validator;
 //use JWTAuth;
 use App\Http\Resources\MarketerProfileResource;
 use App\Http\Requests\Api\DeleteMarketerRequest;
+use Illuminate\Support\Arr;
 class MarketerController extends Controller
 {
 
@@ -246,7 +252,7 @@ class MarketerController extends Controller
                     ->select(
                         'id',
                         'full_name',
-                         'login_type', 
+                        'login_type',
                         'is_active',
                         //'email',
                         'local_image',
@@ -261,8 +267,83 @@ class MarketerController extends Controller
             }
         }
     }
+    //social setting
 
+    public function updatesocials(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new UpdateSocialMarketerRequest();
 
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+            $authuser = auth('api_marketers')->user();
+            if (!($authuser->id == $formdata["id"])) {
+                return response()->json('notexist', 401);
+            } else {
+
+                $data = json_decode($request->getContent(), true);
+                $dataArr = Arr::except($data, ['id']);
+                $socials = Social::where('is_active', 1)->get();
+                foreach ($dataArr as $key => $link) {
+                    $social = $socials->where('code', $key)->first();
+                    if ($social) {
+                        $record = MarketerSocial::firstOrNew([
+                            'marketer_id' => $authuser->id,
+                            'social_id' => $social->id,
+                        ]);
+                        $record->fill([
+                            'link' => $link,
+                            'is_active' => $record->exists ? $record->is_active : 1,
+                        ])->save();
+                    }
+                }
+
+                return response()->json($authuser->id);
+            }
+        }
+    }
+    public function getsocials(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new MarketerSocialRequest();
+
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+            $authuser = auth('api_marketers')->user();
+            if (!($authuser->id == $formdata["id"])) {
+                return response()->json('notexist', 401);
+            } else {
+                $msocial = MarketerSocial::with([
+                    'social' => function ($q) {
+                        $q->where('is_active', 1)
+                            ->select(
+                                'id',
+                                'code',
+                                'link',
+                                'is_active',
+                                'name',
+                                'sequence'
+                            )->orderBy('sequence');
+                    }
+                ])->where('marketer_id', $authuser->id) ->get()
+                ->sortBy(fn($item) => $item->social->sequence)  
+    ->values();
+                return response()->json(MarketerSocialResource::collection($msocial));
+            }
+        }
+    }
     public function provider_redirect($provider)
     {
         if ($provider == 'google') {
@@ -405,7 +486,7 @@ class MarketerController extends Controller
         return response()->json('Success');
     }
 
-  
+
     public function deleteaccount(Request $filerequest)
     {
         $formdata = $filerequest->all();
@@ -435,10 +516,10 @@ class MarketerController extends Controller
                 // $delorder->reason =isset($formdata['reason'])?$formdata['reason']:"-";
                 // $delorder->state = 'w';
                 // $delorder->save();
-                $authuser->is_active=0;
+                $authuser->is_active = 0;
                 $authuser->update([
-                          'is_active' => 0,
-                     ]);
+                    'is_active' => 0,
+                ]);
                 // Client::find($id)->update([
                 //     'is_active' => 0,
                 // ]);
