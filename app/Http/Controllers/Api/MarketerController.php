@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginMarketerRequest;
 use App\Http\Requests\Api\LoginMarketerProviderRequest;
+use App\Http\Requests\Api\ResetPassRequest;
 use App\Http\Controllers\Api\HelpController;
 use App\Http\Requests\Api\MarketerSocialRequest;
 use App\Http\Requests\Api\ProfileMarketerRequest;
@@ -35,6 +36,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\MarketerProfileResource;
 use App\Http\Requests\Api\DeleteMarketerRequest;
 use Illuminate\Support\Arr;
+use App\Http\Controllers\Api\MailController;
 class MarketerController extends Controller
 {
 
@@ -541,6 +543,31 @@ class MarketerController extends Controller
                 // }
                 // // client
                 // $mailctrlr->send_del_mail($delorder->email, $data, 'client');
+                return response()->json($id);
+            }
+        }
+    }
+
+    public function resetpassword(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new ResetPassRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        } else {
+
+            $id = $formdata['id'];
+            $authuser = auth()->user();
+            if (!($authuser->id == $id)) {
+                return response()->json('notexist', 401);
+            } else {               
+                $mailctrlr  =new MailController();
+               $res=   $mailctrlr->send_reset_mail($formdata['email'], $id );
                 return response()->json($id);
             }
         }
