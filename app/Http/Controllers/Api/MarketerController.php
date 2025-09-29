@@ -602,31 +602,41 @@ if($validator->errors()->keys()[0]=="email"){
             $storrequest->rules(),
             $storrequest->messages()
         );
-        if ($validator->fails()) {
-
-            if($validator->errors()->keys()[0]=="email"){
-                $message=$validator->errors()->first();
-               }else{
-                   $message=__('api_messages.user not found');
-               }
+        if ($validator->fails()) {            
             return response()->json(
-                ["success"=>0,"message"=>$message,"data"=>$validator->errors()]                 
+                ["success"=>0,"message"=>__('api_messages.must be email'),"data"=>$validator->errors()]                 
                 , 422);
         } else {
 
-            $id = $formdata['id'];
-            $authuser = auth()->user();
-            // if (!($authuser->id == $id)) {
-            //     return response()->json('notexist', 401);
-            // } else {               
+           // $id = $formdata['id'];
+         //   $authuser = auth()->user();
+         $email=$formdata['email'];
+           $marketer=Marketer::where('email',$email)->where('is_active',1)->first();
+   
+            if (!($marketer)) {
+                return response()->json(["success"=>0,"message"=>__('api_messages.must be email'),"data"=>[]], 401);
+            } else {               
                 $mailctrlr  =new MailController();
-               $res=   $mailctrlr->send_reset_mail($formdata['email'], $id );
+
+                try {
+                    $new_pass=rand(100000, 999999);
+                    $marketer->password =bcrypt($new_pass);
+                    $marketer->save();
+                    $mailctrlr->send_reset_mail($formdata['email'],$new_pass );  
+                    //code...
+                } catch (\Throwable $th) {
+                    return response()->json(["success"=>0,"message"=>__('api_messages.email not sent'),"data"=>[]], 401);
+        
+                }
+            
                 return response()->json(
-                    ["success"=>1,"message"=> __('api_messages.reset order'),"data"=>$id]              
+                    ["success"=>1,"message"=> __('api_messages.email sent'),"data"=>[]]              
                     );
-           // }
+                }
+            }
         }
-    }
+
+    
     /**
      * Refresh a token.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Marketer;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ResetPassRequest extends FormRequest
@@ -22,7 +23,7 @@ class ResetPassRequest extends FormRequest
     public function rules(): array
     {      
        return[
-        'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
+     //   'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
          'email'=>'required|email',  
           //  'mobile'=>'required|between:4,20',  
           //  'reason'=>'nullable|max:1000',  

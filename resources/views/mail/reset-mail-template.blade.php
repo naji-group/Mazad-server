@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب إعادة تعيين كلمة السر </title>
+    <title> إعادة تعيين كلمة المرور </title>
     <style>
         .head-line {
             height: 15px;
@@ -50,11 +50,11 @@
     <div class="col-12">
         <div class="head-line"></div>
         <p class="lead site-name">{{ $data['com_title'] }}</p>
-        <div class="lead code-div">
-           
-            <p>تم ارسال طلب إعادة تعيين كلمة السر للمسوق: <span><strong >{{ $data['marketer_mail'] }}</strong></span></p>
+        <div class="lead code-div">           
+            <p><span><strong >{{ $data['marketer_mail'] }}</strong></span> <span>: تم إعادة تعيين كلمةالمرور للحساب </span></p>
              
-			   <div class="info"> <span>   للإعادة تعيين كلمة السر :<a href="{{route('filament.admin.resources.marketers.edit',$data['marketer_id'])}}">إعادة تعيين </a></span></div>
+			   <div class="info"> <span>   :كلمة المرور الجديدة    </span></div>
+               <div class="info" style="text-align: center"> <span>{{ $data['new_pass'] }} </span></div>
         </div>
         <div class="footer-line"></div>
     </div>

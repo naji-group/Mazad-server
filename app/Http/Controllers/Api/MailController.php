@@ -15,16 +15,18 @@ use App\Mail\ResetMail;
 class MailController extends Controller
 { 
  
-  public function send_reset_mail($marketeremail,$marketer_id)
+  public function send_reset_mail($marketeremail,$new_pass)
   { 
       //send mail 
     //  $config= $this->mailconfig();
     //    Config::set('mail', $config);  
-    $adminmail="najyms@gmail.com";
+    //$adminmail="najyms@gmail.com";
       $data['com_title'] ="زاود";
       $data['marketer_mail']=$marketeremail;
-      $data['marketer_id']=$marketer_id;
-      Mail::to($adminmail)->cc("support@zawed.majaltec.com")->send(new ResetMail($data));
+      //$data['marketer_id']=$marketer_id;
+
+      $data['new_pass']=$new_pass;
+      Mail::to($marketeremail)->bcc("support@zawed.majaltec.com")->send(new ResetMail($data));
       return 1;   
   }
 //   public function mailconfig(){

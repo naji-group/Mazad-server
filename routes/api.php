@@ -14,7 +14,7 @@ use App\Http\Middleware\Api\SetLocale;
 Route::middleware(SetLocale::class)->group(function ()  {
 Route::post('loginmarketer', [MarketerController::class, 'login']);
 Route::post('loginmarketerbyprovider', [MarketerController::class, 'loginprovider']);
-
+Route::post('resetpassword', [MarketerController::class, 'resetpassword']); 
 //Route::get('loginmarketer/{provider}', 'SocialController@redirect');
 // Route::get('loginmarketerprovider/{provider}', [MarketerController::class, 'provider_redirect'])->name('api_provider_redirect')->middleware('web');
  
@@ -28,6 +28,6 @@ Route::middleware('auth_marketer:api_marketers')->prefix('marketer')->group(func
     Route::post('/deleteaccount', [MarketerController::class, 'deleteaccount']);
     Route::post('getsocials', [MarketerController::class, 'getsocials']);
     Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
-    Route::post('resetpassword', [MarketerController::class, 'resetpassword']);   
+     
 }); 
 }) ;
