@@ -47,6 +47,7 @@ return [
     'delete account success'=>'Account deleted successfully',
     'social info'=>'Social media information',
     'reset order'=>'The password reset request has been sent to the administration.',
+    'Unauthenticated'=>'Unauthenticated',
   'Forgot your password? No problem' => 'نسيت كلمة السر؟ لا مشكلة. فقط أخبرنا بعنوان بريدك الإلكتروني وسنرسل إليك عبر البريد الإلكتروني رابط إعادة تعيين كلمة المرور الذي سيسمح لك باختيار كلمة مرور جديدة.',
 'Email Password Reset Link' => 'رابط إعادة تعيين كلمة المرور للبريد الإلكتروني',
 'amount_bigger' =>'القيمة اكبر من الرصيد الحالي',

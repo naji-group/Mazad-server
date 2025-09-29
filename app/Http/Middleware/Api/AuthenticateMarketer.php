@@ -11,7 +11,8 @@ class AuthenticateMarketer extends Middleware
 
     protected function unauthenticated($request, array $guards)
     {
-        abort(response()->json(['error' => 'Unauthenticated'], 401));
+        abort(response()->json(
+            ["success"=>0,"message"=> __('api_messages.Unauthenticated'),"data"=>[]], 401));
     }
 
     /**
@@ -21,6 +22,6 @@ class AuthenticateMarketer extends Middleware
      */
      protected function redirectTo(Request $request): ?string
     {
-        return $request->expectsJson() ? null :  abort(response()->json(['error' => 'Unauthenticated'], 401));
+        return $request->expectsJson() ? null :  abort(response()->json( ["success"=>0,"message"=> __('api_messages.Unauthenticated'),"data"=>[]], 401));
     }
 }
