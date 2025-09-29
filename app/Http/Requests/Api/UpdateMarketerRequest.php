@@ -22,10 +22,9 @@ class UpdateMarketerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name' => 'required|string|max:100',
+            'full_name' => 'required|string|max:200',
             'password' => 'nullable|max:100',
-            'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
- 
+            'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id, 
 'local_image'=>'nullable|file'
  
            // 'password' => 'required_without:email',
@@ -36,7 +35,7 @@ class UpdateMarketerRequest extends FormRequest
 {
  
    return[     
-     'full_name.required'=>'The full_name is required',
+     'full_name.*'=>'The full_name is required',
   //   'name.alpha_num'=>'The name format must be alphabet',
     // 'unique.unique'=>'The name is already exist',
   //  'email.required'=>'Email is required',

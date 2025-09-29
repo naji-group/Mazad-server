@@ -34,7 +34,7 @@ class UpdateSocialMarketerRequest extends FormRequest
 {
  
    return[     
-     'full_name.required'=>'The full_name is required',
+     'id.required'=>'The id is required',
   //   'name.alpha_num'=>'The name format must be alphabet',
     // 'unique.unique'=>'The name is already exist',
   //  'email.required'=>'Email is required',

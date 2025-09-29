@@ -29,10 +29,10 @@ class LoginMarketerRequest extends FormRequest
         ];
     }
     public function messages(): array
-{
- 
+{ 
    return[     
-     'username.required'=>'The username is required',
+     'username.*'=>__('api_messages.user_name is required'),
+      'password.*'=>__('api_messages.password required'),
   //   'name.alpha_num'=>'The name format must be alphabet',
     // 'unique.unique'=>'The name is already exist',
   //  'email.required'=>'Email is required',

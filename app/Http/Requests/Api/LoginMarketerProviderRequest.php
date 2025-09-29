@@ -22,7 +22,7 @@ class LoginMarketerProviderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string|max:100|email',
+            'email' => 'required|string|max:200|email',
             'name'=>'nullable',
              'provider_token'=>'nullable',
              'provider_user_id'=>'nullable',
@@ -34,8 +34,13 @@ class LoginMarketerProviderRequest extends FormRequest
     public function messages(): array
 {
  
-   return[     
-     'email.required'=>'The email is required',
+   return[   
+  
+     'email.required'=> __('api_messages.this field is required'),
+     'email.email'=> __('api_messages.this field is required'),
+     'email.string'=> __('api_messages.this field is required'),
+     'email.max'=> __('api_messages.this field is required'),
+
   //   'name.alpha_num'=>'The name format must be alphabet',
     // 'unique.unique'=>'The name is already exist',
   //  'email.required'=>'Email is required',
