@@ -52,7 +52,7 @@ class MarketerForm
                             ->email()
                             ->maxLength(100)
                             //->filter(fn (string $value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null) // Enforces a valid domain extension
-                            ->nullable()
+                            ->required()
                             ->unique(modifyRuleUsing: function ($rule) {
                                 return $rule->where('is_active', 1);
                             })
