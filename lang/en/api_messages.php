@@ -36,7 +36,7 @@ return [
     'must be alpha' => 'هذا الحقل يجب ان لا يحوي رموز',
     'this field exist' => 'هذا الحقل موجود مسبقا',
     'auth.fail'=>'البريد الالكتروني او كلمة السر خاطئة',
-    'auth.name.fail'=>'اسم المستخدم او كلمة السر خاطئة',
+    'auth.name.fail'=>'Username or password is incorrect',
     'auth.fail login'=>'Login faild',
     'auth.login success'=>'Login success',
     'form.fill required'=>'Please fill all required fields',

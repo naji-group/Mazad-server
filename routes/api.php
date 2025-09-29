@@ -10,8 +10,8 @@ use App\Http\Middleware\Api\SetLocale;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-//Route::post('registermarketer', [MarketerController::class, 'register']);
-Route::prefix('{lang}')->middleware(SetLocale::class)->group(function ()  {
+//Route::post('registermarketer', [MarketerController::class, 'register']);//prefix('{lang}')->
+Route::middleware(SetLocale::class)->group(function ()  {
 Route::post('loginmarketer', [MarketerController::class, 'login']);
 Route::post('loginmarketerbyprovider', [MarketerController::class, 'loginprovider']);
 

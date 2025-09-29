@@ -48,6 +48,7 @@ class MarketerController extends Controller
      */
     public function login(Request $request)
     {
+        //$lang=app()->getLocale();
         $formdata = $request->all();
         $storrequest = new LoginMarketerRequest();
         //  $storrequest->request()=$formdata ;
@@ -108,9 +109,9 @@ class MarketerController extends Controller
 
     }
     //provider
-    function loginprovider(Request $request,$lang)
+    function loginprovider(Request $request)
     {
-        app()->setLocale($lang);
+       
         $formdata = $request->all();
         $storrequest = new LoginMarketerProviderRequest();
         //  $storrequest->request()=$formdata ;
@@ -255,9 +256,12 @@ if($validator->errors()->keys()[0]=="email"){
         return 1;
     }
 
-    public function getprofile(Request $request,$lang=null)
-    {
-        app()->setLocale($lang);
+    public function getprofile(Request $request)
+    {     
+        //     $lang=$request->header('lang')?$request->header('lang'):env('APP_LOCALE','ar');
+      
+        // app()->setLocale($lang);
+        // $lang=app()->getLocale();
         $formdata = $request->all();
         $storrequest = new ProfileMarketerRequest();
      
