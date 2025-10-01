@@ -76,7 +76,7 @@
 		<script src="{{ asset('site/js/slick.min.js')}}"></script>
 		<script src="{{ asset('site/js/nouislider.min.js')}}"></script>
 		<script src="{{ asset('site/js/jquery.zoom.min.js')}}"></script>
-		<script src="{{ asset('site/js/main.js"></script>
-  
+		{{-- <script src="{{ asset('site/js/main.js')}}"></script> --}}
+   @yield('js')
 	</body>
 </html>

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\NotifyController;
 //use App\Http\Controllers\Web\MarketerAuthController;
 //use Laravel\Socialite\Facades\Socialite;
 
@@ -34,6 +35,13 @@ Route::get('/routeclear', function () {
     return 'ok';
   });
 Route::get('/', [HomeController::class, 'index'])->name('site.home') ;
+Route::get('testnot', [NotifyController::class, 'index']);
+Route::post('saveToken', [NotifyController::class, 'savetoken'])->name('saveToken');
+ Route::post('sendNotification', [NotifyController::class, 'sendNotification']);
+ Route::post('sendbytoken', [NotifyController::class, 'sendbytoken']);
+ Route::get('testnotify', [NotifyController::class, 'testnotify']);
+
+
 /*
 Route::prefix('marketer')->group(function () {
     Route::get('/login', [MarketerAuthController::class, 'showLoginForm'])->name('marketer.login');
