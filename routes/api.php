@@ -28,6 +28,6 @@ Route::middleware('auth_marketer:api_marketers')->prefix('marketer')->group(func
     Route::post('/deleteaccount', [MarketerController::class, 'deleteaccount']);
     Route::post('getsocials', [MarketerController::class, 'getsocials']);
     Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
-     
+    Route::post('savefirebasetoken', [MarketerController::class, 'savetoken']); 
 }); 
 }) ;

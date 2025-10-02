@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Client\SaveFireTokenRequest;
 use App\Http\Requests\Api\LoginMarketerRequest;
 use App\Http\Requests\Api\LoginMarketerProviderRequest;
 use App\Http\Requests\Api\ResetPassRequest;
@@ -61,7 +62,9 @@ class MarketerController extends Controller
         if ($validator->fails()) {
 
             return response()->json(
-                ["success"=>0,"message"=>$validator->errors()?->first(),"data"=>$validator->errors()], 422);
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()],
+                422
+            );
 
         } else {
             if (isset($formdata['username']) && isset($formdata['password'])) {
@@ -71,13 +74,17 @@ class MarketerController extends Controller
                     ->where('is_active', 1)->first();
                 if (!$user) {
                     return response()->json(
-                        ["success"=>0,"message"=> __('api_messages.auth.name.fail'),"data"=>[]]                       
-                        , 401);
+                        ["success" => 0, "message" => __('api_messages.auth.name.fail'), "data" => []]
+                        ,
+                        401
+                    );
                 }
                 if (!Hash::check($password, $user->password)) {
-                    return response()->json(  
-                        ["success"=>0,"message"=> __('api_messages.auth.name.fail'),"data"=>[]] 
-                         , 401);
+                    return response()->json(
+                        ["success" => 0, "message" => __('api_messages.auth.name.fail'), "data" => []]
+                        ,
+                        401
+                    );
                 }
                 //ok 
                 $user->login_type = 'local';
@@ -88,12 +95,12 @@ class MarketerController extends Controller
                 //     ]
                 // );
                 if (!$token = auth('api_marketers')->fromUser($user)) {
-                    return response()->json( ["success"=>0,"message"=> __('api_messages.auth.fail login'),"data"=>[]], 401);
+                    return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
                 // auth('api_marketers')->login($user);
-                return response()->json(                    
-                    ["success"=>1,"message"=> __('api_messages.auth.login success'),"data"=>[ 'token' => $token]]                      
-                 );
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.auth.login success'), "data" => ['token' => $token]]
+                );
 
             }
             // elseif (isset($request['email'])) {
@@ -102,8 +109,10 @@ class MarketerController extends Controller
             // }
             else {
                 return response()->json(
-                    ["success"=>0,"message"=> __('api_messages.auth.name.fail'),"data"=>[]]                       
-                    , 401);
+                    ["success" => 0, "message" => __('api_messages.auth.name.fail'), "data" => []]
+                    ,
+                    401
+                );
             }
         }
 
@@ -111,7 +120,7 @@ class MarketerController extends Controller
     //provider
     function loginprovider(Request $request)
     {
-       
+
         $formdata = $request->all();
         $storrequest = new LoginMarketerProviderRequest();
         //  $storrequest->request()=$formdata ;
@@ -122,15 +131,17 @@ class MarketerController extends Controller
             $storrequest->messages()
         );
         if ($validator->fails()) {
-            $message="";
-if($validator->errors()->keys()[0]=="email"){
- $message=$validator->errors()->first();
-}else{
-    $message=__('api_messages.auth.fail login');
-}
+            $message = "";
+            if ($validator->errors()->keys()[0] == "email") {
+                $message = $validator->errors()->first();
+            } else {
+                $message = __('api_messages.auth.fail login');
+            }
             return response()->json(
-                ["success"=>0,"message"=>$message,"data"=>$validator->errors()]
-                , 422);
+                ["success" => 0, "message" => $message, "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
             $user_email = $formdata['email'];
             // $googleUser = Socialite::driver($provider)->stateless()->user();
@@ -156,16 +167,19 @@ if($validator->errors()->keys()[0]=="email"){
                 //      ]
                 //  );
                 if (!$token = auth('api_marketers')->fromUser($user)) {
-                   
-                        return response()->json( ["success"=>0,"message"=> __('api_messages.auth.fail login'),"data"=>[]], 401);       
+
+                    return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
                 return response()->json(
-                    ["success"=>1,"message"=> __('api_messages.auth.login success'),"data"=>[ 'token' => $token]]                      
-             
-                     );
+                    ["success" => 1, "message" => __('api_messages.auth.login success'), "data" => ['token' => $token]]
+
+                );
             } else {
-                return response()->json( ["success"=>0,"message"=> __('api_messages.auth.name.fail'),"data"=>[]]                       
-                , 401);
+                return response()->json(
+                    ["success" => 0, "message" => __('api_messages.auth.name.fail'), "data" => []]
+                    ,
+                    401
+                );
             }
         }
     }
@@ -182,31 +196,31 @@ if($validator->errors()->keys()[0]=="email"){
             $storrequest->messages()
         );
         if ($validator->fails()) {
-           
-            return response()->json( ["success"=>0,"message"=>__('api_messages.form.fill required'),"data"=>$validator->errors()], 422);
+
+            return response()->json(["success" => 0, "message" => __('api_messages.form.fill required'), "data" => $validator->errors()], 422);
         } else {
             $authuser = auth('api_marketers')->user();
             // if (!($authuser->id == $formdata["id"])) {
-                
+
             //     return response()->json('notexist', 401);
             // } else {
-                $authuser->full_name = $formdata["full_name"];
+            $authuser->full_name = $formdata["full_name"];
 
 
-                if (isset($formdata['password'])) {
-                    $password = trim($formdata['password']);
-                    $authuser->password = bcrypt($password);
+            if (isset($formdata['password'])) {
+                $password = trim($formdata['password']);
+                $authuser->password = bcrypt($password);
 
-                }
-                if ($request->hasFile('local_image')) {
-                    $file = $request->file('local_image');
-                    $this->storeImage($file, $authuser);
-                }
-                $authuser->save();
-                return response()->json(
-                    ["success"=>1,"message"=> __('api_messages.form.success save'),"data"=>$authuser->id]                      
-                    );
-            
+            }
+            if ($request->hasFile('local_image')) {
+                $file = $request->file('local_image');
+                $this->storeImage($file, $authuser);
+            }
+            $authuser->save();
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.form.success save'), "data" => $authuser->id]
+            );
+
         }
     }
 
@@ -257,14 +271,14 @@ if($validator->errors()->keys()[0]=="email"){
     }
 
     public function getprofile(Request $request)
-    {     
+    {
         //     $lang=$request->header('lang')?$request->header('lang'):env('APP_LOCALE','ar');
-      
+
         // app()->setLocale($lang);
         // $lang=app()->getLocale();
         $formdata = $request->all();
         $storrequest = new ProfileMarketerRequest();
-     
+
         $validator = Validator::make(
             $formdata,
             $storrequest->rules(),
@@ -273,31 +287,36 @@ if($validator->errors()->keys()[0]=="email"){
         if ($validator->fails()) {
             // app()->setLocale('ar');
             return response()->json(
-                ["success"=>0,"message"=>$validator->errors()?->first(),"data"=>$validator->errors()]
-                , 422);
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
             $authuser = auth('api_marketers')->user();
             // if (!($authuser->id == $formdata["id"])) {
             //     return response()->json('notexist', 401);
             // } else {
-                $user = Marketer::where('is_active', 1)->where('id', $authuser->id)
-                    ->select(
-                        'id',
-                        'full_name',
-                        'login_type',
-                        'is_active',
-                        //'email',
-                        'local_image',
-                    )->first();
-                if (!$user) {
-                    return response()->json( ["success"=>0,"message"=> __('api_messages.user not found'),"data"=>[]]                       
-                    , 401);               
+            $user = Marketer::where('is_active', 1)->where('id', $authuser->id)
+                ->select(
+                    'id',
+                    'full_name',
+                    'login_type',
+                    'is_active',
+                    //'email',
+                    'local_image',
+                )->first();
+            if (!$user) {
+                return response()->json(
+                    ["success" => 0, "message" => __('api_messages.user not found'), "data" => []]
+                    ,
+                    401
+                );
 
-                }
-                $resuser = new MarketerProfileResource($user);
-                return response()->json( 
-                    ["success"=>1,"data"=>$resuser,"message"=> __('api_messages.profile sent')]
-                    );            
+            }
+            $resuser = new MarketerProfileResource($user);
+            return response()->json(
+                ["success" => 1, "data" => $resuser, "message" => __('api_messages.profile sent')]
+            );
         }
     }
     //social setting
@@ -314,35 +333,37 @@ if($validator->errors()->keys()[0]=="email"){
         );
         if ($validator->fails()) {
             return response()->json(
-               ["success"=>0,"message"=> __('api_messages.user not found'),"data"=>$validator->errors()]
-                , 422);
+                ["success" => 0, "message" => __('api_messages.user not found'), "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
             $authuser = auth('api_marketers')->user();
             // if (!($authuser->id == $formdata["id"])) {
             //     return response()->json('notexist', 401);
             // } else {
 
-                $data = json_decode($request->getContent(), true);
-                $dataArr = Arr::except($data, ['id']);
-                $socials = Social::where('is_active', 1)->get();
-                foreach ($dataArr as $key => $link) {
-                    $social = $socials->where('code', $key)->first();
-                    if ($social) {
-                        $record = MarketerSocial::firstOrNew([
-                            'marketer_id' => $authuser->id,
-                            'social_id' => $social->id,
-                        ]);
-                        $record->fill([
-                            'link' => $link,
-                            'is_active' => $record->exists ? $record->is_active : 1,
-                        ])->save();
-                    }
+            $data = json_decode($request->getContent(), true);
+            $dataArr = Arr::except($data, ['id']);
+            $socials = Social::where('is_active', 1)->get();
+            foreach ($dataArr as $key => $link) {
+                $social = $socials->where('code', $key)->first();
+                if ($social) {
+                    $record = MarketerSocial::firstOrNew([
+                        'marketer_id' => $authuser->id,
+                        'social_id' => $social->id,
+                    ]);
+                    $record->fill([
+                        'link' => $link,
+                        'is_active' => $record->exists ? $record->is_active : 1,
+                    ])->save();
                 }
+            }
 
-                return response()->json(
-                    ["success"=>1,"message"=> __('api_messages.form.success save'),"data"=>$authuser->id]                      
-                   );
-          //  }
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.form.success save'), "data" => $authuser->id]
+            );
+            //  }
         }
     }
     public function getsocials(Request $request)
@@ -358,33 +379,35 @@ if($validator->errors()->keys()[0]=="email"){
         if ($validator->fails()) {
 
             return response()->json(
-                ["success"=>0,"message"=> __('api_messages.user not found'),"data"=>$validator->errors()] 
-                , 422);
+                ["success" => 0, "message" => __('api_messages.user not found'), "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
             $authuser = auth('api_marketers')->user();
             // if (!($authuser->id == $formdata["id"])) {
             //     return response()->json('notexist', 401);
             // } else {
-                $msocial = MarketerSocial::with([
-                    'social' => function ($q) {
-                        $q->where('is_active', 1)
-                            ->select(
-                                'id',
-                                'code',
-                                'link',
-                                'is_active',
-                                'name',
-                                'sequence'
-                            )->orderBy('sequence');
-                    }
-                ])->where('marketer_id', $authuser->id) ->get()
-                ->sortBy(fn($item) => $item->social->sequence)  
-    ->values();
-                return response()->json(
-                    ["success"=>1,"data"=>MarketerSocialResource::collection($msocial),"message"=> __('api_messages.social info')]
-                    
-                
-                );
+            $msocial = MarketerSocial::with([
+                'social' => function ($q) {
+                    $q->where('is_active', 1)
+                        ->select(
+                            'id',
+                            'code',
+                            'link',
+                            'is_active',
+                            'name',
+                            'sequence'
+                        )->orderBy('sequence');
+                }
+            ])->where('marketer_id', $authuser->id)->get()
+                ->sortBy(fn($item) => $item->social->sequence)
+                ->values();
+            return response()->json(
+                ["success" => 1, "data" => MarketerSocialResource::collection($msocial), "message" => __('api_messages.social info')]
+
+
+            );
             // }
         }
     }
@@ -521,7 +544,7 @@ if($validator->errors()->keys()[0]=="email"){
         // ]);
         auth('api_marketers')->logout();
 
-        return response()->json(["success"=>1,"message"=>__('api_messages.logout success'),"data"=>[] ]);
+        return response()->json(["success" => 1, "message" => __('api_messages.logout success'), "data" => []]);
     }
     public function logout()
     {
@@ -542,8 +565,10 @@ if($validator->errors()->keys()[0]=="email"){
         );
         if ($validator->fails()) {
             return response()->json(
-                ["success"=>0,"message"=> __('api_messages.user not found'),"data"=> $validator->errors()]
-                , 422);
+                ["success" => 0, "message" => __('api_messages.user not found'), "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
 
             $id = $formdata['id'];
@@ -551,45 +576,45 @@ if($validator->errors()->keys()[0]=="email"){
             // if (!($authuser->id == $id)) {
             //     return response()->json('notexist', 401);
             // } else {
-                // ClientDelOrder::where('client_id', $id)->delete();
-                // $client = Client::find($id);
-                // $setctrlr = new SettingController();
-                // $mailctrlr = new MailController();
-                // $delorder = new ClientDelOrder();
-                // $delorder->client_id = $id;
-                // $delorder->email = $formdata['email'];
-                // $delorder->mobile = $formdata['mobile'];
-                // $delorder->reason =isset($formdata['reason'])?$formdata['reason']:"-";
-                // $delorder->state = 'w';
-                // $delorder->save();
-                $authuser->is_active = 0;
-                $authuser->update([
-                    'is_active' => 0,
-                ]);
+            // ClientDelOrder::where('client_id', $id)->delete();
+            // $client = Client::find($id);
+            // $setctrlr = new SettingController();
+            // $mailctrlr = new MailController();
+            // $delorder = new ClientDelOrder();
+            // $delorder->client_id = $id;
+            // $delorder->email = $formdata['email'];
+            // $delorder->mobile = $formdata['mobile'];
+            // $delorder->reason =isset($formdata['reason'])?$formdata['reason']:"-";
+            // $delorder->state = 'w';
+            // $delorder->save();
+            $authuser->is_active = 0;
+            $authuser->update([
+                'is_active' => 0,
+            ]);
 
-                // Client::find($id)->update([
-                //     'is_active' => 0,
-                // ]);
+            // Client::find($id)->update([
+            //     'is_active' => 0,
+            // ]);
 
-                auth('api_marketers')->logout();
+            auth('api_marketers')->logout();
 
-                // $admin_email = $setctrlr->findbyname('admin_email')->value;
-                // $data = [
-                //     'com_title' => config('app.name', 'Rouh'),
-                //     'client_name' => $client->user_name,
-                //     'client_email' => $delorder->email,
-                //     'client_mobile' => $delorder->mobile,
-                //     'reason' => $delorder->reason,
-                //     'order_id' => $delorder->id,
-                // ];
-                // //admin
-                // if ($admin_email) {
-                //     $mailctrlr->send_del_mail($admin_email, $data, 'admin');
-                // }
-                // // client
-                // $mailctrlr->send_del_mail($delorder->email, $data, 'client');
-                return response()->json(["success"=>1,"message"=>__('api_messages.delete account success'),"data"=>$id ]);
-           // }
+            // $admin_email = $setctrlr->findbyname('admin_email')->value;
+            // $data = [
+            //     'com_title' => config('app.name', 'Rouh'),
+            //     'client_name' => $client->user_name,
+            //     'client_email' => $delorder->email,
+            //     'client_mobile' => $delorder->mobile,
+            //     'reason' => $delorder->reason,
+            //     'order_id' => $delorder->id,
+            // ];
+            // //admin
+            // if ($admin_email) {
+            //     $mailctrlr->send_del_mail($admin_email, $data, 'admin');
+            // }
+            // // client
+            // $mailctrlr->send_del_mail($delorder->email, $data, 'client');
+            return response()->json(["success" => 1, "message" => __('api_messages.delete account success'), "data" => $id]);
+            // }
         }
     }
 
@@ -602,41 +627,43 @@ if($validator->errors()->keys()[0]=="email"){
             $storrequest->rules(),
             $storrequest->messages()
         );
-        if ($validator->fails()) {            
+        if ($validator->fails()) {
             return response()->json(
-                ["success"=>0,"message"=>__('api_messages.must be email'),"data"=>$validator->errors()]                 
-                , 422);
+                ["success" => 0, "message" => __('api_messages.must be email'), "data" => $validator->errors()]
+                ,
+                422
+            );
         } else {
 
-           // $id = $formdata['id'];
-         //   $authuser = auth()->user();
-         $email=$formdata['email'];
-           $marketer=Marketer::where('email',$email)->where('is_active',1)->first();
-   
+            // $id = $formdata['id'];
+            //   $authuser = auth()->user();
+            $email = $formdata['email'];
+            $marketer = Marketer::where('email', $email)->where('is_active', 1)->first();
+
             if (!($marketer)) {
-                return response()->json(["success"=>0,"message"=>__('api_messages.must be email'),"data"=>[]], 401);
-            } else {               
-                $mailctrlr  =new MailController();
+                return response()->json(["success" => 0, "message" => __('api_messages.must be email'), "data" => []], 401);
+            } else {
+                $mailctrlr = new MailController();
 
                 try {
-                    $new_pass=rand(100000, 999999);
-                    $marketer->password =bcrypt($new_pass);
+                    $new_pass = rand(100000, 999999);
+                    $marketer->password = bcrypt($new_pass);
                     $marketer->save();
-                    $mailctrlr->send_reset_mail($formdata['email'],$new_pass );  
+                    $mailctrlr->send_reset_mail($formdata['email'], $new_pass);
                     //code...
                 } catch (\Throwable $th) {
-                    return response()->json(["success"=>0,"message"=>__('api_messages.email not sent'),"data"=>[]], 401);
-        
+                    return response()->json(["success" => 0, "message" => __('api_messages.email not sent'), "data" => []], 401);
+
                 }
-            
+
                 return response()->json(
-                    ["success"=>1,"message"=> __('api_messages.email sent'),"data"=>[]]              
-                    );
-                }
+                    ["success" => 1, "message" => __('api_messages.email sent'), "data" => []]
+                );
             }
         }
+    }
 
-    
+
     /**
      * Refresh a token.
      *
@@ -669,6 +696,38 @@ if($validator->errors()->keys()[0]=="email"){
             'expires_in' => auth('api_marketers')->factory()->getTTL() * 60
         ]);
     }
+    public function savetoken()
+    {
 
+        $request = request();
 
+        $formdata = $request->all();
+        //client_id
+//points
+        $storrequest = new SaveFireTokenRequest();//php artisan make:request Api/Expertfavorite/StoreRequest
+
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => __('api_messages.data empty'), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            $marketer_id = $formdata['id'];
+            //save token in client 
+            Marketer::find($marketer_id)->update(
+                [
+                    'firebase_token' => $formdata["firebase_token"],
+                ]
+            );
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.form.success save'), "data" => []]
+            );
+        }
+    }
 }

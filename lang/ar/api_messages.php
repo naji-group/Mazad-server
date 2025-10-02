@@ -54,5 +54,6 @@ return [
 'faild'=>'فشلت العملية',
 'file must be video'=>'الملف يجب ان يكون فيديو',
 'file size is too larg'=>'حجم الملف كبير',
+'data empty'=>'يوجد نقص في البيانات'
 ];
 //{{ __('general.welcome_name',['Name'=>'احمد']) }}
