@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Client\SaveFireTokenRequest;
+use App\Http\Requests\Api\SaveFireTokenRequest;
 use App\Http\Requests\Api\LoginMarketerRequest;
 use App\Http\Requests\Api\LoginMarketerProviderRequest;
 use App\Http\Requests\Api\ResetPassRequest;
