@@ -25,7 +25,7 @@ class UserForm
                     Select::make('role')
                     ->label('الصفة')
                     ->options([
-                        'admin' => 'مدير',
+                        'admin_user' => 'مدير',
                         'supervisor' => 'مشرف',
                        
                     ])

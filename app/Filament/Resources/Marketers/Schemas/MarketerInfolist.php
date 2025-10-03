@@ -7,6 +7,11 @@ use Filament\Schemas\Schema;
 use Filament\Infolists\Components\IconEntry;
 use App\Models\Marketer;
 use App\Filament\Forms\Components\ImageWithPreview;
+
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Group;
+ 
+use App\Models\Social;
 class MarketerInfolist
 {
     public static function configure(Schema $schema): Schema
@@ -43,6 +48,38 @@ class MarketerInfolist
                 ->nullable(),
                 // TextEntry::make('updated_at')
                 //     ->dateTime(),
+
+                Section::make('الحسابات الاجتماعية')
+               
+                ->schema(function (Marketer $record) {
+                    $fields = [];
+
+                    foreach (
+                        Social::with([
+                            'marketersocials' => function ($q) use ($record) {
+                                $q->where('marketer_id', $record->id);
+                            }
+                        ])->orderBy('sequence')->get() as $social
+                    ) {
+                        $marketerSocial = $social->marketersocials?->first();
+
+                        $fields[] = Group::make([
+                            TextEntry::make("socials.{$social->id}.link")
+                                ->label("رابط {$social->name}")
+                                ->default($marketerSocial?->link ?? '-')
+                                ->url(fn () => $marketerSocial?->link, true) // عرض كرابط
+                                ->columnSpan(3),
+
+                            IconEntry::make("socials.{$social->id}.is_active")
+                                ->label("تفعيل {$social->name}")
+                                ->boolean()
+                                ->default((bool) $marketerSocial?->is_active)
+                                ->columnSpan(1),
+                        ])->columns(4)->columnSpanFull();
+                    }
+
+                    return $fields;
+                })->columnSpanFull(),
             ]);
     }
 }

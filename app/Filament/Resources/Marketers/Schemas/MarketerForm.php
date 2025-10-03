@@ -160,7 +160,7 @@ class MarketerForm
                                                     ;
                                                     $component->state($value);
                                                 }
-                                            }),
+                                            })->columnSpan(3),
                                         Toggle::make("socials.{$social->id}.is_active")
                                             ->label("تفعيل {$social->name}")
                                             ->hiddenOn('create')
@@ -170,9 +170,11 @@ class MarketerForm
 
                                                     $component->state($value);
                                                 }
-                                            }),
+                                            })
+                                             ->columnSpan(1)
+                                            ,
 
-                                    ]);
+                                    ])->columnSpanFull()->columns(4);
                                 }
 
                                 return $fields;
@@ -181,7 +183,7 @@ class MarketerForm
                         },
 
 
-                    )->columnSpanFull(),
+                    )->columnSpanFull()->columns(4),
                     // EditAction::make()
                     // ->mutateDataUsing(function (array $data): array {
                     //     \Log::debug('pathImg', [
