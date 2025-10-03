@@ -24,7 +24,7 @@ class SaveFireTokenRequest extends FormRequest
        
       
        return[      
-         'client_id'=>'required|integer|not_in:0|in:'.auth('api_marketers')->user()->id,        
+         'id'=>'required|integer|not_in:0|in:'.auth('api_marketers')->user()->id,        
         'token'=>'required',  
        
        ];   
