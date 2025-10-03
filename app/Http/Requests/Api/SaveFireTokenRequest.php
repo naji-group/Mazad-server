@@ -25,7 +25,7 @@ class SaveFireTokenRequest extends FormRequest
       
        return[      
          'id'=>'required|integer|not_in:0|in:'.auth('api_marketers')->user()->id,        
-        'token'=>'required',  
+        'firebase_token'=>'required',  
        
        ];   
     
