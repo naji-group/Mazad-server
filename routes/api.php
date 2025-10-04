@@ -29,5 +29,6 @@ Route::middleware('auth_marketer:api_marketers')->prefix('marketer')->group(func
     Route::post('getsocials', [MarketerController::class, 'getsocials']);
     Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
     Route::post('savefirebasetoken', [MarketerController::class, 'savetoken']); 
+    Route::post('sendnotify', [MarketerController::class, 'sendnotify']); 
 }); 
 }) ;

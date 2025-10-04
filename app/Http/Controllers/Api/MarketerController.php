@@ -11,9 +11,11 @@ use App\Http\Controllers\Api\HelpController;
 use App\Http\Requests\Api\MarketerSocialRequest;
 use App\Http\Requests\Api\ProfileMarketerRequest;
 use App\Http\Requests\Api\UpdateSocialMarketerRequest;
+use App\Http\Resources\MarketerNotificationResource;
 use App\Http\Resources\MarketerSocialResource;
 use App\Models\MarketerSocial;
 use App\Models\Social;
+use App\Notifications\MarketerNotification;
 use Illuminate\Http\Request;
 use App\Models\Marketer;
 use App\Http\Requests\Api\StoreMarketerRequest;
@@ -727,6 +729,50 @@ class MarketerController extends Controller
             );
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.form.success save'), "data" => []]
+            );
+        }
+    }
+
+    public function sendnotify()
+    {
+
+        $request = request();
+
+        $formdata = $request->all();
+        //client_id
+//points
+        $storrequest = new SaveFireTokenRequest();//php artisan make:request Api/Expertfavorite/StoreRequest
+
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => __('api_messages.data empty'), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            $date=now();
+            $marketer_id = $formdata['id'];
+            //save token in client 
+            $marketer= Marketer::find($marketer_id);
+            $marketer->unreadNotifications->markAsRead();
+//$marketer->notifications()->delete();//حذف
+//ارسال اشعار
+            $marketer->notify(new MarketerNotification('عنوان', 'نص الإشعار'.'-'.$date, ['id'=>$marketer->id]));
+          
+            $notifications = auth('api_marketers')->user()
+            ->notifications()
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->orderByRaw('read_at IS NULL DESC')
+            ->orderBy('created_at', 'desc')
+            ->get();
+           
+            return response()->json(
+                ["success" => 1, "message" => 'تم ارسال الاشعار', "data" => MarketerNotificationResource::collection($notifications)]
             );
         }
     }

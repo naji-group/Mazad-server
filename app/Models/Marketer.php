@@ -13,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 class Marketer extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens,Notifiable;
+    use HasApiTokens,Notifiable; 
     protected $table = 'marketers';
     protected $fillable = [
       'first_name',
