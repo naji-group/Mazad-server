@@ -22,7 +22,7 @@ use App\Http\Requests\Api\StoreMarketerRequest;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Api\UpdateMarketerRequest;
-
+ 
 use Illuminate\Support\Facades\Storage;
 use File;
 use Illuminate\Support\Carbon;
@@ -41,6 +41,8 @@ use App\Http\Requests\Api\DeleteMarketerRequest;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Api\MailController;
 use phpDocumentor\Reflection\Types\Object_;
+
+use App\Jobs\SendMarketerNotification;
 class MarketerController extends Controller
 {
 
@@ -759,12 +761,18 @@ class MarketerController extends Controller
             $marketer_id = $formdata['id'];
             //save token in client 
             $marketer= Marketer::find($marketer_id);
-            $marketer->unreadNotifications->markAsRead();
+          //  $marketer->unreadNotifications->markAsRead();
 //$marketer->notifications()->delete();//حذف
 //ارسال اشعار
-            $marketer->notify(new MarketerNotification('عنوان', 'نص الإشعار'.'-'.$date, ['id'=>$marketer->id]));
+SendMarketerNotification::dispatch(
+   [$marketer_id],
+    'عرض جديد 🎉',
+    'تم إضافة عرض جديد، يرجى المتابعة'.'-'.$date,
+    ['order_id' => 123] 
+);
+           // $marketer->notify(new MarketerNotification('عنوان', 'نص الإشعار'.'-'.$date, ['id'=>$marketer->id]));
           
-            $notifications = auth('api_marketers')->user()
+            $notifications =$marketer
             ->notifications()
             ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->orderByRaw('read_at IS NULL DESC')

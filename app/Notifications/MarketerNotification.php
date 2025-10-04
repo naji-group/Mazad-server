@@ -103,10 +103,7 @@ class MarketerNotification extends Notification
                       ],
                      "notification" =>
                      // [ "title" =>null ]
-                     [ "title" => $this->title  
-                     ,
-                     "body"=>$this->body                
-                    ]
+                     [ "title" => $this->title ,"body"=>$this->body]
                      ,
                      "data" => $dataArr ,   
                      'apns' => [
