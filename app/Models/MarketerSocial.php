@@ -12,6 +12,7 @@ class MarketerSocial extends Model
 'social_id',
 'link',
 'is_active',
+'access_token'
 
     ];
     public function social(): BelongsTo

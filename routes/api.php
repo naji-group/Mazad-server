@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LiveController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MarketerController;
@@ -21,14 +22,23 @@ Route::post('resetpassword', [MarketerController::class, 'resetpassword']);
 // Route::get('loginmarketerprovider/callback/{provider}', [MarketerController::class, 'callback_provider'])->name('callback_provider');
  
 
-Route::middleware('auth_marketer:api_marketers')->prefix('marketer')->group(function () {
-    Route::post('updateprofile', [MarketerController::class, 'updateprofile']);
-    Route::post('getprofile', [MarketerController::class, 'getprofile']);
-    Route::post('/logout', [MarketerController::class, 'logout_marketer']);
-    Route::post('/deleteaccount', [MarketerController::class, 'deleteaccount']);
-    Route::post('getsocials', [MarketerController::class, 'getsocials']);
-    Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
-    Route::post('savefirebasetoken', [MarketerController::class, 'savetoken']); 
-    Route::post('sendnotify', [MarketerController::class, 'sendnotify']); 
+Route::middleware('auth_marketer:api_marketers')->group(function () {
+    Route::prefix('marketer')->group(function () {
+        Route::post('updateprofile', [MarketerController::class, 'updateprofile']);
+        Route::post('getprofile', [MarketerController::class, 'getprofile']);
+        Route::post('/logout', [MarketerController::class, 'logout_marketer']);
+        Route::post('/deleteaccount', [MarketerController::class, 'deleteaccount']);
+        Route::post('getsocials', [MarketerController::class, 'getsocials']);
+        Route::post('updatesocials', [MarketerController::class, 'updatesocials']);
+        Route::post('savefirebasetoken', [MarketerController::class, 'savetoken']); 
+        Route::post('sendnotify', [MarketerController::class, 'sendnotify']); 
+
+    });
+    Route::prefix('live')->group(function () {
+ 
+        Route::post('savefaceaccesstoken', [LiveController::class, 'savefaceaccesstoken']); 
+        
+    });
+
 }); 
 }) ;
