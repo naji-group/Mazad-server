@@ -37,7 +37,7 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
     Route::prefix('live')->group(function () {
  
         Route::post('savefaceaccesstoken', [LiveController::class, 'savefaceaccesstoken']); 
-        
+        Route::post('facebook/create', [LiveController::class, 'create_facebook_live']);
     });
 
 }); 

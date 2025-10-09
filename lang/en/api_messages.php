@@ -57,6 +57,10 @@ return [
 'faild'=>'فشلت العملية',
 'file must be video'=>'الملف يجب ان يكون فيديو',
 'file size is too larg'=>'حجم الملف كبير',
-'data empty'=>'There is a lack of data.'
+'data empty'=>'There is a lack of data.',
+'live created'=>'Live Stream Created',
+'live create failed'=>'Failed to create live broadcast',
+'No pages found'=>'No pages found',
+'Operation failed'=>'The operation failed',
 ];
 //{{ __('general.welcome_name',['Name'=>'احمد']) }}
