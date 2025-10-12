@@ -15,7 +15,7 @@ class SettingPage extends Page
     protected string $view = 'filament.pages.setting-page';
     protected static ?string $slug = 'setting-page';
        protected static ?string $recordTitleAttribute = 'اعدادات';
-       protected static ?int $navigationSort = 5;
+       protected static ?int $navigationSort = 6;
      
 
       
@@ -29,7 +29,7 @@ class SettingPage extends Page
    public function mount( ): void
    {
 
-    $this->settings=Setting::get();
+    $this->settings=Setting::whereNot('category','pages')->get();
     
    }
    public static function getNavigationIcon(): string | BackedEnum | Htmlable | null

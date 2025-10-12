@@ -9,32 +9,26 @@
 						<div class="col-md-3 col-xs-6">
 							<div class="footer">
 								<h3 class="footer-title">About Us</h3>
-								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p>
-							 
+								<p>ركن دار الفخامه للاكسسوارات و العطور ذ.م.م.ش.ش.وركن دار الفخامه للاكسسوارات و العطور ذ.م.م.ش.ش.و</p>
+							<p>	RUKN DAR AL FAKHAMAH ACCESSORIES & PERFUMES TR L.L.C.SP</p>
 							</div>
 						</div>
 
 						<div class="col-md-3 col-xs-6">
-							<div class="footer">
-								<h3 class="footer-title">Categories</h3>
 							 
-							</div>
 						</div>
 
 						<div class="clearfix visible-xs"></div>
 
 						<div class="col-md-3 col-xs-6">
-							<div class="footer">
-								<h3 class="footer-title">Information</h3>
 							 
-							</div>
 						</div>
 
 						<div class="col-md-3 col-xs-6">
 							<div class="footer">
-								<h3 class="footer-title">Service</h3>
+								<h3 class="footer-title"></h3>
 								<ul class="footer-links">
-									<li><a href="#">My Account</a></li>
+									 
 									 
 								</ul>
 							</div>

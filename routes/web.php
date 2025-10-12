@@ -35,6 +35,7 @@ Route::get('/routeclear', function () {
     return 'ok';
   });
 Route::get('/', [HomeController::class, 'index'])->name('site.home') ;
+Route::get('/pages/{slug}', [HomeController::class, 'static_page'])->name('site.pages') ;
 Route::get('testnot', [NotifyController::class, 'index']);
 Route::post('saveToken', [NotifyController::class, 'savetoken'])->name('saveToken');
  Route::post('sendNotification', [NotifyController::class, 'sendNotification']);

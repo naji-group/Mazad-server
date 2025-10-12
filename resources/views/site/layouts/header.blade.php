@@ -16,6 +16,9 @@
                 <!-- NAV -->
                 <ul class="main-nav nav navbar-nav">
                     <li class="active"><a href="#">Home</a></li>
+                    @foreach ($pages as $page )
+                    <li  ><a href="{{ route('site.pages',$page->code) }}">{{ $page->name }}</a></li>
+                    @endforeach
                     
                 </ul>
                 <!-- /NAV -->
