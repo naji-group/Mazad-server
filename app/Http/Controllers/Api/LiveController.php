@@ -145,8 +145,9 @@ class LiveController extends Controller
             $customerKey = env('AGORA_CUSTOMER_KEY');
             $customerSecret = env('AGORA_CUSTOMER_SECRET');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
-    //return  response()->json($appId);
+   return  response()->json($appId);
             // RTMP URL ليوتيوب
+            try { 
             $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
     
             // الجسم المرسل إلى Agora API
@@ -179,7 +180,12 @@ class LiveController extends Controller
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
           );
-
+        } catch (\Exception $e) {
+            return response()->json(
+                [ "success" => 0, "message" => __('api_messages.Operation failed'), 
+                "data" => $e->getMessage()]                     
+                , 500);
+        }
         }
       
     }
