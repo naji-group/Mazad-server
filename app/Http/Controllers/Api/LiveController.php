@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveCreateRequest;
+use App\Http\Requests\Api\LiveStartPushRequest;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -118,7 +119,71 @@ class LiveController extends Controller
         }
     }
 
+    public function youtube_push(Request $request){
+         // ✅ التحقق من المدخلات
+       
+        $formdata = $request->all();
+        $storrequest = new LiveStartPushRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else { 
+            $channelName = $formdata['channelName'];
+            $uid = $formdata['uid'];
+            $youtubeStreamKey = $formdata['youtubeStreamKey'];
+    
+            // إعداد المتغيرات من env
+            $appId = env('AGORA_APP_ID');
+            $customerKey = env('AGORA_CUSTOMER_KEY');
+            $customerSecret = env('AGORA_CUSTOMER_SECRET');
+            $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+    //return  response()->json($appId);
+            // RTMP URL ليوتيوب
+            $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
+    
+            // الجسم المرسل إلى Agora API
+            $body = [
+                'converter' => [
+                    'name' => "push-{$channelName}-" . time(),
+                    'rawOptions' => [
+                        'rtcChannel' => $channelName,
+                        'rtcStreamUid' => $uid,
+                    ],
+                    'rtmpUrl' => $rtmpUrl,
+                    // 'idleTimeout' => 3600, // اختياري
+                ],
+            ];    
+            // تهيئة الـ Basic Auth
+            $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");    
+            // إرسال الطلب إلى Agora API
+            $response = Http::withHeaders([
+                'Authorization' => $authHeader,
+                'Content-Type' => 'application/json',
+            ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+    
+            // التحقق من النتيجة
+            if ($response->failed()) {
+                return response()->json(
+                    [ "success" => 0, "message" => __('api_messages.live create failed'), 
+                    "data" => $response->json()]
+                    , 500);
+            }    
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
+          );
 
+        }
+      
+    }
+     
     
 
      
