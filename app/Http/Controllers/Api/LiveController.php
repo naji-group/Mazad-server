@@ -145,7 +145,7 @@ class LiveController extends Controller
             $customerKey = env('AGORA_CUSTOMER_KEY');
             $customerSecret = env('AGORA_CUSTOMER_SECRET');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
-   return  response()->json($appId);
+    //return  response()->json($appId);
             // RTMP URL ليوتيوب
             try { 
             $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
