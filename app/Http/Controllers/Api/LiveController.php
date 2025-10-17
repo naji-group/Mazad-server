@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveCreateRequest;
 use App\Http\Requests\Api\LiveStartPushRequest;
+use App\Http\Requests\Api\LiveStopPushRequest;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -189,6 +190,62 @@ class LiveController extends Controller
         }
       
     }
+
+       /**
+     * إيقاف البث (حذف الـ RTMP Converter)
+     */
+    public function youtube_stop_push(Request $request)
+    {
+        //LiveStopPushRequest       
+        $formdata = $request->all();
+        $storrequest = new LiveStopPushRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else { 
+            $converterId = $formdata['converterId'];
+            $appId = env('AGORA_APP_ID');
+            $customerKey = env('AGORA_CUSTOMER_KEY');
+            $customerSecret = env('AGORA_CUSTOMER_SECRET');
+            $region = env('AGORA_REGION', 'na');
+            try { 
+            $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+    
+            // DELETE إلى Agora API
+            $response = Http::withHeaders([
+                'Authorization' => $authHeader,
+                'Content-Type' => 'application/json',
+            ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
+    
+            if ($response->failed()) {
+                return response()->json(                    
+                [ "success" => 0, "message" => __('api_messages.Operation failed'), 
+                "data" => $response->json()]                     
+                , 500 );
+            }    
+            //success
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live stoped'),
+                 "data" => ['result' => $response->json()]]
+       );
+    } catch (\Exception $e) {
+        return response()->json(
+            [ "success" => 0, "message" => __('api_messages.Operation failed'), 
+            "data" => $e->getMessage()]                     
+            , 500);
+    }
+        }
+
+       
+    }   
      
     
 

@@ -57,6 +57,7 @@ return [
 'data empty'=>'يوجد نقص في البيانات',
 
 'live created'=>'تم انشاء البث المباشر',
+'live stoped'=>'تم ايقاف البث المباشر بنجاح',
 'live create failed'=>'فشل انشاء بث مباشر',
 'No pages found'=>'لا يوجد صفحات',
 'Operation failed'=>'فشلت العملية',

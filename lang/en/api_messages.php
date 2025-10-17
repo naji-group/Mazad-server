@@ -59,7 +59,9 @@ return [
 'file size is too larg'=>'حجم الملف كبير',
 'data empty'=>'There is a lack of data.',
 'live created'=>'Live Stream Created',
+'live stoped'=>'Live Stream stopped successfully',
 'live create failed'=>'Failed to create live broadcast',
+
 'No pages found'=>'No pages found',
 'Operation failed'=>'The operation failed',
 ];
