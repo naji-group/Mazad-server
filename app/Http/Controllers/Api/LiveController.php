@@ -4,15 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveCreateRequest;
+use App\Http\Requests\Api\LiveEndRequest;
 use App\Http\Requests\Api\LiveStartPushRequest;
+use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
+use App\Models\LiveStream;
+//use App\Models\LiveComment;
 use App\Models\Social;
 use App\Http\Requests\Api\TokenSaveRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use App\Jobs\FetchLiveCommentsJob;
 class LiveController extends Controller
 {
     public function savefaceaccesstoken(Request $request)
@@ -246,8 +251,83 @@ class LiveController extends Controller
 
        
     }   
-     
-    
+     // Start Comment
+    public function start(Request $request)
+    {
+        
+        $formdata = $request->all();
+        $storrequest = new LiveStartRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else { 
+            $stream = LiveStream::updateOrCreate(
+                ['agora_live_id' => $formdata['agora_live_id']],
+                [
+                    'marketer_id' => $formdata['marketer_id'],
+                    'is_active' => 1,
+                    'youtube_live_chat_id' => $formdata['youtube_live_chat_id'] ?? null,
+                    'youtube_access_token' => $formdata['youtube_access_token'] ?? null,
+                    'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
+                    'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
+                ]
+            );
+            \Log::info(" بدءعمل جلب تعليقات");  
+            // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+            FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live created'),
+                 "data" => ['stream_id' => $stream->id]]
+       );
+            
+        }
+ 
 
+        // احفظ أو حدّث السجل
+     
+    }
+
+    public function endLiveStream(Request $request)
+    {
+     
+        $formdata = $request->all();
+        $storrequest = new LiveEndRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else { 
+            $liveStream = LiveStream::where('agora_live_id', $request->agora_live_id)->first();
+    
+            if (!$liveStream) {
+                return response()->json(  [ "success" => 0, "message" => __('api_messages.Stream not found'), 
+                "data" =>[]  ], 500);
+            }
+        
+            $liveStream->update(['is_active' => false]);
+        
+            return response()->json( 
+            ["success" => 1, "message" => __('api_messages.live stoped'),
+            "data" => []]);
+        }
+       
+    
+     
+    }
      
 }

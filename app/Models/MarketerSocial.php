@@ -21,6 +21,6 @@ class MarketerSocial extends Model
     }
     public function marketer(): BelongsTo
     {
-        return $this->belongsTo(Social::class, 'marketer_id')->withDefault();
+        return $this->belongsTo(Marketer::class, 'marketer_id')->withDefault();
     }
 }
