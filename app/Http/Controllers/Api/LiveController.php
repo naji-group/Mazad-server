@@ -280,7 +280,7 @@ class LiveController extends Controller
                     'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
                 ]
             );
-            \Log::info(" بدءعمل جلب تعليقات");  
+      
             // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
             FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
             return response()->json(
