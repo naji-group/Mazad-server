@@ -9,6 +9,7 @@ use App\Http\Requests\Api\LiveStartPushRequest;
 use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
+use App\Http\Requests\Api\LiveStopTiktokRequest;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -312,12 +313,12 @@ class LiveController extends Controller
             $channel = $request->channel;
             $rtmpUrl = $request->rtmpUrl;
             $uid = $request->uid ?? '1';
-    
-            $appId = env('AGORA_APP_ID');
-            $customerId = env('AGORA_CUSTOMER_KEY');
-            $customerCertificate = env('AGORA_CUSTOMER_SECRET');
+
+            $appId = config('services.agora.app_id');
+            $customerId = config('services.agora.customer_key');
+            $customerCertificate = config('services.agora.customer_secret');
             $baseUrl = "https://api.agora.io/v1/apps";
-    
+          //  return response()->json([ "a"=>$appId, $customerId, $customerCertificate]);
             try {
                 // 1️⃣ Generate resourceId
                 $resourceResponse = Http::withBasicAuth($customerId, $customerCertificate)
@@ -410,7 +411,7 @@ public function tiktok_stop_push(Request $request)
 {
 
     $formdata = $request->all();
-    $storrequest = new LiveStartTiktokRequest() ;
+    $storrequest = new LiveStopTiktokRequest() ;
     $validator = Validator::make(
         $formdata,
         $storrequest->rules(),
@@ -428,9 +429,9 @@ public function tiktok_stop_push(Request $request)
         $sid = $request->sid;
         $uid = $request->uid ?? '1';
     
-        $appId = env('AGORA_APP_ID');
-        $customerId = env('AGORA_CUSTOMER_KEY');
-        $customerCertificate = env('AGORA_CUSTOMER_SECRET');
+        $appId = config('services.agora.app_id');
+        $customerId = config('services.agora.customer_key');
+        $customerCertificate = config('services.agora.customer_secret');       
         $baseUrl = "https://api.agora.io/v1/apps";
     
         try {

@@ -41,5 +41,10 @@ return [
         'redirect'      => env('GOOGLE_CALLBACK_URL'),
     ],
     'youtube'=>['key'=>env('YOUTUBE_API_KEY')],
+    'agora'=>[
+        'app_id'=>env('AGORA_APP_ID'),
+        'customer_key'=>env('AGORA_CUSTOMER_KEY'),
+        'customer_secret'=>env('AGORA_CUSTOMER_SECRET')
+    ]
 
 ];
