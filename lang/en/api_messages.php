@@ -54,7 +54,7 @@ return [
 'Email Password Reset Link' => 'رابط إعادة تعيين كلمة المرور للبريد الإلكتروني',
 'amount_bigger' =>'القيمة اكبر من الرصيد الحالي',
 'Not allowed'=>'ليس لديك سماحية',
-'faild'=>'فشلت العملية',
+'faild'=>'Operation Faild',
 'file must be video'=>'الملف يجب ان يكون فيديو',
 'file size is too larg'=>'حجم الملف كبير',
 'data empty'=>'There is a lack of data.',

@@ -39,6 +39,8 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         Route::post('facebook/create', [LiveController::class, 'create_facebook_live']);
         Route::post('youtube/start-push', [LiveController::class, 'youtube_push']);
         Route::post('youtube/stop-push', [LiveController::class, 'youtube_stop_push']);   
+        Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
+        Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 
         
 Route::post('/start', [LiveController::class, 'start']);    
 Route::post('/end', [LiveController::class, 'endLiveStream']); 
