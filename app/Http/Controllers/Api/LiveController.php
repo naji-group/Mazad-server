@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveCreateRequest;
+use App\Http\Requests\Api\LiveEndFacebookRequest;
 use App\Http\Requests\Api\LiveEndRequest;
 use App\Http\Requests\Api\LiveStartPushRequest;
 use App\Http\Requests\Api\LiveStartRequest;
@@ -140,6 +141,53 @@ class LiveController extends Controller
             }
 
         }
+    }
+
+     /**
+     * إنهاء بث مباشر موجود facebook
+     */
+    public function end_facebook_live(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LiveEndFacebookRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,422);
+        } else {   
+            $liveVideoId = $request->live_video_id;
+            $pageToken = $request->page_token;
+    try{
+            $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
+                'end_live_video' => true,
+                'access_token' => $pageToken,
+            ]);
+            if ($response->failed()) {
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $response->json()
+                    ],500);
+            }
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live stoped'),"data" =>$response->json()]
+                );
+            } catch (\Exception $e) {
+                // أي خطأ آخر غير متوقع
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ] , 500);             
+            }
+        }      
     }
 
     public function youtube_push(Request $request)

@@ -37,6 +37,7 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
     Route::prefix('live')->group(function () { 
         Route::post('savefaceaccesstoken', [LiveController::class, 'savefaceaccesstoken']); 
         Route::post('facebook/create', [LiveController::class, 'create_facebook_live']);
+        Route::post('facebook/end', [LiveController::class, 'end_facebook_live']);
         Route::post('youtube/start-push', [LiveController::class, 'youtube_push']);
         Route::post('youtube/stop-push', [LiveController::class, 'youtube_stop_push']);   
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
