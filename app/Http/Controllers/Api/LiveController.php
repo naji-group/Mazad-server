@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveCreateInstagramRequest;
 use App\Http\Requests\Api\LiveCreateRequest;
 use App\Http\Requests\Api\LiveEndFacebookRequest;
+use App\Http\Requests\Api\LiveEndInstagramRequest;
 use App\Http\Requests\Api\LiveEndRequest;
 use App\Http\Requests\Api\LiveStartPushRequest;
 use App\Http\Requests\Api\LiveStartRequest;
@@ -332,18 +333,18 @@ public function create_instagram_live(Request $request)
  */
 public function end_instagram_live(Request $request)
 {
-    $formdata = $request->all();
-    $storrequest = new LiveEndFacebookRequest();
-    $validator = Validator::make(
-        $formdata,
-        $storrequest->rules(),
-        $storrequest->messages()
-    );
-    if ($validator->fails()) {
-        return response()->json(
-            ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-            ,422);
-    } else {   
+    // $formdata = $request->all();
+    // $storrequest = new LiveEndInstagramRequest();
+    // $validator = Validator::make(
+    //     $formdata,
+    //     $storrequest->rules(),
+    //     $storrequest->messages()
+    // );
+    // if ($validator->fails()) {
+    //     return response()->json(
+    //         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+    //         ,422);
+    // } else {   
         try {
             if (!self::$ffmpegProcess) {
                 //No live stream running.
@@ -373,7 +374,7 @@ public function end_instagram_live(Request $request)
                 "data" => $e->getMessage()
             ] , 500);
         }
-    }      
+   // }      
 }
 
 // end Instgram
