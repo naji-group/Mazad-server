@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\LiveCreateInstagramRequest;
 use App\Http\Requests\Api\LiveCreateRequest;
 use App\Http\Requests\Api\LiveEndFacebookRequest;
 use App\Http\Requests\Api\LiveEndRequest;
@@ -21,8 +22,11 @@ use App\Http\Requests\Api\TokenSaveRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchLiveCommentsJob;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 class LiveController extends Controller
 {
+    protected static $ffmpegProcess = null;
     public function savefaceaccesstoken(Request $request)
     {
         $formdata = $request->all();
@@ -189,7 +193,177 @@ class LiveController extends Controller
             }
         }      
     }
+//instagram
+private function checkFfmpeg()
+{
+    try {
+        $process = new Process(['ffmpeg', '-version']);
+        $process->run();
 
+        if ($process->isSuccessful()) {
+            return true;
+        }
+
+        return false;
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+public function create_instagram_live(Request $request)
+{
+    $formdata = $request->all();
+    $storrequest = new LiveCreateInstagramRequest();
+    $validator = Validator::make(
+        $formdata,
+        $storrequest->rules(),
+        $storrequest->messages()
+    );
+    if ($validator->fails()) {
+        return response()->json(
+            ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+            ,
+            422
+        );
+    } else {
+     
+        // فحص وجود FFmpeg أولاً
+        if (!$this->checkFfmpeg()) {
+            //FFmpeg not found on this server. Please install it first.
+            return response()->json(                
+                [
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => []
+       
+            ], 500);
+        }
+
+        if (self::$ffmpegProcess) {
+            //Live already running.
+            return response()->json(
+                [
+                    "success" => 0,
+                    "message" => __('api_messages.live already created'),
+                    "data" => []  
+            ], 400);
+        }
+
+        $agoraUrl = $request->agora_url;
+        $instagramUrl = $request->instagram_url;
+        $instagramKey = $request->instagram_key;
+
+        $fullRtmp = "{$instagramUrl}/{$instagramKey}";
+
+        $ffmpegArgs = [
+            'ffmpeg',
+            '-re', '-i', $agoraUrl,
+            '-c:v', 'libx264',
+            '-preset', 'veryfast',
+            '-maxrate', '3000k',
+            '-bufsize', '6000k',
+            '-c:a', 'aac',
+            '-b:a', '128k',
+            '-ar', '44100',
+            '-f', 'flv',
+            $fullRtmp,
+        ];
+
+        try {
+
+               // 🟢 بناء الأمر الكامل لتشغيله في الخلفية
+        // $cmd = implode(' ', $ffmpegArgs) . " > /dev/null 2>&1 & echo $!";
+        // $pid = exec($cmd);
+        // if ($pid) {
+        //     // حفظ PID لتتمكن من إيقاف البث لاحقًا
+        //     cache(['instagram_ffmpeg_pid' => $pid], now()->addHours(2));
+        //     return response()->json(
+        //         ["success" => 1, 
+        //         "message" => __('api_messages.live created'), 
+        //         "data" =>['pid' => $pid]
+        //         ] );
+        // }else{
+        //     return response()->json([
+        //         "success" => 0,
+        //         "message" => __('api_messages.Operation failed'),
+        //         "data" => []
+        //     ], 500);
+        // }
+            $process = new Process($ffmpegArgs);
+            $process->setTimeout(0);
+            $process->start();
+
+            self::$ffmpegProcess = $process;
+            
+            //Live started successfully.
+            return response()->json(
+                ["success" => 1, 
+                "message" => __('api_messages.live created'), 
+                "data" =>['pid' => $process->getPid()]
+                ] );
+             } catch (ProcessFailedException $e) {
+           // Failed to start stream.
+            return response()->json(
+                [
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ]
+                , 500);
+        }
+
+    }
+}
+
+ /**
+ * إنهاء بث مباشر موجود facebook
+ */
+public function end_instagram_live(Request $request)
+{
+    $formdata = $request->all();
+    $storrequest = new LiveEndFacebookRequest();
+    $validator = Validator::make(
+        $formdata,
+        $storrequest->rules(),
+        $storrequest->messages()
+    );
+    if ($validator->fails()) {
+        return response()->json(
+            ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+            ,422);
+    } else {   
+        try {
+            if (!self::$ffmpegProcess) {
+                //No live stream running.
+                return response()->json(['message' => 'No live stream running.'], 400);
+            }
+
+            $process = self::$ffmpegProcess;
+
+            if ($process->isRunning()) {
+                if (!defined('SIGINT')) {
+                    define('SIGINT', 2); // ✅ دعم Windows
+                }
+    
+                $process->stop(3, SIGINT);
+            }
+
+            self::$ffmpegProcess = null;
+
+            return response()->json( 
+            ["success" => 1, "message" => __('api_messages.live stoped'),"data" =>[]]);
+            
+        } catch (\Exception $e) {
+//Error stopping live stream.            
+            return response()->json( [
+                "success" => 0,
+                "message" => __('api_messages.Operation failed'),
+                "data" => $e->getMessage()
+            ] , 500);
+        }
+    }      
+}
+
+// end Instgram
     public function youtube_push(Request $request)
     {
         // ✅ التحقق من المدخلات
