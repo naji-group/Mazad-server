@@ -247,7 +247,7 @@ public function create_instagram_live(Request $request)
                 [
                     "success" => 0,
                     "message" => __('api_messages.Operation failed'),
-                    "data" => []
+                    "data" => ["error"=>"FFmpeg not installed"]
        
             ], 500);
         }
