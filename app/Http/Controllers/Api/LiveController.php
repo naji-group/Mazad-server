@@ -12,6 +12,7 @@ use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
 use App\Http\Requests\Api\LiveStopTiktokRequest;
+use App\Models\Livevar;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -101,6 +102,7 @@ class LiveController extends Controller
                 $page = $pages['data'][0];
                 $pageId = $page['id'];
                 $pageToken = $page['access_token'];
+
                 // 🔹 2. إنشاء البث المباشر
                 $liveRes = Http::asJson()->post("https://graph.facebook.com/v19.0/{$pageId}/live_videos", [
                     'status' => 'LIVE_NOW',
@@ -121,6 +123,14 @@ class LiveController extends Controller
                         500
                     );
                 }
+          
+                $livevar = Livevar::updateOrCreate(
+                     ['marketer_id' =>auth('api_marketers')->user()->id,'live_video_id'=> $liveData['id']],
+                     [  'first_value'=>$pageId,
+                     'second_value'=> $pageToken ,                     
+                     'is_active'=>1,
+                     'social'=>'facebook',]                   
+                );
                 // 🔹 4. الإرجاع
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => $liveData]
@@ -165,8 +175,11 @@ class LiveController extends Controller
                 ,422);
         } else {   
             $liveVideoId = $request->live_video_id;
-            $pageToken = $request->page_token;
+
+           // $pageToken = $request->page_token;
     try{
+        $livevar = Livevar::where('marketer_id',auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
+        $pageToken = $livevar->second_value;
             $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
                 'end_live_video' => true,
                 'access_token' => $pageToken,
@@ -270,7 +283,7 @@ public function create_instagram_live(Request $request)
 
         try {
 
-               // 🟢 بناء الأمر الكامل لتشغيله في الخلفية
+               //  بناء الأمر الكامل لتشغيله في الخلفية
         // $cmd = implode(' ', $ffmpegArgs) . " > /dev/null 2>&1 & echo $!";
         // $pid = exec($cmd);
         // if ($pid) {
@@ -293,7 +306,7 @@ public function create_instagram_live(Request $request)
             $process->start();
 
             self::$ffmpegProcess = $process;
-            
+
             //Live started successfully.
             return response()->json(
                 ["success" => 1, 

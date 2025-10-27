@@ -59,6 +59,7 @@ return [
 'file size is too larg'=>'حجم الملف كبير',
 'data empty'=>'There is a lack of data.',
 'live created'=>'Live Stream Created',
+'live already created'=>'The live has already been created',
 'live stoped'=>'Live Stream stopped successfully',
 'Stream not found'=>'Live Stream not found',
 'live create failed'=>'Failed to create live broadcast',

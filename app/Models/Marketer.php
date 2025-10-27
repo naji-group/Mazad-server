@@ -104,6 +104,10 @@ class Marketer extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MarketerSocial::class, 'marketer_id');
     }
+    public function livevars(): HasMany
+    {
+        return $this->hasMany(Livevar::class, 'marketer_id');
+    }
  
     public function getStatusConvAttribute(){
            $conv="";

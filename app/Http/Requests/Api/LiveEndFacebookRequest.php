@@ -23,7 +23,7 @@ class LiveEndFacebookRequest extends FormRequest
     {
         return [
             'live_video_id' => 'required|string',
-            'page_token' => 'required|string',
+            'page_token' => 'nullable|string',
       
   
  
