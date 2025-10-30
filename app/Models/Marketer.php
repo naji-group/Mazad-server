@@ -13,54 +13,69 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 class Marketer extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens,Notifiable; 
+    use HasApiTokens, Notifiable;
     protected $table = 'marketers';
     protected $fillable = [
-      'first_name',
-'last_name',
-'full_name',
-'login_type',
-'username',
-'password',
-'is_active',
-'email',
-'email_verified_at',
-'image',
-'local_image',
-'provider',
-'provider_user_id',
-'social_id',
-'provider_token',
-'provider_refresh_token',
-'firebase_token',
+        'first_name',
+        'last_name',
+        'full_name',
+        'login_type',
+        'username',
+        'password',
+        'is_active',
+        'email',
+        'email_verified_at',
+        'image',
+        'local_image',
+        'provider',
+        'provider_user_id',
+        'social_id',
+        'provider_token',
+        'provider_refresh_token',
+        'firebase_token',
     ];
-    protected $appends= ['status_conv','local_image_url'];
-    public function getLocalImageUrlAttribute(){
-        $conv="";
-        $helpCtrlr = new HelpController(); 
-        if(is_null($this->local_image) ){
-             $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
-        }else if($this->local_image==''){
-            $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
+    protected $appends = ['status_conv', 'local_image_url'];
+    public function getLocalImageUrlAttribute()
+    {
+        $conv = "";
+        $helpCtrlr = new HelpController();
+        if ((is_null($this->local_image) || $this->local_image == '')) {
+            //gmail check
+            if ((is_null($this->image) || $this->image == '')) {
+                $conv = $helpCtrlr->getdefaultbyCode('default-marketer');
+            } else {
+                //gmail image
+                $conv = $this->image;
+            }
         } else {
+            //local image
             $conv = $helpCtrlr->getpublicurl($this->local_image);
-            //$conv =  $url.$this->local_image;
-        }     
-       
-            return  $conv;
-     }
+        }
 
-//      public function getFullNameAttribute(){
+
+        // if(is_null($this->local_image) ){
+        //      $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
+        // }else if($this->local_image==''){
+        //     $conv =$helpCtrlr->getdefaultbyCode('default-marketer'); 
+        // } else {
+        //     $conv = $helpCtrlr->getpublicurl($this->local_image);
+        //     //$conv =  $url.$this->local_image;
+        // }     
+
+        return $conv;
+    }
+
+    //      public function getFullNameAttribute(){
 //   return (string)  ($value ?? "") ; 
 //      }
-       /**
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
      */
     protected $hidden = [
         'password',
-     
+
     ];
 
     /**
@@ -76,7 +91,7 @@ class Marketer extends Authenticatable implements JWTSubject
         ];
     }
 
-       /**
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
@@ -108,14 +123,15 @@ class Marketer extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Livevar::class, 'marketer_id');
     }
- 
-    public function getStatusConvAttribute(){
-           $conv="";
-          if($this->is_active==1){
-           $conv='فعال';
-          }else{
-           $conv='غير فعال';
-          }      
-               return  $conv;
+
+    public function getStatusConvAttribute()
+    {
+        $conv = "";
+        if ($this->is_active == 1) {
+            $conv = 'فعال';
+        } else {
+            $conv = 'غير فعال';
         }
+        return $conv;
+    }
 }
