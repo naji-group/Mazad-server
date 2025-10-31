@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Socials\Schemas;
+namespace App\Filament\Resources\ExtraSocials\Schemas;
 
 use App\Models\Social;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 use Filament\Infolists\Components\IconEntry;
 use App\Filament\Forms\Components\ImageWithPreview;
-class SocialInfolist
+class ExtraSocialInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -18,10 +18,10 @@ class SocialInfolist
                 ->default(null),
                 TextEntry::make('code')
                 ->label('الرمز'),              
-                TextEntry::make('link')
-                ->url(fn (Social $record): string => $record->link)
-                ->openUrlInNewTab()
-                ->label('عنوان الحساب'),
+                // TextEntry::make('link')
+                // ->url(fn (Social $record): string => $record->link)
+                // ->openUrlInNewTab()
+                // ->label('عنوان الحساب'),
                 IconEntry::make('is_active')
                 ->label('الحالة')
                 ->boolean(),
@@ -34,6 +34,7 @@ class SocialInfolist
                
                 // ->live()
                 ->nullable(),
+             
             ]);
     }
 }

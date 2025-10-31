@@ -147,7 +147,7 @@ class MarketerForm
                                         $q->where('marketer_id', $record->id)
                                         ;
                                     }
-                                ])->orderBy('sequence')->get() as $social) {
+                                ])->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social) {
                                     $fields[] = Group::make([
                                         TextInput::make("socials.{$social->id}.link")
                                             ->label("رابط {$social->name}")

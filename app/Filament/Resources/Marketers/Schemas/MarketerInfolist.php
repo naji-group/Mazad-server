@@ -59,7 +59,7 @@ class MarketerInfolist
                             'marketersocials' => function ($q) use ($record) {
                                 $q->where('marketer_id', $record->id);
                             }
-                        ])->orderBy('sequence')->get() as $social
+                        ])->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social
                     ) {
                         $marketerSocial = $social->marketersocials?->first();
 

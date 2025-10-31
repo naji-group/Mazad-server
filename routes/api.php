@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\LiveController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,12 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         
 Route::post('/start', [LiveController::class, 'start']);    
 Route::post('/end', [LiveController::class, 'endLiveStream']); 
+    });
+    Route::prefix('auction')->group(function () {
+        Route::post('add', [AuctionController::class, 'store']);
+        Route::post('view', [AuctionController::class, 'view']);
+        Route::post('maxprice', [AuctionController::class, 'max_price']);
+        Route::post('extrasocials', [AuctionController::class, 'extra_socials']);     
     });
 
 }); 

@@ -65,7 +65,7 @@ class FormSetting extends Component implements HasSchemas
                     TextInput::make("data.value")
                         ->label($this->setting->name)
                         ->required()
-                       ->visible(fn(): bool => $this->setting->code !== 'default-marketer')
+                       ->visible(fn(): bool => ($this->setting->code !== 'default-marketer')&&($this->setting->code !== 'default-social'))
     ,
                     $imagegrid,
                     Action::make('save')

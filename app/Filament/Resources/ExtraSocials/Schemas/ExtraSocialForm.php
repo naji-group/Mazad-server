@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\Socials\Schemas;
+namespace App\Filament\Resources\ExtraSocials\Schemas;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Toggle;
+use SebastianBergmann\Type\TrueType;
 use Filament\Forms\Components\FileUpload;
 use App\Filament\Forms\Components\ImageWithPreview;
 use App\Models\Social;
-class SocialForm
+class ExtraSocialForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -17,20 +19,20 @@ class SocialForm
             ->components([
                 TextInput::make('name')
                     ->label('وسيلة التواصل')
-                    ->required()
                     ->default(null),
                 TextInput::make('code')
                     ->label('الرمز')
                     ->default(null)
                     ->required()
                 ,
-                TextInput::make('link')
-                    ->label('عنوان الحساب')
-                    ->required()
-                    ->default(null),
+                // TextInput::make('link')
+                //     ->label('عنوان الحساب')
+                //     ->required()
+                //     ->default(null),
                 Toggle::make('is_active')
                     ->label('مفعل'),
-                    FileUpload::make('icon')
+                 
+                FileUpload::make('icon')
                     ->label('صورة')
                     ->image()
                     ->previewable(false)
@@ -49,6 +51,8 @@ class SocialForm
                 ->hiddenOn('create')
                 // ->live()
                 ->nullable(),
+                    Hidden::make('is_extra')
+                    ->default(true)
 
             ]);
     }
