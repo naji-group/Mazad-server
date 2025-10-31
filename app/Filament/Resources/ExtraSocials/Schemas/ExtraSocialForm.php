@@ -19,12 +19,14 @@ class ExtraSocialForm
             ->components([
                 TextInput::make('name')
                     ->label('وسيلة التواصل')
-                    ->default(null),
+                    ->required()
+                    //->default(null)
+                    ,
                 TextInput::make('code')
                     ->label('الرمز')
                     ->default(null)
                     ->required()
-                ,
+                    ,
                 // TextInput::make('link')
                 //     ->label('عنوان الحساب')
                 //     ->required()

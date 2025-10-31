@@ -47,7 +47,7 @@ class HelpController extends Controller
    {  
    $setting= Setting::where('code',$code)->select('id','code','image')->first();
 
-     $url=config('filesystems.disks.public.url').'/'.$setting->image;      
+     $url=config('filesystems.disks.public.url').'/'.$setting?->image;      
          return $url;
    }
    public function getpublicurl($subpath)
