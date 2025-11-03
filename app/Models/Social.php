@@ -41,4 +41,8 @@ class Social extends Model
     {
         return $this->hasMany(Auction::class, 'social_id');
     }
+    public function liveComments(): HasMany
+    {
+        return $this->hasMany(LiveComment::class, 'social_id');
+    }
 }

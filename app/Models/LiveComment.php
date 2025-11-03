@@ -12,6 +12,7 @@ class LiveComment extends Model
 'live_stream_id',
 'agora_live_id',
 'platform',
+'social_id',
 'comment_id',
 'author_name',
 'message',
@@ -22,6 +23,10 @@ class LiveComment extends Model
     public function livestream(): BelongsTo
     {
         return $this->belongsTo(Marketer::class, 'live_stream_id')->withDefault();
+    }
+    public function social(): BelongsTo
+    {
+        return $this->belongsTo(Social::class, 'social_id')->withDefault();
     }
 }
 

@@ -44,7 +44,8 @@ return [
     'agora'=>[
         'app_id'=>env('AGORA_APP_ID'),
         'customer_key'=>env('AGORA_CUSTOMER_KEY'),
-        'customer_secret'=>env('AGORA_CUSTOMER_SECRET')
+        'customer_secret'=>env('AGORA_CUSTOMER_SECRET'),
+        'app_certificate'=>env('AGORA_APP_CERTIFICATE'),
     ]
 
 ];

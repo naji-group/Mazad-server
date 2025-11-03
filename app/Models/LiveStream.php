@@ -23,6 +23,12 @@ class LiveStream extends Model
         'jaco_live_video_id',
         'jaco_access_token',
 
+        'facebook_is_active',
+        'instagram_is_active',
+        'youtube_is_active',
+        'tiktok_is_active',        
+        'jaco_is_active',     
+
     ];
     public function marketer(): BelongsTo
     {

@@ -25,6 +25,7 @@ class LiveCreateRequest extends FormRequest
             'fbToken'=>'required',
             'title'=>'nullable',
             'description'=>'nullable',
+            'agora_live_id'=>'required'
          //   'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
   
  
@@ -35,7 +36,8 @@ class LiveCreateRequest extends FormRequest
  
    return[     
     // 'id.*'=> __('api_messages.user not found'),
- 'fbToken.*'=>__('api_messages.data empty')
+ 'fbToken.*'=>__('api_messages.data empty'),
+ 'agora_live_id.*'=>__('api_messages.data empty'),
     ];
     
 }

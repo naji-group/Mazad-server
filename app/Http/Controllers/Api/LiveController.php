@@ -29,6 +29,35 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class LiveController extends Controller
 {
     protected static $ffmpegProcess = null;
+
+    public function generate_live_token(Request $request)
+    {
+        $ctrlr = new AgoraController();
+        try {
+            $resArr = $ctrlr->generateToken();
+
+            $livestream=new LiveStream();
+            $livestream->marketer_id=auth('api_marketers')->user()->id;
+
+            $livestream->is_active=1;
+            $livestream->save();
+            $resArr['agora_live_id']=$livestream->id;
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live created'), "data" => $resArr]
+            );
+        } catch (\Exception $e) {
+            \Log::error(' live_token error', ['error' => $e->getMessage()]);
+            return response()->json(
+                [
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ]
+                ,
+                500
+            );
+        }
+    }
     public function savefaceaccesstoken(Request $request)
     {
         $formdata = $request->all();
@@ -124,14 +153,33 @@ class LiveController extends Controller
                         500
                     );
                 }
-          
+
                 $livevar = Livevar::updateOrCreate(
-                     ['marketer_id' =>auth('api_marketers')->user()->id,'live_video_id'=> $liveData['id']],
-                     [  'first_value'=>$pageId,
-                     'second_value'=> $pageToken ,                     
-                     'is_active'=>1,
-                     'social'=>'facebook',]                   
+                    ['marketer_id' => auth('api_marketers')->user()->id, 'live_video_id' => $liveData['id']],
+                    [
+                        'first_value' => $pageId,
+                        'second_value' => $pageToken,
+                        'is_active' => 1,
+                        'social' => 'facebook',
+                    ]
                 );
+
+                //بدء جلب التعليقات
+$stream=LiveStream::find($request->input('agora_live_id')) ;
+$social=Social::where('code','facebook')->first();
+$marketer_social=MarketerSocial::where('marketer_id',auth('api_marketers')->user()->id)->where('social_id',$social->id)->first();
+
+$stream->facebook_live_video_id= $liveData['id'] ?? null;
+$stream->facebook_access_token=$marketer_social->access_token;
+$stream->save();
+//start job
+   // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+   FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
+
+/*
+'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
+'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
+*/
                 // 🔹 4. الإرجاع
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => $liveData]
@@ -158,7 +206,7 @@ class LiveController extends Controller
         }
     }
 
-     /**
+    /**
      * إنهاء بث مباشر موجود facebook
      */
     public function end_facebook_live(Request $request)
@@ -173,28 +221,32 @@ class LiveController extends Controller
         if ($validator->fails()) {
             return response()->json(
                 ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-                ,422);
-        } else {   
+                ,
+                422
+            );
+        } else {
             $liveVideoId = $request->live_video_id;
 
-           // $pageToken = $request->page_token;
-    try{
-        $livevar = Livevar::where('marketer_id',auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
-        $pageToken = $livevar->second_value;
-            $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
-                'end_live_video' => true,
-                'access_token' => $pageToken,
-            ]);
-            if ($response->failed()) {
+            // $pageToken = $request->page_token;
+            try {
+                $livevar = Livevar::where('marketer_id', auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
+                $pageToken = $livevar->second_value;
+                $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
+                    'end_live_video' => true,
+                    'access_token' => $pageToken,
+                ]);
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.Operation failed'),
+                            "data" => $response->json()
+                        ],
+                        500
+                    );
+                }
                 return response()->json(
-                    [
-                        "success" => 0,
-                        "message" => __('api_messages.Operation failed'),
-                        "data" => $response->json()
-                    ],500);
-            }
-            return response()->json(
-                ["success" => 1, "message" => __('api_messages.live stoped'),"data" =>$response->json()]
+                    ["success" => 1, "message" => __('api_messages.live stoped'), "data" => $response->json()]
                 );
             } catch (\Exception $e) {
                 // أي خطأ آخر غير متوقع
@@ -203,148 +255,168 @@ class LiveController extends Controller
                         "success" => 0,
                         "message" => __('api_messages.Operation failed'),
                         "data" => $e->getMessage()
-                    ] , 500);             
+                    ],
+                    500
+                );
             }
-        }      
+        }
     }
-//instagram
-private function checkFfmpeg()
-{
-    try {
-        $process = new Process(['ffmpeg', '-version']);
-        $process->run();
-
-        if ($process->isSuccessful()) {
-            return true;
-        }
-
-        return false;
-    } catch (\Throwable $e) {
-        return false;
-    }
-}
-public function create_instagram_live(Request $request)
-{
-    $formdata = $request->all();
-    $storrequest = new LiveCreateInstagramRequest();
-    $validator = Validator::make(
-        $formdata,
-        $storrequest->rules(),
-        $storrequest->messages()
-    );
-    if ($validator->fails()) {
-        return response()->json(
-            ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-            ,
-            422
-        );
-    } else {
-     
-        // فحص وجود FFmpeg أولاً
-        if (!$this->checkFfmpeg()) {
-            //FFmpeg not found on this server. Please install it first.
-            return response()->json(                
-                [
-                    "success" => 0,
-                    "message" => __('api_messages.Operation failed'),
-                    "data" => ["error"=>"FFmpeg not installed"]
-       
-            ], 500);
-        }
-
-        if (self::$ffmpegProcess) {
-            //Live already running.
-            return response()->json(
-                [
-                    "success" => 0,
-                    "message" => __('api_messages.live already created'),
-                    "data" => []  
-            ], 400);
-        }
-
-        $agoraUrl = $request->agora_url;
-        $instagramUrl = $request->instagram_url;
-        $instagramKey = $request->instagram_key;
-
-        $fullRtmp = "{$instagramUrl}/{$instagramKey}";
-
-        $ffmpegArgs = [
-            'ffmpeg',
-            '-re', '-i', $agoraUrl,
-            '-c:v', 'libx264',
-            '-preset', 'veryfast',
-            '-maxrate', '3000k',
-            '-bufsize', '6000k',
-            '-c:a', 'aac',
-            '-b:a', '128k',
-            '-ar', '44100',
-            '-f', 'flv',
-            $fullRtmp,
-        ];
-
+    //instagram
+    private function checkFfmpeg()
+    {
         try {
+            $process = new Process(['ffmpeg', '-version']);
+            $process->run();
 
-               //  بناء الأمر الكامل لتشغيله في الخلفية
-        // $cmd = implode(' ', $ffmpegArgs) . " > /dev/null 2>&1 & echo $!";
-        // $pid = exec($cmd);
-        // if ($pid) {
-        //     // حفظ PID لتتمكن من إيقاف البث لاحقًا
-        //     cache(['instagram_ffmpeg_pid' => $pid], now()->addHours(2));
-        //     return response()->json(
-        //         ["success" => 1, 
-        //         "message" => __('api_messages.live created'), 
-        //         "data" =>['pid' => $pid]
-        //         ] );
-        // }else{
-        //     return response()->json([
-        //         "success" => 0,
-        //         "message" => __('api_messages.Operation failed'),
-        //         "data" => []
-        //     ], 500);
-        // }
-            $process = new Process($ffmpegArgs);
-            $process->setTimeout(0);
-            $process->start();
+            if ($process->isSuccessful()) {
+                return true;
+            }
 
-            self::$ffmpegProcess = $process;
-
-            //Live started successfully.
-            return response()->json(
-                ["success" => 1, 
-                "message" => __('api_messages.live created'), 
-                "data" =>['pid' => $process->getPid()]
-                ] );
-             } catch (ProcessFailedException $e) {
-           // Failed to start stream.
-            return response()->json(
-                [
-                    "success" => 0,
-                    "message" => __('api_messages.Operation failed'),
-                    "data" => $e->getMessage()
-                ]
-                , 500);
+            return false;
+        } catch (\Throwable $e) {
+            return false;
         }
-
     }
-}
+    public function create_instagram_live(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LiveCreateInstagramRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
 
- /**
- * إنهاء بث مباشر موجود facebook
- */
-public function end_instagram_live(Request $request)
-{
-    // $formdata = $request->all();
-    // $storrequest = new LiveEndInstagramRequest();
-    // $validator = Validator::make(
-    //     $formdata,
-    //     $storrequest->rules(),
-    //     $storrequest->messages()
-    // );
-    // if ($validator->fails()) {
-    //     return response()->json(
-    //         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-    //         ,422);
-    // } else {   
+            // فحص وجود FFmpeg أولاً
+            if (!$this->checkFfmpeg()) {
+                //FFmpeg not found on this server. Please install it first.
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => ["error" => "FFmpeg not installed"]
+
+                    ],
+                    500
+                );
+            }
+
+            if (self::$ffmpegProcess) {
+                //Live already running.
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.live already created'),
+                        "data" => []
+                    ],
+                    400
+                );
+            }
+
+            $agoraUrl = $request->agora_url;
+            $instagramUrl = $request->instagram_url;
+            $instagramKey = $request->instagram_key;
+
+            $fullRtmp = "{$instagramUrl}/{$instagramKey}";
+
+            $ffmpegArgs = [
+                'ffmpeg',
+                '-re',
+                '-i',
+                $agoraUrl,
+                '-c:v',
+                'libx264',
+                '-preset',
+                'veryfast',
+                '-maxrate',
+                '3000k',
+                '-bufsize',
+                '6000k',
+                '-c:a',
+                'aac',
+                '-b:a',
+                '128k',
+                '-ar',
+                '44100',
+                '-f',
+                'flv',
+                $fullRtmp,
+            ];
+
+            try {
+
+                //  بناء الأمر الكامل لتشغيله في الخلفية
+                // $cmd = implode(' ', $ffmpegArgs) . " > /dev/null 2>&1 & echo $!";
+                // $pid = exec($cmd);
+                // if ($pid) {
+                //     // حفظ PID لتتمكن من إيقاف البث لاحقًا
+                //     cache(['instagram_ffmpeg_pid' => $pid], now()->addHours(2));
+                //     return response()->json(
+                //         ["success" => 1, 
+                //         "message" => __('api_messages.live created'), 
+                //         "data" =>['pid' => $pid]
+                //         ] );
+                // }else{
+                //     return response()->json([
+                //         "success" => 0,
+                //         "message" => __('api_messages.Operation failed'),
+                //         "data" => []
+                //     ], 500);
+                // }
+                $process = new Process($ffmpegArgs);
+                $process->setTimeout(0);
+                $process->start();
+
+                self::$ffmpegProcess = $process;
+
+                //Live started successfully.
+                return response()->json(
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.live created'),
+                        "data" => ['pid' => $process->getPid()]
+                    ]
+                );
+            } catch (ProcessFailedException $e) {
+                // Failed to start stream.
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ]
+                    ,
+                    500
+                );
+            }
+
+        }
+    }
+
+    /**
+     * إنهاء بث مباشر موجود facebook
+     */
+    public function end_instagram_live(Request $request)
+    {
+        // $formdata = $request->all();
+        // $storrequest = new LiveEndInstagramRequest();
+        // $validator = Validator::make(
+        //     $formdata,
+        //     $storrequest->rules(),
+        //     $storrequest->messages()
+        // );
+        // if ($validator->fails()) {
+        //     return response()->json(
+        //         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+        //         ,422);
+        // } else {   
         try {
             if (!self::$ffmpegProcess) {
                 //No live stream running.
@@ -357,27 +429,28 @@ public function end_instagram_live(Request $request)
                 if (!defined('SIGINT')) {
                     define('SIGINT', 2); // ✅ دعم Windows
                 }
-    
+
                 $process->stop(3, SIGINT);
             }
 
             self::$ffmpegProcess = null;
 
-            return response()->json( 
-            ["success" => 1, "message" => __('api_messages.live stoped'),"data" =>[]]);
-            
+            return response()->json(
+                ["success" => 1, "message" => __('api_messages.live stoped'), "data" => []]
+            );
+
         } catch (\Exception $e) {
-//Error stopping live stream.            
-            return response()->json( [
+            //Error stopping live stream.            
+            return response()->json([
                 "success" => 0,
                 "message" => __('api_messages.Operation failed'),
                 "data" => $e->getMessage()
-            ] , 500);
+            ], 500);
         }
-   // }      
-}
+        // }      
+    }
 
-// end Instgram
+    // end Instgram
     public function youtube_push(Request $request)
     {
         // ✅ التحقق من المدخلات
@@ -533,7 +606,7 @@ public function end_instagram_live(Request $request)
     {
 
         $formdata = $request->all();
-        $storrequest = new LiveStartTiktokRequest() ;
+        $storrequest = new LiveStartTiktokRequest();
         $validator = Validator::make(
             $formdata,
             $storrequest->rules(),
@@ -554,7 +627,7 @@ public function end_instagram_live(Request $request)
             $customerId = config('services.agora.customer_key');
             $customerCertificate = config('services.agora.customer_secret');
             $baseUrl = "https://api.agora.io/v1/apps";
-          //  return response()->json([ "a"=>$appId, $customerId, $customerCertificate]);
+            //  return response()->json([ "a"=>$appId, $customerId, $customerCertificate]);
             try {
                 // 1️⃣ Generate resourceId
                 $resourceResponse = Http::withBasicAuth($customerId, $customerCertificate)
@@ -563,20 +636,22 @@ public function end_instagram_live(Request $request)
                         'uid' => $uid,
                         'clientRequest' => new \stdClass(),
                     ]);
-    
+
                 if (!$resourceResponse->successful()) {
                     //Failed to acquire resourceId
                     return response()->json(
                         [
                             "success" => 0,
                             "message" => __('api_messages.faild'),
-                            "data" =>  $resourceResponse->json()
+                            "data" => $resourceResponse->json()
                         ]
-                        , 500);
+                        ,
+                        500
+                    );
                 }
-    
+
                 $resourceId = $resourceResponse->json('resourceId');
-    
+
                 // 2️⃣ Start streaming (RTMP push)
                 $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
                     ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/live/start", [
@@ -599,33 +674,38 @@ public function end_instagram_live(Request $request)
                             ],
                         ],
                     ]);
-    
+
                 if (!$startResponse->successful()) {
-//Failed to start streaming
+                    //Failed to start streaming
                     return response()->json(
                         [
                             "success" => 0,
                             "message" => __('api_messages.live create failed'),
-                            "data" =>  $startResponse->json()
+                            "data" => $startResponse->json()
                         ]
-                        , 500);
+                        ,
+                        500
+                    );
                 }
-    
+
                 $sid = $startResponse->json('sid');
-    
+
                 \Log::info('TikTok RTMP started', [
                     'channel' => $channel,
                     'resourceId' => $resourceId,
                     'sid' => $sid,
-                ]);    
+                ]);
                 return response()->json(
-                    ["success" => 1, 
-                    "message" => __('api_messages.live created'), 
-                    "data" => [ 'resourceId' => $resourceId,
-                                'sid' => $sid,
-                                'serverResponse' => $startResponse->json()]
-                                ]
-                 );
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.live created'),
+                        "data" => [
+                            'resourceId' => $resourceId,
+                            'sid' => $sid,
+                            'serverResponse' => $startResponse->json()
+                        ]
+                    ]
+                );
             } catch (\Exception $e) {
                 \Log::error(' Tiktok RTMP start error', ['error' => $e->getMessage()]);
                 return response()->json(
@@ -633,94 +713,98 @@ public function end_instagram_live(Request $request)
                         "success" => 0,
                         "message" => __('api_messages.Operation failed'),
                         "data" => $e->getMessage()
-                    ] ,
+                    ],
                     500
-                    );              
+                );
             }
         }
-    
 
-      
+
+
     }
-//stop
-public function tiktok_stop_push(Request $request)
-{
+    //stop
+    public function tiktok_stop_push(Request $request)
+    {
 
-    $formdata = $request->all();
-    $storrequest = new LiveStopTiktokRequest() ;
-    $validator = Validator::make(
-        $formdata,
-        $storrequest->rules(),
-        $storrequest->messages()
-    );
-    if ($validator->fails()) {
-        return response()->json(
-            ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-            ,
-            422
+        $formdata = $request->all();
+        $storrequest = new LiveStopTiktokRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
         );
-    } else {
-        $channel = $request->channel;
-        $resourceId = $request->resourceId;
-        $sid = $request->sid;
-        $uid = $request->uid ?? '1';
-    
-        $appId = config('services.agora.app_id');
-        $customerId = config('services.agora.customer_key');
-        $customerCertificate = config('services.agora.customer_secret');       
-        $baseUrl = "https://api.agora.io/v1/apps";
-    
-        try {
-            // 2️⃣ Stop RTMP stream
-            $stopResponse = Http::withBasicAuth($customerId, $customerCertificate)
-                ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/sid/$sid/mode/live/stop", [
-                    'cname' => $channel,
-                    'uid' => $uid,
-                    'clientRequest' => new \stdClass(),
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            $channel = $request->channel;
+            $resourceId = $request->resourceId;
+            $sid = $request->sid;
+            $uid = $request->uid ?? '1';
+
+            $appId = config('services.agora.app_id');
+            $customerId = config('services.agora.customer_key');
+            $customerCertificate = config('services.agora.customer_secret');
+            $baseUrl = "https://api.agora.io/v1/apps";
+
+            try {
+                // 2️⃣ Stop RTMP stream
+                $stopResponse = Http::withBasicAuth($customerId, $customerCertificate)
+                    ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/sid/$sid/mode/live/stop", [
+                        'cname' => $channel,
+                        'uid' => $uid,
+                        'clientRequest' => new \stdClass(),
+                    ]);
+
+                if (!$stopResponse->successful()) {
+                    //Failed to stop RTMP stream
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.faild'),
+                            "data" => $stopResponse->json()
+                        ]
+                        ,
+                        500
+                    );
+                }
+
+                \Log::info('RTMP stream stopped successfully', [
+                    'channel' => $channel,
+                    'resourceId' => $resourceId,
+                    'sid' => $sid,
                 ]);
-    
-            if (!$stopResponse->successful()) {
-//Failed to stop RTMP stream
+                //RTMP stream stopped successfully
+                return response()->json(
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.live stoped'),
+                        "data" => $stopResponse->json()
+                    ]
+
+                );
+            } catch (\Exception $e) {
+                \Log::error('Tiktok RTMP stop error', ['error' => $e->getMessage()]);
                 return response()->json(
                     [
                         "success" => 0,
-                        "message" => __('api_messages.faild'),
-                        "data" =>   $stopResponse->json()
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
                     ]
-                   , 500);
+                    ,
+                    500
+                );
             }
-    
-            \Log::info('RTMP stream stopped successfully', [
-                'channel' => $channel,
-                'resourceId' => $resourceId,
-                'sid' => $sid,
-            ]);
-    //RTMP stream stopped successfully
-            return response()->json(
-                ["success" => 1, 
-                "message" => __('api_messages.live stoped'), 
-                "data" =>  $stopResponse->json()
-                            ]
- 
-             );
-        } catch (\Exception $e)
-         {
-            \Log::error('Tiktok RTMP stop error', ['error' => $e->getMessage()]);
-            return response()->json(
-                [
-                    "success" => 0,
-                    "message" => __('api_messages.Operation failed'),
-                    "data" => $e->getMessage()
-                ]                 
-                , 500);
+
         }
 
-    }
- 
 
-   
-}
-//End tiktok
+
+    }
+    //End tiktok
     // Start Comment
     public function start(Request $request)
     {

@@ -4,6 +4,7 @@ namespace App\Jobs;
 use App\Models\LiveStream;
 use App\Models\LiveComment;
 use App\Models\Marketer;
+use App\Models\Social;
 use App\Services\FacebookCommentsService;
 use App\Services\YouTubeCommentsService;
 use Illuminate\Bus\Queueable;
@@ -20,105 +21,117 @@ class FetchLiveCommentsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $streamId;
-
+public Social $social;
     // You can inject services via container in handle()
-    public function __construct(int $streamId)
+    public function __construct(int $streamId,Social $social)
     {
         $this->streamId = $streamId;
+        $this->social=$social;
     }
 
     public function handle(FacebookCommentsService $fbService, YouTubeCommentsService $ytService)
     {
         \Log::info(" بدء جلب تعليقات");  
-        $stream = LiveStream::find($this->streamId);
-     
+        $stream = LiveStream::find($this->streamId);     
         if (!$stream || !$stream->is_active) {
             \Log::info(" البث رقم {$this->streamId} غير نشط، تم إيقاف الـ Job.");
             return;
         }
 
         $marketerId = $stream->marketer_id;
+if($this->social->code=="facebook"){
+    // 1) آخر comment_id لكل منصة محفوظ في قاعدة البيانات لنفس agora_live_id
+    $lastFb = LiveComment::where('live_stream_id', $stream->id)
+    ->where('social_id', $this->social->id)
+    ->orderByDesc('comment_time')
+    ->value('comment_id');
 
-        // 1) آخر comment_id لكل منصة محفوظ في قاعدة البيانات لنفس agora_live_id
-        $lastFb = LiveComment::where('agora_live_id', $stream->agora_live_id)
-                    ->where('platform', 'facebook')
-                    ->orderByDesc('comment_time')
-                    ->value('comment_id');
+       // 2) جلب تعليقات فيسبوك جديدة
+       if ($stream->facebook_live_video_id && $stream->facebook_access_token) {
+        \Log::info(" بدء جلب تعليقات فايسبوك الجديدة");
+        try {
+            $fbComments = $fbService->getNewComments($stream->facebook_live_video_id, $stream->facebook_access_token, $lastFb);
 
-        $lastYt = LiveComment::where('agora_live_id', $stream->agora_live_id)
-                    ->where('platform', 'youtube')
-                    ->orderByDesc('comment_time')
-                    ->value('comment_id');
-
-        $newSaved = []; // نجمع التعليقات الجديدة لإرسال اشعار واحد مرتب
-
-        // 2) جلب تعليقات فيسبوك جديدة
-        if ($stream->facebook_live_video_id && $stream->facebook_access_token) {
-            \Log::info(" بدء جلب تعليقات فايسبوك الجديدة");
-            try {
-                $fbComments = $fbService->getNewComments($stream->facebook_live_video_id, $stream->facebook_access_token, $lastFb);
-
-                foreach ($fbComments as $c) {
-                    // حفظ فقط إذا لم يكن موجوداً (unique constraint on platform/comment_id)
-                    try {
-                        $comment = LiveComment::create([
-                            'marketer_id' => $marketerId,
-                            'agora_live_id' => $stream->agora_live_id,
-                            'platform' => 'facebook',
-                            'comment_id' => $c['id'],
-                            'author_name' => $c['from_name'],
-                            'message' => $c['message'],
-                            'comment_time' => $c['time']->toDateTimeString(),
-                        ]);
-                        $newSaved[] = [
-                            'platform'=>'facebook',
-                            'comment_id'=>$c['id'],
-                            'author_name'=>$c['from_name'],
-                            'message'=>$c['message'],
-                            'comment_time'=>$c['time']->toIso8601String(),
-                        ];
-                    } catch (\Exception $e) {
-                        // قد يكون التعليق موجود مسبقًا بسبب سباق/مكرّر -> تجاهل
-                        Log::warning('FB save comment failed: '.$e->getMessage());
-                    }
+            foreach ($fbComments as $c) {
+                // حفظ فقط إذا لم يكن موجوداً (unique constraint on platform/comment_id)
+                try {
+                    $comment = LiveComment::create([
+                        'marketer_id' => $marketerId,
+                        'agora_live_id' => $stream->agora_live_id,
+                        'live_stream_id'=> $stream->id,
+                        'platform' => 'facebook',
+                        'comment_id' => $c['id'],
+                        'author_name' => $c['from_name'],
+                        'message' => $c['message'],
+                        'comment_time' => $c['time']->toDateTimeString(),
+                        'social_id'=>$this->social->id,
+                    ]);
+                    $newSaved[] = [
+                        'platform'=>'facebook',
+                        'comment_id'=>$c['id'],
+                        'author_name'=>$c['from_name'],
+                        'message'=>$c['message'],
+                        'comment_time'=>$c['time']->toIso8601String(),
+                        'social_id'=>$this->social->id,
+                    ];
+                } catch (\Exception $e) {
+                    // قد يكون التعليق موجود مسبقًا بسبب سباق/مكرّر -> تجاهل
+                    Log::warning('FB save comment failed: '.$e->getMessage());
                 }
-            } catch (\Exception $e) {
-                Log::error('FB fetch error: '.$e->getMessage());
             }
+        } catch (\Exception $e) {
+            Log::error('FB fetch error: '.$e->getMessage());
         }
+    }
 
-        // 3) جلب تعليقات يوتيوب جديدة
-        if ($stream->youtube_live_chat_id && $stream->youtube_access_token) {
-            try {
-                \Log::info(" بدء جلب تعليقات يوتيوب الجديدة");
-                $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id, $stream->youtube_access_token, $lastYt);
+}else if($this->social->code=="youtube"){
+    $lastYt = LiveComment::where('live_stream_id', $stream->id)
+    ->where('social_id', $this->social->id)
+                ->orderByDesc('comment_time')
+                ->value('comment_id');
 
-                foreach ($ytComments as $c) {
-                    try {
-                        $comment = LiveComment::create([
-                            'marketer_id' => $marketerId,
-                            'agora_live_id' => $stream->agora_live_id,
-                            'platform' => 'youtube',
-                            'comment_id' => $c['id'],
-                            'author_name' => $c['from_name'],
-                            'message' => $c['message'],
-                            'comment_time' => $c['time']->toDateTimeString(),
-                        ]);
-                        $newSaved[] = [
-                            'platform'=>'youtube',
-                            'comment_id'=>$c['id'],
-                            'author_name'=>$c['from_name'],
-                            'message'=>$c['message'],
-                            'comment_time'=>$c['time']->toIso8601String(),
-                        ];
-                    } catch (\Exception $e) {
-                        Log::warning('YT save comment failed: '.$e->getMessage());
-                    }
+    $newSaved = []; // نجمع التعليقات الجديدة لإرسال اشعار واحد مرتب
+
+ 
+    // 3) جلب تعليقات يوتيوب جديدة
+    if ($stream->youtube_live_chat_id && $stream->youtube_access_token) {
+        try {
+            \Log::info(" بدء جلب تعليقات يوتيوب الجديدة");
+            $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id, $stream->youtube_access_token, $lastYt);
+
+            foreach ($ytComments as $c) {
+                try {
+                    $comment = LiveComment::create([
+                        'marketer_id' => $marketerId,
+                        'agora_live_id' => $stream->agora_live_id,
+                        'live_stream_id'=> $stream->id,
+                        'platform' => 'youtube',
+                        'comment_id' => $c['id'],
+                        'author_name' => $c['from_name'],
+                        'message' => $c['message'],
+                        'comment_time' => $c['time']->toDateTimeString(),
+                        'social_id'=>$this->social->id,
+                    ]);
+                    $newSaved[] = [
+                        'platform'=>'youtube',
+                        'comment_id'=>$c['id'],
+                        'author_name'=>$c['from_name'],
+                        'message'=>$c['message'],
+                        'comment_time'=>$c['time']->toIso8601String(),
+                        'social_id'=>$this->social->id,
+                    ];
+                } catch (\Exception $e) {
+                    Log::warning('YT save comment failed: '.$e->getMessage());
                 }
-            } catch (\Exception $e) {
-                Log::error('YT fetch error: '.$e->getMessage());
             }
+        } catch (\Exception $e) {
+            Log::error('YT fetch error: '.$e->getMessage());
         }
+    }
+}
+ 
+
+     
 
         // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
         if (!empty($newSaved)) {
