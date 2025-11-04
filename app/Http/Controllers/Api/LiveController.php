@@ -110,7 +110,7 @@ class LiveController extends Controller
         } else {
             $fbToken = $request->input('fbToken');
             $title = $request->input('title', 'My Laravel Live Stream');
-            $description = $request->input('description', 'Streaming live from Laravel 🎥');
+            $description = $request->input('description', 'Streaming live');
             try {
                 // 🔹 1. الحصول على الصفحات التابعة للمستخدم
                 $pagesRes = Http::get("https://graph.facebook.com/v19.0/me/accounts", [
@@ -171,6 +171,7 @@ $marketer_social=MarketerSocial::where('marketer_id',auth('api_marketers')->user
 
 $stream->facebook_live_video_id= $liveData['id'] ?? null;
 $stream->facebook_access_token=$marketer_social->access_token;
+$stream->facebook_is_active=true;
 $stream->save();
 //start job
    // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
@@ -245,6 +246,11 @@ $stream->save();
                         500
                     );
                 }
+
+                //end job             
+                $stream=LiveStream::find($request->input('agora_live_id')) ;
+                $stream->facebook_is_active=false;
+                $stream->save();
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live stoped'), "data" => $response->json()]
                 );
@@ -454,7 +460,7 @@ $stream->save();
     public function youtube_push(Request $request)
     {
         // ✅ التحقق من المدخلات
-
+ 
         $formdata = $request->all();
         $storrequest = new LiveStartPushRequest();
         $validator = Validator::make(
@@ -474,9 +480,9 @@ $stream->save();
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
 
             // إعداد المتغيرات من env
-            $appId = env('AGORA_APP_ID');
-            $customerKey = env('AGORA_CUSTOMER_KEY');
-            $customerSecret = env('AGORA_CUSTOMER_SECRET');
+            $appId = config('services.agora.app_id');
+            $customerKey =config('services.agora.customer_key') ;
+            $customerSecret =config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
             //return  response()->json($appId);
             // RTMP URL ليوتيوب
@@ -515,6 +521,34 @@ $stream->save();
                         500
                     );
                 }
+
+//
+
+                //بدء جلب التعليقات
+                $stream=LiveStream::find($formdata['agora_live_id']) ;
+                $social=Social::where('code','youtube')->first();
+                $marketer_social=MarketerSocial::where('marketer_id',auth('api_marketers')->user()->id)->where('social_id',$social->id)->first();
+                $liveChatId = null;
+                $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
+                    'part' => 'snippet',
+                    'broadcastStatus' => 'active',
+                    'key' =>config('services.youtube.key'),
+
+                ]);
+                
+                if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
+                    $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
+                } else {
+                    $liveChatId = null; // لا يوجد بث مباشر حالياً
+                }
+                $stream->youtube_live_chat_id= $liveChatId  ?? null;
+                $stream->youtube_access_token=$formdata['youtube_access_token'];
+                $stream->youtube_is_active=true;
+                $stream->save();
+                //start job
+                   // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+                   FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
+//                
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
                 );
@@ -553,10 +587,14 @@ $stream->save();
                 422
             );
         } else {
+
+            
+
+
             $converterId = $formdata['converterId'];
-            $appId = env('AGORA_APP_ID');
-            $customerKey = env('AGORA_CUSTOMER_KEY');
-            $customerSecret = env('AGORA_CUSTOMER_SECRET');
+            $appId = config('services.agora.app_id');
+            $customerKey = config('services.agora.customer_key') ;
+            $customerSecret = config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');
             try {
                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
@@ -579,6 +617,10 @@ $stream->save();
                     );
                 }
                 //success
+                 //end job             
+                 $stream=LiveStream::find($request->input('agora_live_id')) ;
+                 $stream->youtube_is_active=false;
+                 $stream->save();
                 return response()->json(
                     [
                         "success" => 1,

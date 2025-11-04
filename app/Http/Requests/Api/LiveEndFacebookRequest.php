@@ -24,7 +24,7 @@ class LiveEndFacebookRequest extends FormRequest
         return [
             'live_video_id' => 'required|string',
             'page_token' => 'nullable|string',
-      
+            'agora_live_id' => 'required',
   
  
               ];
@@ -35,7 +35,8 @@ class LiveEndFacebookRequest extends FormRequest
    return[     
     // 'id.*'=> __('api_messages.user not found'),
  'live_video_id.*'=>__('api_messages.data empty'),
- 'page_token.*'=>__('api_messages.data empty')
+ 'page_token.*'=>__('api_messages.data empty'),
+ 'agora_live_id.*' =>__('api_messages.data empty'),
     ];
     
 }

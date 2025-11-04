@@ -23,7 +23,7 @@ class LiveStopPushRequest extends FormRequest
     {
         return [
             'converterId' => 'required',
-       
+            'agora_live_id' => 'required',
  
               ];
     }
@@ -33,7 +33,7 @@ class LiveStopPushRequest extends FormRequest
    return[     
     // 'id.*'=> __('api_messages.user not found'),
  'converterId.*'=>__('api_messages.data empty'),
-  
+ 'agora_live_id.*'=>__('api_messages.data empty'),
     ];
     
 }

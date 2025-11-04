@@ -47,7 +47,7 @@ if($this->social->code=="facebook"){
     ->value('comment_id');
 
        // 2) جلب تعليقات فيسبوك جديدة
-       if ($stream->facebook_live_video_id && $stream->facebook_access_token) {
+       if ($stream->facebook_live_video_id && $stream->facebook_access_token && $stream->facebook_is_active) {
         \Log::info(" بدء جلب تعليقات فايسبوك الجديدة");
         try {
             $fbComments = $fbService->getNewComments($stream->facebook_live_video_id, $stream->facebook_access_token, $lastFb);
@@ -82,9 +82,16 @@ if($this->social->code=="facebook"){
         } catch (\Exception $e) {
             Log::error('FB fetch error: '.$e->getMessage());
         }
+
+        if ($stream->fresh()->is_active) {
+            dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
+            }
     }
+   
 
 }else if($this->social->code=="youtube"){
+
+    //تعليقات يو تيوب
     $lastYt = LiveComment::where('live_stream_id', $stream->id)
     ->where('social_id', $this->social->id)
                 ->orderByDesc('comment_time')
@@ -94,7 +101,7 @@ if($this->social->code=="facebook"){
 
  
     // 3) جلب تعليقات يوتيوب جديدة
-    if ($stream->youtube_live_chat_id && $stream->youtube_access_token) {
+    if ($stream->youtube_live_chat_id && $stream->youtube_access_token && $stream->youtube_access_token) {
         try {
             \Log::info(" بدء جلب تعليقات يوتيوب الجديدة");
             $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id, $stream->youtube_access_token, $lastYt);
@@ -127,13 +134,16 @@ if($this->social->code=="facebook"){
         } catch (\Exception $e) {
             Log::error('YT fetch error: '.$e->getMessage());
         }
+
+ if ($stream->fresh()->is_active) {
+        dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
+        }
+
     }
+
+   
 }
- 
-
-     
-
-        // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
+         // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
         if (!empty($newSaved)) {
             // رتب من الأحدث إلى الأقدم قبل الإرسال
             usort($newSaved, function($a,$b){
@@ -158,9 +168,7 @@ if($this->social->code=="facebook"){
 
         // 5) إعادة جدولة نفس الـ Job بعد 10 ثواني طالما السجل لا يزال موجود (يحاكي polling كل 10s)
         // (يمكنك تغيير المنطق لإيقافه عندما ينتهي البث)
-        if ($stream->fresh()->is_active) {
-        dispatch(new self($this->streamId))->delay(now()->addSeconds(10));
-        }
+       
     }
 
     // protected function sendFcmNotification(array $tokens, array $comments)

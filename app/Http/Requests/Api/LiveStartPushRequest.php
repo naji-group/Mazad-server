@@ -25,7 +25,8 @@ class LiveStartPushRequest extends FormRequest
             'channelName' => 'required|string',
             'uid' => 'required',
             'youtubeStreamKey' => 'required|string',
- 
+            'agora_live_id'=>'required',
+            
               ];
     }
     public function messages(): array
@@ -35,7 +36,8 @@ class LiveStartPushRequest extends FormRequest
     // 'id.*'=> __('api_messages.user not found'),
  'channelName.*'=>__('api_messages.data empty'),
  'uid.*'=>__('api_messages.data empty'),
- 'youtubeStreamKey.*'=>__('api_messages.data empty')
+ 'youtubeStreamKey.*'=>__('api_messages.data empty'),
+ 'agora_live_id.*'=>__('api_messages.data empty'),
     ];
     
 }
