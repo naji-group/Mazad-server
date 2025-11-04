@@ -177,6 +177,10 @@ $stream->save();
    // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
    FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
 
+   \Log::info('facebook', [
+    'data' =>$liveData ,
+    ,
+]);
 /*
 'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
 'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
@@ -549,6 +553,10 @@ $stream->save();
                    // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
                    FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
 //                
+\Log::info('youtube', [
+    'data' =>$response->json() ,
+    ,
+]);
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
                 );
