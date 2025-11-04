@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Agora\src;
+
 require_once "AccessToken2.php";
 
 class RtcTokenBuilder2
@@ -11,7 +13,7 @@ class RtcTokenBuilder2
      */
     const ROLE_PUBLISHER = 1;
 
-    /**
+    /** RtcTokenBuilder2
      * Only use this role if your scenario require authentication for
      * [Co-host](https://docs.agora.io/en/video-calling/get-started/authentication-workflow?#co-host-token-authentication).
      *

@@ -36,12 +36,12 @@ class LiveController extends Controller
         try {
             $resArr = $ctrlr->generateToken();
 
-            $livestream=new LiveStream();
-            $livestream->marketer_id=auth('api_marketers')->user()->id;
+            $livestream = new LiveStream();
+            $livestream->marketer_id = auth('api_marketers')->user()->id;
 
-            $livestream->is_active=1;
+            $livestream->is_active = 1;
             $livestream->save();
-            $resArr['agora_live_id']=$livestream->id;
+            $resArr['agora_live_id'] = $livestream->id;
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.live created'), "data" => $resArr]
             );
@@ -165,26 +165,25 @@ class LiveController extends Controller
                 );
 
                 //بدء جلب التعليقات
-$stream=LiveStream::find($request->input('agora_live_id')) ;
-$social=Social::where('code','facebook')->first();
-$marketer_social=MarketerSocial::where('marketer_id',auth('api_marketers')->user()->id)->where('social_id',$social->id)->first();
+                $stream = LiveStream::find($request->input('agora_live_id'));
+                $social = Social::where('code', 'facebook')->first();
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
 
-$stream->facebook_live_video_id= $liveData['id'] ?? null;
-$stream->facebook_access_token=$marketer_social->access_token;
-$stream->facebook_is_active=true;
-$stream->save();
-//start job
-   // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-   FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
+                $stream->facebook_live_video_id = $liveData['id'] ?? null;
+                $stream->facebook_access_token = $marketer_social->access_token;
+                $stream->facebook_is_active = true;
+                $stream->save();
+                //start job
+                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
 
-   \Log::info('facebook', [
-    'data' =>$liveData ,
-    ,
-]);
-/*
-'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
-'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
-*/
+                \Log::info('facebook', [
+                    'data' => $liveData,
+                ]);
+                /*
+                'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
+                'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
+                */
                 // 🔹 4. الإرجاع
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => $liveData]
@@ -252,8 +251,8 @@ $stream->save();
                 }
 
                 //end job             
-                $stream=LiveStream::find($request->input('agora_live_id')) ;
-                $stream->facebook_is_active=false;
+                $stream = LiveStream::find($request->input('agora_live_id'));
+                $stream->facebook_is_active = false;
                 $stream->save();
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live stoped'), "data" => $response->json()]
@@ -464,7 +463,7 @@ $stream->save();
     public function youtube_push(Request $request)
     {
         // ✅ التحقق من المدخلات
- 
+
         $formdata = $request->all();
         $storrequest = new LiveStartPushRequest();
         $validator = Validator::make(
@@ -485,8 +484,8 @@ $stream->save();
 
             // إعداد المتغيرات من env
             $appId = config('services.agora.app_id');
-            $customerKey =config('services.agora.customer_key') ;
-            $customerSecret =config('services.agora.customer_secret');
+            $customerKey = config('services.agora.customer_key');
+            $customerSecret = config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
             //return  response()->json($appId);
             // RTMP URL ليوتيوب
@@ -526,37 +525,36 @@ $stream->save();
                     );
                 }
 
-//
+                //
 
                 //بدء جلب التعليقات
-                $stream=LiveStream::find($formdata['agora_live_id']) ;
-                $social=Social::where('code','youtube')->first();
-                $marketer_social=MarketerSocial::where('marketer_id',auth('api_marketers')->user()->id)->where('social_id',$social->id)->first();
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $social = Social::where('code', 'youtube')->first();
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
                 $liveChatId = null;
                 $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
                     'part' => 'snippet',
                     'broadcastStatus' => 'active',
-                    'key' =>config('services.youtube.key'),
+                    'key' => config('services.youtube.key'),
 
                 ]);
-                
+
                 if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
                     $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
                 } else {
                     $liveChatId = null; // لا يوجد بث مباشر حالياً
                 }
-                $stream->youtube_live_chat_id= $liveChatId  ?? null;
-                $stream->youtube_access_token=$formdata['youtube_access_token'];
-                $stream->youtube_is_active=true;
+                $stream->youtube_live_chat_id = $liveChatId ?? null;
+                $stream->youtube_access_token = $formdata['youtube_access_token'];
+                $stream->youtube_is_active = true;
                 $stream->save();
                 //start job
-                   // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                   FetchLiveCommentsJob::dispatch($stream->id,$social)->delay(now()->addSeconds(1));
-//                
-\Log::info('youtube', [
-    'data' =>$response->json() ,
-    ,
-]);
+                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+                //                
+                \Log::info('youtube', [
+                    'data' => $response->json(),
+                ]);
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
                 );
@@ -596,12 +594,12 @@ $stream->save();
             );
         } else {
 
-            
+
 
 
             $converterId = $formdata['converterId'];
             $appId = config('services.agora.app_id');
-            $customerKey = config('services.agora.customer_key') ;
+            $customerKey = config('services.agora.customer_key');
             $customerSecret = config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');
             try {
@@ -625,10 +623,10 @@ $stream->save();
                     );
                 }
                 //success
-                 //end job             
-                 $stream=LiveStream::find($request->input('agora_live_id')) ;
-                 $stream->youtube_is_active=false;
-                 $stream->save();
+                //end job             
+                $stream = LiveStream::find($request->input('agora_live_id'));
+                $stream->youtube_is_active = false;
+                $stream->save();
                 return response()->json(
                     [
                         "success" => 1,

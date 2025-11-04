@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Agora\src;
+
 class Util
 {
     public static function assertEqual($expected, $actual)

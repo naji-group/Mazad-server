@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use RtcTokenBuilder2;
+use App\Agora\src\RtcTokenBuilder2;
 class AgoraController extends Controller
 {
 //     public function generateToken1($client_id,$expireTime,$channel)

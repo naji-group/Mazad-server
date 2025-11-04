@@ -21,12 +21,13 @@ class LiveStartPushRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
             'channelName' => 'required|string',
             'uid' => 'required',
             'youtubeStreamKey' => 'required|string',
             'agora_live_id'=>'required',
-            
+           'youtube_access_token' => 'required',
               ];
     }
     public function messages(): array
@@ -38,6 +39,7 @@ class LiveStartPushRequest extends FormRequest
  'uid.*'=>__('api_messages.data empty'),
  'youtubeStreamKey.*'=>__('api_messages.data empty'),
  'agora_live_id.*'=>__('api_messages.data empty'),
+ 'youtube_access_token.*'=>__('api_messages.data empty'),
     ];
     
 }
