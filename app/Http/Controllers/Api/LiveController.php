@@ -478,15 +478,22 @@ class LiveController extends Controller
                 422
             );
         } else {
+
             $channelName = $formdata['channelName'];
             $uid = $formdata['uid'];
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
+ \Log::info('youtube vars validated', [
+                    'data' =>  $channelName.'-'.
+                    $uid.'-'.
+                    $youtubeStreamKey,
+                ]);
 
             // إعداد المتغيرات من env
             $appId = config('services.agora.app_id');
             $customerKey = config('services.agora.customer_key');
             $customerSecret = config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+
             //return  response()->json($appId);
             // RTMP URL ليوتيوب
             try {
@@ -511,9 +518,16 @@ class LiveController extends Controller
                     'Authorization' => $authHeader,
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+ \Log::info('youtube', [
+                    'data' => 'sendto:'.'https://api.agora.io',
+                ]);
 
                 // التحقق من النتيجة
                 if ($response->failed()) {
+
+                    \Log::error('youtube error', ['error' => $response->json()]);
+
+
                     return response()->json(
                         [
                             "success" => 0,
@@ -523,7 +537,7 @@ class LiveController extends Controller
                         ,
                         500
                     );
-                }
+                 }
 
                 //
 
@@ -538,27 +552,40 @@ class LiveController extends Controller
                     'key' => config('services.youtube.key'),
 
                 ]);
-
+                \Log::info('youtube', [
+                    'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
+                ]);
                 if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
                     $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
+             
+                    \Log::info('youtube response', [
+                        'data' => $response->json(),
+                    ]);
+             
                 } else {
                     $liveChatId = null; // لا يوجد بث مباشر حالياً
+                    \Log::info('youtube response', [
+                        'data' => "no response and liveChatId = null",
+                    ]);
                 }
                 $stream->youtube_live_chat_id = $liveChatId ?? null;
                 $stream->youtube_access_token = $formdata['youtube_access_token'];
                 $stream->youtube_is_active = true;
                 $stream->save();
                 //start job
+                \Log::info('youtube', [
+                    'data' => 'start job',
+                ]);
+
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
                 FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
-                \Log::info('youtube', [
-                    'data' => $response->json(),
-                ]);
+            
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
                 );
             } catch (\Exception $e) {
+                \Log::error('youtube error', ['error' => $e->getMessage()]);
                 return response()->json(
                     [
                         "success" => 0,

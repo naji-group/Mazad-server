@@ -31,6 +31,7 @@ class YouTubeCommentsService
         ]);
 
         if ($res->failed()) {
+            \Log::error(' youtubeerror', ['error' => 'https://www.googleapis.com/youtube/v3/liveChat/messages']);
             return [];
         }
 

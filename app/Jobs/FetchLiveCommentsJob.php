@@ -31,7 +31,7 @@ public Social $social;
 
     public function handle(FacebookCommentsService $fbService, YouTubeCommentsService $ytService)
     {
-        \Log::info(" بدء جلب تعليقات");  
+        \Log::info(" بدء جلب تعليقات".$this->social->code);  
         $stream = LiveStream::find($this->streamId);     
         if (!$stream || !$stream->is_active) {
             \Log::info(" البث رقم {$this->streamId} غير نشط، تم إيقاف الـ Job.");
@@ -82,6 +82,17 @@ if($this->social->code=="facebook"){
         } catch (\Exception $e) {
             Log::error('FB fetch error: '.$e->getMessage());
         }
+
+              // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
+              if (!empty($newSaved)) {
+                // رتب من الأحدث إلى الأقدم قبل الإرسال
+                usort($newSaved, function($a,$b){
+                    return strcmp($b['comment_time'], $a['comment_time']);
+                });
+                    // احصل على firebase_token(s) للمسوق
+                SendMarketerNotification::dispatch(
+                    [auth('api_marketers')->user()->id],'','',[$newSaved] ,['fcm']);         
+            }
 
         if ($stream->fresh()->is_active) {
             dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
@@ -135,6 +146,21 @@ if($this->social->code=="facebook"){
             Log::error('YT fetch error: '.$e->getMessage());
         }
 
+
+      // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
+      if (!empty($newSaved)) {
+        // رتب من الأحدث إلى الأقدم قبل الإرسال
+        usort($newSaved, function($a,$b){
+            return strcmp($b['comment_time'], $a['comment_time']);
+        });
+            // احصل على firebase_token(s) للمسوق
+        SendMarketerNotification::dispatch(
+            [auth('api_marketers')->user()->id],'','',[$newSaved] ,['fcm']);         
+    }
+    \Log::info('youtube Notification sent ', [
+        'data' =>['newSaved'=>$newSaved],
+    ]);
+
  if ($stream->fresh()->is_active) {
         dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
         }
@@ -143,28 +169,7 @@ if($this->social->code=="facebook"){
 
    
 }
-         // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
-        if (!empty($newSaved)) {
-            // رتب من الأحدث إلى الأقدم قبل الإرسال
-            usort($newSaved, function($a,$b){
-                return strcmp($b['comment_time'], $a['comment_time']);
-            });
-
-            // احصل على firebase_token(s) للمسوق
-           
-           // $marketer=Marketer::find(auth('api_marketers')->user()->id);
-            SendMarketerNotification::dispatch(
-                [auth('api_marketers')->user()->id],'','',[$newSaved] ,['fcm']);
-
-
-            // if ($marketer && !empty($marketer->firebase_token)) {
-            //     $tokens[] = $marketer->firebase_token;
-            // }
-
-            // if (!empty($tokens)) {
-            //     $this->sendFcmNotification($tokens, $newSaved);
-            // }
-        }
+   
 
         // 5) إعادة جدولة نفس الـ Job بعد 10 ثواني طالما السجل لا يزال موجود (يحاكي polling كل 10s)
         // (يمكنك تغيير المنطق لإيقافه عندما ينتهي البث)
