@@ -3,12 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\NotifyController;
+use App\Http\Controllers\Web\GoogleAuthController;
 //use App\Http\Controllers\Web\MarketerAuthController;
 //use Laravel\Socialite\Facades\Socialite;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::get('/google/auth', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('/google/oauth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 Route::get('/storagelink', function () {
     $exitCode = Artisan::call('storage:link');
