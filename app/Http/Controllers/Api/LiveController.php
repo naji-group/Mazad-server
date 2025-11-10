@@ -13,6 +13,7 @@ use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
 use App\Http\Requests\Api\LiveStopTiktokRequest;
+use App\Jobs\SendMarketerNotification;
 use App\Models\Livevar;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
@@ -554,6 +555,10 @@ class LiveController extends Controller
                 ]);
                 \Log::info('youtube', [
                     'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
+                ]);
+             
+                \Log::info('youtube response', [
+                    'data' => $response->json(),
                 ]);
                 if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
                     $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];

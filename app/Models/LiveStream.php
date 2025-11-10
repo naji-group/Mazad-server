@@ -28,6 +28,9 @@ class LiveStream extends Model
         'youtube_is_active',
         'tiktok_is_active',        
         'jaco_is_active',     
+       'start_date',
+'end_date',
+
 
     ];
     public function marketer(): BelongsTo
@@ -37,5 +40,9 @@ class LiveStream extends Model
     public function livecomments(): HasMany
     {
         return $this->hasMany(LiveComment::class, 'live_stream_id');
+    }
+    public function livestreamsocials(): HasMany
+    {
+        return $this->hasMany(LivestreamSocial::class, 'live_stream_id');
     }
 }

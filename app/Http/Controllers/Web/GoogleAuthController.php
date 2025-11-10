@@ -47,7 +47,7 @@ class GoogleAuthController extends Controller
     $refresh = $tokens['refresh_token'] ?? null;
     $expires_in = $tokens['expires_in'];
 
-    // ✅ Correct deep link format (single slash)
+    // // ✅ Correct deep link format (single slash)
     $deepLink = "com.ae.zawed://oauthcallback?" . http_build_query([
         "access_token" => $access,
         "refresh_token" => $refresh,
@@ -56,7 +56,14 @@ class GoogleAuthController extends Controller
     \Log::info('youtube', [
         'data' => $tokens,
     ]);
-    return redirect()->away($deepLink);
+ //   return redirect()->away($deepLink);
+
+      return response()->json([
+            'success' => true,
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'] ?? null,
+            'expires_in' => $tokens['expires_in']
+        ]) ;
 }
 
 }

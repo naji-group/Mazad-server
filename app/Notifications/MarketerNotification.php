@@ -71,10 +71,14 @@ class MarketerNotification extends Notification
         //     return 'no-token';
         // } else
         //  {
-            $dataArr["title"] = $this->title;
-             $dataArr["body"]= $this->body;
-             $dataArr["click_action"]= "FLUTTER_NOTIFICATION_CLICK";
-           
+
+
+            $this->data["title"] = $this->title;
+        //    $this->data["body"]= $this->body;
+        //   $this->data["click_action"]= "FLUTTER_NOTIFICATION_CLICK";
+              \Log::info('notify', [
+                        'data' => $this->data,
+                    ]);
             $credentialsFilePath = storage_path('app/zawed-app-firebase-adminsdk.json');
 
             $client = new GoogleClient();
@@ -105,7 +109,7 @@ class MarketerNotification extends Notification
                      // [ "title" =>null ]
                      [ "title" => $this->title ,"body"=>$this->body]
                      ,
-                     "data" => $dataArr ,   
+                     "data" => $this->data ,   
                      'apns' => [
                         'payload' => [
                             'aps' => [

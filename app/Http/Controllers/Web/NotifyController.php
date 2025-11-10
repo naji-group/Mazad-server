@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendMarketerNotification;
 use Carbon\Traits\ToStringFormat;
 use Illuminate\Http\Request;
 use Google\Client as GoogleClient;
@@ -69,8 +70,20 @@ class NotifyController extends Controller
            // 'expert_id' => '1',
             'notes' => 'auto'
         ];
-        $res = $this->send_to_web_fcm($to_token, $title, $body, $dataArr);
-        return $res;
+        $newSaved[]=    [
+            'platform'=>'youtube',
+            'comment_id'=>10,
+            'author_name'=>"ahmad",
+            'message'=>"45",
+            'comment_time'=>now(),
+            'social_id'=>3]
+            
+            ;
+        SendMarketerNotification::dispatch(
+            [8],'','',$newSaved);
+            
+       // $res = $this->send_to_web_fcm($to_token, $title, $body, $dataArr);
+        return "ok";
 
     }
 

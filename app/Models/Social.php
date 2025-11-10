@@ -45,4 +45,8 @@ class Social extends Model
     {
         return $this->hasMany(LiveComment::class, 'social_id');
     }
+    public function livestreamsocials(): HasMany
+    {
+        return $this->hasMany(LivestreamSocial::class, 'social_id');
+    }
 }
