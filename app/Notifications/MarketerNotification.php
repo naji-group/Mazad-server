@@ -74,8 +74,12 @@ class MarketerNotification extends Notification
 
 
             $this->data["title"] = $this->title;
-        //    $this->data["body"]= $this->body;
-        //   $this->data["click_action"]= "FLUTTER_NOTIFICATION_CLICK";
+         $this->data["body"]= $this->body;
+        $this->data["click_action"]= "FLUTTER_NOTIFICATION_CLICK";
+        //$dArr=[];
+        // $dArr["title"]='';
+        // $dArr["body"]="";
+        // $dArr["click_action"]="FLUTTER_NOTIFICATION_CLICK";
               \Log::info('notify', [
                         'data' => $this->data,
                     ]);
@@ -106,10 +110,10 @@ class MarketerNotification extends Notification
                         'priority'=> "high",
                       ],
                      "notification" =>
-                     // [ "title" =>null ]
-                     [ "title" => $this->title ,"body"=>$this->body]
+                   //  [ "title" =>null ]
+                    [ "title" => $this->title ,"body"=>$this->body]
                      ,
-                     "data" => $this->data ,   
+                     "data" => $this->data,   
                      'apns' => [
                         'payload' => [
                             'aps' => [

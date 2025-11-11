@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendMarketerNotification;
+use App\Models\Marketer;
 use Carbon\Traits\ToStringFormat;
 use Illuminate\Http\Request;
 use Google\Client as GoogleClient;
+use Nette\Utils\Random;
 // use GuzzleHttp\Client as HttpClient;
 class NotifyController extends Controller
 {
@@ -70,17 +72,19 @@ class NotifyController extends Controller
            // 'expert_id' => '1',
             'notes' => 'auto'
         ];
-        $newSaved[]=    [
+        $mr=Marketer::find(8);
+        $newSaved=    [
             'platform'=>'youtube',
-            'comment_id'=>10,
-            'author_name'=>"ahmad",
-            'message'=>"45",
-            'comment_time'=>now(),
-            'social_id'=>3]
+            'comment_id'=>"10",
+            'author_name'=>"ahmad_".strval(rand(10,99)),
+            'message'=>strval(rand(10,99)),
+            'comment_time'=>$mr->updated_at,
+            'social_id'=>"3"]
             
             ;
+           
         SendMarketerNotification::dispatch(
-            [8],'','',$newSaved);
+            [8],'-','-',$newSaved);
             
        // $res = $this->send_to_web_fcm($to_token, $title, $body, $dataArr);
         return "ok";
