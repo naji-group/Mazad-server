@@ -55,6 +55,7 @@ class NotifyController extends Controller
         $to_token = "";
         $title = '';
         $body = '';
+         
         if (isset($formdata['input_token'])) {
             $to_token = $formdata['input_token'];
 
@@ -67,24 +68,43 @@ class NotifyController extends Controller
             $body = $formdata['body'];
 
         }
-        $dataArr = [
-            'id' => strval('22'),
-           // 'expert_id' => '1',
-            'notes' => 'auto'
-        ];
-        $mr=Marketer::find(8);
+    
+    $marketer_id= $formdata['marketer_id'];
+        $mr=Marketer::find($marketer_id);
+        /*
+body
+: 
+"200 za"
+customer_name
+: 
+"ahhmmaas"
+input_token
+: 
+"toksss"
+marketer_id
+: 
+"8"
+social
+: 
+"youtube"
+social_id
+: 
+"3"
+title
+: 
+"ti"
+        */
         $newSaved=    [
-            'platform'=>'youtube',
-            'comment_id'=>"10",
-            'author_name'=>"ahmad_".strval(rand(10,99)),
-            'message'=>strval(rand(10,99)),
+            'platform'=>$formdata['social'],
+            'comment_id'=>strval(rand(10,9999)),
+            'author_name'=>$formdata['customer_name'],
+            'message'=>$formdata['body'],
             'comment_time'=>$mr->updated_at,
-            'social_id'=>"3"]
-            
+            'social_id'=>strval($formdata['social_id'])]            
             ;
            
         SendMarketerNotification::dispatch(
-            [8],'-','-',$newSaved);
+            [$marketer_id],'-','-',$newSaved);
             
        // $res = $this->send_to_web_fcm($to_token, $title, $body, $dataArr);
         return "ok";
