@@ -65,7 +65,9 @@ class YouTubeCommentsService
             $message = $snippet['displayMessage'] ?? '';
             $timeStr = $snippet['publishedAt'] ?? now()->toIso8601String();
             $time = Carbon::parse($timeStr);
-    
+          //  \Log::info( 'comment time-id', [  $message ,$time,$id]);
+           // \Log::info( 'sinceMessageId ', [$sinceMessageId]);
+
             // ✅ إذا لدينا sinceMessageId نبدأ حفظ ما بعده فقط
             if ($sinceMessageId) {
                 if ($foundLast) {
@@ -76,7 +78,7 @@ class YouTubeCommentsService
                         'message' => $message,
                         'time' => $time,
                     ];
-                } elseif ($id === $sinceMessageId) {
+                } elseif ($id == $sinceMessageId) {
                     // عندما نجد آخر تعليق محفوظ، نبدأ بعدها
                     $foundLast = true;
                 }
@@ -90,7 +92,7 @@ class YouTubeCommentsService
                 ];
             }
         }
-        \Log::info( 'comment arr',  $result);
+      //  \Log::info( 'comment arr',  $result);
         return $result;
        // return array_reverse($result);
       

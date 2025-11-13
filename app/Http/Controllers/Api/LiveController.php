@@ -548,7 +548,7 @@ class LiveController extends Controller
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+              //  $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
                 $liveChatId = null;
                 //start
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
@@ -579,7 +579,7 @@ class LiveController extends Controller
                 $stream->youtube_channel_id = $channelId;
                 $stream->youtube_video_id = $videoId;
                 $stream->youtube_live_chat_id = $liveChatId;
-                $stream->save();
+             //   $stream->save();
                 //end
                 //    //
                 //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [

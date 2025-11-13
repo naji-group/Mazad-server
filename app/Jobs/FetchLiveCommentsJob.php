@@ -86,9 +86,9 @@ if($this->social->code=="facebook"){
               // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
               if (!empty($newSaved)) {
                 // رتب من الأحدث إلى الأقدم قبل الإرسال
-                usort($newSaved, function($a,$b){
-                    return strcmp($b['comment_time'], $a['comment_time']);
-                });
+                // usort($newSaved, function($a,$b){
+                //     return strcmp($b['comment_time'], $a['comment_time']);
+                // });
                     // احصل على firebase_token(s) للمسوق
                 SendMarketerNotification::dispatch(
                     [$stream->marketer_id],'','',[$newSaved] ,['fcm']);         
@@ -155,16 +155,16 @@ if($this->social->code=="facebook"){
       // 4) إذا وجدنا تعليقات جديدة -> نرسل إشعار عبر FCM إلى firebase_token في جدول marketers
       if (!empty($newSaved)) {
         // رتب من الأحدث إلى الأقدم قبل الإرسال
-        usort($newSaved, function($a,$b){
-            return strcmp($b['comment_time'], $a['comment_time']);
-        });
+        // usort($newSaved, function($a,$b){
+        //     return strcmp($b['comment_time'], $a['comment_time']);
+        // });
             // احصل على firebase_token(s) للمسوق
         SendMarketerNotification::dispatch(
             [$stream->marketer_id],'','',[$newSaved] ,['database', 'fcm']);         
     }
-    \Log::info('youtube Notification sent ', [
-        'data' =>['newSaved'=>$newSaved],
-    ]);
+    // \Log::info('youtube Notification sent ', [
+    //     'data' =>['newSaved'=>$newSaved],
+    // ]);
 
  if ($stream->fresh()->is_active) {
         dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
