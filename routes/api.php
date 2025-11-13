@@ -45,6 +45,9 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         Route::post('instagram/end', [LiveController::class, 'end_instagram_live']);
         Route::post('youtube/start-push', [LiveController::class, 'youtube_push']);
         Route::post('youtube/stop-push', [LiveController::class, 'youtube_stop_push']);   
+        Route::post('youtube/start-push-test', [LiveController::class, 'youtube_push_test']);
+        Route::post('youtube/getvideoid', [LiveController::class, 'getYoutubeLiveVideoId']);  
+
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
         Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 
         
