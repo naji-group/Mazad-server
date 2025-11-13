@@ -14,6 +14,11 @@ class LiveStream extends Model
         'is_active',
         'youtube_live_chat_id',
         'youtube_access_token',
+        
+        'youtube_refresh_access_token',
+        'youtube_channel_id',
+        'youtube_video_id',
+
         'facebook_live_video_id',
         'facebook_access_token',
         'instagram_live_video_id',
