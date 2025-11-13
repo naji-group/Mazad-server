@@ -91,9 +91,9 @@ if($this->social->code=="facebook"){
                 });
                     // احصل على firebase_token(s) للمسوق
                 SendMarketerNotification::dispatch(
-                    [auth('api_marketers')->user()->id],'','',[$newSaved] ,['fcm']);         
+                    [$stream->marketer_id],'','',[$newSaved] ,['fcm']);         
             }
-
+            
         if ($stream->fresh()->is_active) {
             dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
             }
@@ -103,10 +103,15 @@ if($this->social->code=="facebook"){
 }else if($this->social->code=="youtube"){
 
     //تعليقات يو تيوب
+  //$isfirstComment=  LiveComment::where('live_stream_id', $stream->id)->first();
+//   $lastYt=null;
+//   if($isfirstComment){
     $lastYt = LiveComment::where('live_stream_id', $stream->id)
     ->where('social_id', $this->social->id)
                 ->orderByDesc('comment_time')
                 ->value('comment_id');
+ // }
+
 
     $newSaved = []; // نجمع التعليقات الجديدة لإرسال اشعار واحد مرتب
 
@@ -155,7 +160,7 @@ if($this->social->code=="facebook"){
         });
             // احصل على firebase_token(s) للمسوق
         SendMarketerNotification::dispatch(
-            [auth('api_marketers')->user()->id],'','',[$newSaved] ,['database', 'fcm']);         
+            [$stream->marketer_id],'','',[$newSaved] ,['database', 'fcm']);         
     }
     \Log::info('youtube Notification sent ', [
         'data' =>['newSaved'=>$newSaved],
