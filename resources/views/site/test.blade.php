@@ -69,12 +69,28 @@
 												 
 											</div>
 											<div class="form-group">
+												<label>marketer id</label>
+												<input type="text" class="form-control" name="marketer_id">
+											</div>
+											<div class="form-group">
 												<label>Message Title</label>
 												<input type="text" class="form-control" name="title">
 											</div>
 											<div class="form-group">
+												<label>customer name</label>
+												<input type="text" class="form-control" name="customer_name">
+											</div>
+											<div class="form-group">
 												<label>Message Body</label>
 												<textarea class="form-control" name="body"></textarea>
+											</div>
+											<div class="form-group">
+												<label>social</label>
+												<textarea class="form-control" name="social"></textarea>
+											</div>
+											<div class="form-group">
+												<label>social id</label>
+												<input type="text" class="form-control" name="social_id">
 											</div>
 											<button type="submit" id="btn-send-withtoken" name="btn-send-withtoken" class="btn btn-success btn-block">Send Notification</button>
 										</form>
