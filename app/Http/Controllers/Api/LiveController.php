@@ -483,11 +483,12 @@ class LiveController extends Controller
             $channelName = $formdata['channelName'];
             $uid = $formdata['uid'];
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
- \Log::info('youtube vars validated', [
-                    'data' =>  $channelName.'-'.
-                    $uid.'-'.
+            $accessToken = $formdata['youtube_access_token'];
+            \Log::info('youtube vars validated', [
+                'data' => $channelName . '-' .
+                    $uid . '-' .
                     $youtubeStreamKey,
-                ]);
+            ]);
 
             // إعداد المتغيرات من env
             $appId = config('services.agora.app_id');
@@ -519,8 +520,8 @@ class LiveController extends Controller
                     'Authorization' => $authHeader,
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
- \Log::info('youtube', [
-                    'data' => 'sendto:'.'https://api.agora.io',
+                \Log::info('youtube', [
+                    'data' => 'sendto:' . 'https://api.agora.io',
                 ]);
 
                 // التحقق من النتيجة
@@ -538,43 +539,81 @@ class LiveController extends Controller
                         ,
                         500
                     );
-                 }
+                }
 
-                //
+             
+
 
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
+
                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
                 $liveChatId = null;
-                $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
-                    'part' => 'snippet',
-                    'broadcastStatus' => 'active',
-                    'key' => config('services.youtube.key'),
-
-                ]);
-                \Log::info('youtube', [
-                    'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
-                ]);
-             
-                \Log::info('youtube response', [
-                    'data' => $response->json(),
-                ]);
-                if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
-                    $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
-             
-                    \Log::info('youtube response', [
-                        'data' => $response->json(),
-                    ]);
-             
-                } else {
-                    $liveChatId = null; // لا يوجد بث مباشر حالياً
-                    \Log::info('youtube response', [
-                        'data' => "no response and liveChatId = null",
-                    ]);
+                //start
+                $accessToken_arr = $this->getYoutubechanneld($accessToken);
+                if (!$accessToken_arr['success']) {
+                    return response()->json(
+                        $accessToken_arr,
+                        400
+                    );
                 }
-                $stream->youtube_live_chat_id = $liveChatId ?? null;
-                $stream->youtube_access_token = $formdata['youtube_access_token'];
+                $channelId = $accessToken_arr['data'];
+                $videoId_arr = $this->getYoutubeVideoId($channelId);
+                if (!$videoId_arr['success']) {
+                    return response()->json(
+                        $videoId_arr,
+                        400
+                    );
+                }
+                $videoId = $videoId_arr['data'];
+                $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
+                if (!$videoId_arr['success']) {
+                    return response()->json(
+                        $liveChatId_arr,
+                        400
+                    );
+                }
+                $liveChatId = $liveChatId_arr['data'];
+                $stream->youtube_access_token = $accessToken;
+                $stream->youtube_channel_id = $channelId;
+                $stream->youtube_video_id = $videoId;
+                $stream->youtube_live_chat_id = $liveChatId;
+                $stream->save();
+                //end
+                //    //
+                //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
+                //         'part' => 'snippet',
+                //         'broadcastStatus' => 'active',
+                //         'key' => config('services.youtube.key'),
+
+                //     ]);
+                //     \Log::info('youtube', [
+                //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
+                //     ]);
+
+                //     \Log::info('youtube response', [
+                //         'data' => $response->json(),
+                //     ]);
+
+                //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
+                //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
+
+                //         \Log::info('youtube response', [
+                //             'data' => $response->json(),
+                //         ]);
+
+                //     } else {
+                //         $liveChatId = null; // لا يوجد بث مباشر حالياً
+                //         \Log::info('youtube response', [
+                //             'data' => "no response and liveChatId = null",
+                //         ]);
+                //     }
+//
+
+
+                // $stream->youtube_live_chat_id = $liveChatId ?? null;
+                // $stream->youtube_access_token = $formdata['youtube_access_token'];
                 $stream->youtube_is_active = true;
                 $stream->save();
                 //start job
@@ -585,9 +624,193 @@ class LiveController extends Controller
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
                 FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
-            
+
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
+                );
+            } catch (\Exception $e) {
+                \Log::error('youtube error', ['error' => $e->getMessage()]);
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ]
+                    ,
+                    500
+                );
+            }
+        }
+
+    }
+
+    public function youtube_push_test(Request $request)
+    {
+        // ✅ التحقق من المدخلات
+
+        $formdata = $request->all();
+        $storrequest = new LiveStartPushRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+
+            $channelName = $formdata['channelName'];
+            $uid = $formdata['uid'];
+            $youtubeStreamKey = $formdata['youtubeStreamKey'];
+            $accessToken = $formdata['youtube_access_token'];
+            \Log::info('youtube vars validated', [
+                'data' => $channelName . '-' .
+                    $uid . '-' .
+                    $youtubeStreamKey,
+            ]);
+
+            // إعداد المتغيرات من env
+            $appId = config('services.agora.app_id');
+            $customerKey = config('services.agora.customer_key');
+            $customerSecret = config('services.agora.customer_secret');
+            $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+
+            //return  response()->json($appId);
+            // RTMP URL ليوتيوب
+            try {
+                // $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
+
+                // // الجسم المرسل إلى Agora API
+                // $body = [
+                //     'converter' => [
+                //         'name' => "push-{$channelName}-" . time(),
+                //         'rawOptions' => [
+                //             'rtcChannel' => $channelName,
+                //             'rtcStreamUid' => $uid,
+                //         ],
+                //         'rtmpUrl' => $rtmpUrl,
+                //         // 'idleTimeout' => 3600, // اختياري
+                //     ],
+                // ];
+                // تهيئة الـ Basic Auth
+                // $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+                // إرسال الطلب إلى Agora API
+                // $response = Http::withHeaders([
+                //     'Authorization' => $authHeader,
+                //     'Content-Type' => 'application/json',
+                // ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+
+                // \Log::info('youtube', [
+                //     'data' => 'sendto:' . 'https://api.agora.io',
+                // ]);
+
+                // التحقق من النتيجة
+                // if ($response->failed()) {
+
+                //     \Log::error('youtube error', ['error' => $response->json()]);
+
+
+                //     return response()->json(
+                //         [
+                //             "success" => 0,
+                //             "message" => __('api_messages.live create failed'),
+                //             "data" => $response->json()
+                //         ]
+                //         ,
+                //         500
+                //     );
+                // }
+
+             
+
+
+                //بدء جلب التعليقات
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $social = Social::where('code', 'youtube')->first();
+
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+                $liveChatId = null;
+                //start
+                $accessToken_arr = $this->getYoutubechanneld($accessToken);
+                if (!$accessToken_arr['success']) {
+                    return response()->json(
+                        $accessToken_arr,
+                        400
+                    );
+                }
+                $channelId = $accessToken_arr['data'];
+                $videoId_arr = $this->getYoutubeVideoId($channelId);
+                if (!$videoId_arr['success']) {
+                    return response()->json(
+                        $videoId_arr,
+                        400
+                    );
+                }
+                $videoId = $videoId_arr['data'];
+                $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
+                if (!$videoId_arr['success']) {
+                    return response()->json(
+                        $liveChatId_arr,
+                        400
+                    );
+                }
+                $liveChatId = $liveChatId_arr['data'];
+                $stream->youtube_access_token = $accessToken;
+                $stream->youtube_channel_id = $channelId;
+                $stream->youtube_video_id = $videoId;
+                $stream->youtube_live_chat_id = $liveChatId;
+                $stream->save();
+                //end
+                //    //
+                //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
+                //         'part' => 'snippet',
+                //         'broadcastStatus' => 'active',
+                //         'key' => config('services.youtube.key'),
+
+                //     ]);
+                //     \Log::info('youtube', [
+                //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
+                //     ]);
+
+                //     \Log::info('youtube response', [
+                //         'data' => $response->json(),
+                //     ]);
+
+                //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
+                //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
+
+                //         \Log::info('youtube response', [
+                //             'data' => $response->json(),
+                //         ]);
+
+                //     } else {
+                //         $liveChatId = null; // لا يوجد بث مباشر حالياً
+                //         \Log::info('youtube response', [
+                //             'data' => "no response and liveChatId = null",
+                //         ]);
+                //     }
+//
+
+
+                // $stream->youtube_live_chat_id = $liveChatId ?? null;
+                // $stream->youtube_access_token = $formdata['youtube_access_token'];
+                $stream->youtube_is_active = true;
+                $stream->save();
+                //start job
+                \Log::info('youtube', [
+                    'data' => 'start job',
+                ]);
+
+                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+                //                
+
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['liveChatId' =>$liveChatId]]
                 );
             } catch (\Exception $e) {
                 \Log::error('youtube error', ['error' => $e->getMessage()]);
@@ -970,6 +1193,311 @@ class LiveController extends Controller
             );
         }
 
+    }
+    //test
+    public function getYoutubeLiveVideoId(Request $request)
+    {
+
+        $accessToken = $request->access_token;
+
+        if (!$accessToken) {
+            return response()->json(['error' => 'Missing access_token'], 400);
+        }
+
+
+        $response = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/channels', [
+                'part' => 'id',
+                'mine' => 'true'
+            ]);
+
+        $json = $response->json();
+
+        // التحقق من النتيجة
+        if (!$response->successful() || empty($json['items'])) {
+            \Log::error(' channel ID error', ['error' => $json]);
+
+            return response()->json([
+                'error' => 'Could not fetch channel ID',
+                'details' => $json
+            ], 400);
+        }
+        \Log::info('channel id succes', [
+            'data' => $response->json(),
+
+        ]);
+        // استخراج الـ channel_id
+        $channelId = $json['items'][0]['id'];
+        //
+        $apiKey = config('services.youtube.key2');
+        //التاكد
+        // $response = Http::get('https://www.googleapis.com/youtube/v3/channels', [
+        //     'part' => 'snippet',
+        //     'id' => $channelId,
+        //     'key' =>  $apiKey
+        // ]);
+        // $data2 = $response->json();
+        // \Log::info('ِAccount by channel succes', [
+        //     'data' =>  $data2,
+
+        // ]);
+
+        //
+
+
+
+
+        // طلب البحث عن أي بث مباشر نشط الآن
+        $response = Http::get("https://www.googleapis.com/youtube/v3/search", [
+            'part' => 'snippet',
+            'channelId' => $channelId,
+            'eventType' => 'live',
+            'type' => 'video',
+            'key' => $apiKey
+        ]);
+
+        $data = $response->json();
+
+        if (empty($data['items'])) {
+            \Log::error(' videoId ID error', ['error' => $data]);
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يوجد بث مباشر حاليًا',
+                'data' => $data,
+                // 'data2' =>  $data2,
+            ], 404);
+        }
+
+        \Log::info('video_id succes', [
+            'data' => $data,
+
+        ]);
+        $videoId = $data['items'][0]['id']['videoId'];
+
+        // return response()->json([
+        //     'success' => true,
+        //     'video_id' => $videoId
+        // ]);
+
+
+
+
+        // 🔹 الخطوة 1: جلب liveChatId من الفيديو
+        $videoResponse = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/videos', [
+                'part' => 'liveStreamingDetails',
+                'id' => $videoId,
+            ]);
+
+        if ($videoResponse->failed()) {
+            \Log::error(' liveChatId error', ['error' => $videoResponse->json()]);
+            return response()->json(['error' => 'Failed to fetch liveChatId', 'details' => $videoResponse->json()], 500);
+        }
+
+        $videoData = $videoResponse->json();
+        \Log::info('ِAccount by channel succes', [
+            'data' => $videoData,
+
+        ]);
+        $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
+
+        if (!$liveChatId) {
+            \Log::error(' liveChatId error', ['error' => 'No active live chat found for this video']);
+            return response()->json(['error' => 'No active live chat found for this video'], 404);
+        }
+
+        // 🔹 الخطوة 2: جلب الرسائل من live chat
+        $chatResponse = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/liveChat/messages', [
+                'liveChatId' => $liveChatId,
+                'part' => 'id,snippet,authorDetails',
+                'maxResults' => 50,
+            ]);
+
+        if ($chatResponse->failed()) {
+            \Log::error('live chat messages error', ['error' => $chatResponse->json()]);
+            return response()->json(['error' => 'Failed to fetch live chat messages', 'details' => $chatResponse->json()], 500);
+        }
+        \Log::info('live chat messages', [
+            'data' => $chatResponse->json(),
+
+        ]);
+        $messages = collect($chatResponse->json()['items'] ?? [])->map(function ($msg) {
+            $snippet = $msg['snippet'];
+            $author = $msg['authorDetails'];
+            return [
+                'author' => $author['displayName'],
+                'profile_image' => $author['profileImageUrl'],
+                'message' => $snippet['displayMessage'],
+                'published_at' => $snippet['publishedAt'],
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'video_id' => $videoId,
+            'live_chat_id' => $liveChatId,
+            'comments' => $messages,
+            //  'comments' => $chatResponse->json()
+        ]);
+
+
+    }
+
+    public function getYoutubechanneld($accessToken)
+    {
+        $response = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/channels', [
+                'part' => 'id',
+                'mine' => 'true'
+            ]);
+
+        $json = $response->json();
+
+        // التحقق من النتيجة
+        if (!$response->successful() || empty($json['items'])) {
+            \Log::error(' channel ID error', ['error' => $json]);
+            $res = [
+                "success" => 0,
+                "message" => __('api_messages.youtube live failed'),
+                "data" => $json
+            ];
+            return $res;
+        }
+        \Log::info('channel id succes', [
+            'data' => $response->json(),
+
+        ]);
+        // استخراج الـ channel_id
+        $channelId = $json['items'][0]['id'];
+        $res = [
+            "success" => 1,
+            "message" => '',
+            "data" => $channelId
+        ];
+        return $res;
+    }
+
+    public function getYoutubeVideoId($channelId)
+    {
+        $apiKey = config('services.youtube.key2');
+        // طلب البحث عن أي بث مباشر نشط الآن
+        $response = Http::get("https://www.googleapis.com/youtube/v3/search", [
+            'part' => 'snippet',
+            'channelId' => $channelId,
+            'eventType' => 'live',
+            'type' => 'video',
+            'key' => $apiKey
+        ]);
+        $data = $response->json();
+        if (empty($data['items'])) {
+            \Log::error(' videoId ID error', ['error' => $data]);
+            $res = [
+                "success" => 0,
+                "message" => __('api_messages.youtube live failed'),
+                "data" => $data
+            ];
+            return $res;
+            // return response()->json([
+            //     'success' => false,
+            //     'message' => 'لا يوجد بث مباشر حاليًا',
+            //     'data' =>  $data,
+            //    // 'data2' =>  $data2,
+            // ], 404);
+        }
+        \Log::info('video_id success', [
+            'data' => $data,
+
+        ]);
+        $videoId = $data['items'][0]['id']['videoId'];
+        $res = [
+            "success" => 1,
+            "message" => '',
+            "data" => $videoId
+        ];
+        return $res;
+    }
+    public function getYoutubeLiveChatId($accessToken, $videoId)
+    {
+
+        // 🔹 الخطوة 1: جلب liveChatId من الفيديو
+        $videoResponse = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/videos', [
+                'part' => 'liveStreamingDetails',
+                'id' => $videoId,
+            ]);
+
+        if ($videoResponse->failed()) {
+            \Log::error(' liveChatId error', ['error' => $videoResponse->json()]);
+
+            //  return response()->json(['error' => 'Failed to fetch liveChatId', 'details' => $videoResponse->json()], 500);
+            $res = [
+                "success" => 0,
+                "message" => __('api_messages.youtube live failed'),
+                "data" => $videoResponse->json()
+            ];
+            return $res;
+        }
+        $videoData = $videoResponse->json();
+        \Log::info('ِAccount by channel succes', [
+            'data' => $videoData,
+        ]);
+        $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
+        if (!$liveChatId) {
+            \Log::error(' liveChatId error', ['error' => 'No active live chat found for this video']);
+            //    return response()->json(['error' => 'No active live chat found for this video'], 404);
+
+            $res = [
+                "success" => 0,
+                "message" => __('api_messages.youtube live failed'),
+                "data" => ''
+            ];
+            return $res;
+        }
+        $res = [
+            "success" => 1,
+            "message" => '',
+            "data" => $liveChatId
+        ];
+        return $res;
+    }
+
+    public function getYoutubeLiveChatMessages($accessToken, $videoId, $liveChatId)
+    {
+        // 🔹 الخطوة 2: جلب الرسائل من live chat
+        $chatResponse = Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/youtube/v3/liveChat/messages', [
+                'liveChatId' => $liveChatId,
+                'part' => 'id,snippet,authorDetails',
+                'maxResults' => 200,
+            ]);
+
+        if ($chatResponse->failed()) {
+            \Log::error('live chat messages error', ['error' => $chatResponse->json()]);
+            return response()->json(['error' => 'Failed to fetch live chat messages', 'details' => $chatResponse->json()], 500);
+        }
+        \Log::info('live chat messages', [
+            'data' => $chatResponse->json(),
+
+        ]);
+        $messages = collect($chatResponse->json()['items'] ?? [])->map(function ($msg) {
+            $snippet = $msg['snippet'];
+            $author = $msg['authorDetails'];
+            return [
+                'author' => $author['displayName'],
+                'profile_image' => $author['profileImageUrl'],
+                'message' => $snippet['displayMessage'],
+                'published_at' => $snippet['publishedAt'],
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'video_id' => $videoId,
+            'live_chat_id' => $liveChatId,
+            'comments' => $messages,
+            //  'comments' => $chatResponse->json()
+        ]);
 
 
     }

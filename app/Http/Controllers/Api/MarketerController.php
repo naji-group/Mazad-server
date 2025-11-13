@@ -104,7 +104,8 @@ class MarketerController extends Controller
                 // auth('api_marketers')->login($user);
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.auth.login success'),
-                     "data" => ['token' => $token,'id'=>$user->id,'username'=>$user->username,'local_image_url'=>$user->local_image_url]]
+                     "data" =>
+                      ['token' => $token,'id'=>$user->id,'username'=>$user->username,'full_name'=>$user->full_name,'local_image_url'=>$user->local_image_url]]
                 );
 
             }
@@ -176,7 +177,8 @@ class MarketerController extends Controller
                     return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.auth.login success'), "data" => ['token' => $token,'id'=>$user->id]]
+                    ["success" => 1, "message" => __('api_messages.auth.login success'), "data" =>
+                     ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
 
                 );
             } else {
