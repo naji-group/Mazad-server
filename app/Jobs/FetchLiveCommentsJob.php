@@ -112,7 +112,7 @@ if($this->social->code=="facebook"){
 
  
     // 3) جلب تعليقات يوتيوب جديدة
-    if ($stream->youtube_live_chat_id && $stream->youtube_access_token && $stream->youtube_access_token) {
+    if ($stream->youtube_live_chat_id && $stream->youtube_access_token) {
         try {
             \Log::info(" بدء جلب تعليقات يوتيوب الجديدة");
             $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id, $stream->youtube_access_token, $lastYt);
@@ -135,8 +135,8 @@ if($this->social->code=="facebook"){
                         'comment_id'=>$c['id'],
                         'author_name'=>$c['from_name'],
                         'message'=>$c['message'],
-                        'comment_time'=>$c['time']->toIso8601String(),
-                        'social_id'=>$this->social->id,
+                        'comment_time'=>$c['time']->toDateTimeString(),
+                        'social_id'=>strval($this->social->id),
                     ];
                 } catch (\Exception $e) {
                     Log::warning('YT save comment failed: '.$e->getMessage());
@@ -155,7 +155,7 @@ if($this->social->code=="facebook"){
         });
             // احصل على firebase_token(s) للمسوق
         SendMarketerNotification::dispatch(
-            [auth('api_marketers')->user()->id],'','',[$newSaved] ,['fcm']);         
+            [auth('api_marketers')->user()->id],'','',[$newSaved] ,['database', 'fcm']);         
     }
     \Log::info('youtube Notification sent ', [
         'data' =>['newSaved'=>$newSaved],
