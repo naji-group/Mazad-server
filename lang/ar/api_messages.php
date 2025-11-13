@@ -63,5 +63,6 @@ return [
 'live create failed'=>'فشل انشاء بث مباشر',
 'No pages found'=>'لا يوجد صفحات',
 'Operation failed'=>'فشلت العملية',
+'youtube live failed'=>'فشلت عملية مشاركة البث على يوتيوب',
 ];
 //{{ __('general.welcome_name',['Name'=>'احمد']) }}

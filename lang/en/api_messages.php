@@ -66,5 +66,6 @@ return [
 
 'No pages found'=>'No pages found',
 'Operation failed'=>'The operation failed',
+'youtube live failed'=>'Failed to share live stream on youtube',
 ];
 //{{ __('general.welcome_name',['Name'=>'احمد']) }}
