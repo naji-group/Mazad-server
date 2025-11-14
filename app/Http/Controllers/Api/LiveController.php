@@ -13,8 +13,10 @@ use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
 use App\Http\Requests\Api\LiveStopTiktokRequest;
+use App\Jobs\GetYoutubeLiveChatIdJob;
 use App\Jobs\SendMarketerNotification;
 use App\Models\Livevar;
+use Google\Service\Datastream\Stream;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -463,7 +465,7 @@ class LiveController extends Controller
     // end Instgram
     public function youtube_push(Request $request)
     {
-        // ✅ التحقق من المدخلات
+        //  التحقق من المدخلات
 
         $formdata = $request->all();
         $storrequest = new LiveStartPushRequest();
@@ -540,16 +542,12 @@ class LiveController extends Controller
                         500
                     );
                 }
-
-             
-
-
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
               //  $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-                $liveChatId = null;
+              //  $liveChatId = null;
                 //start
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
                 if (!$accessToken_arr['success']) {
@@ -559,26 +557,33 @@ class LiveController extends Controller
                     );
                 }
                 $channelId = $accessToken_arr['data'];
-                $videoId_arr = $this->getYoutubeVideoId($channelId);
-                if (!$videoId_arr['success']) {
-                    return response()->json(
-                        $videoId_arr,
-                        400
-                    );
-                }
-                $videoId = $videoId_arr['data'];
-                $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
-                if (!$videoId_arr['success']) {
-                    return response()->json(
-                        $liveChatId_arr,
-                        400
-                    );
-                }
-                $liveChatId = $liveChatId_arr['data'];
                 $stream->youtube_access_token = $accessToken;
-                $stream->youtube_channel_id = $channelId;
-                $stream->youtube_video_id = $videoId;
-                $stream->youtube_live_chat_id = $liveChatId;
+                $stream->youtube_channel_id = $channelId;               
+                $stream->save();
+                
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$accessToken,$channelId)->delay(now()->addSecond());
+
+                // $videoId_arr = $this->getYoutubeVideoId($channelId);
+                // if (!$videoId_arr['success']) {
+                //     return response()->json(
+                //         $videoId_arr,
+                //         400
+                //     );
+                // }
+                // $videoId = $videoId_arr['data'];
+                // $stream->youtube_video_id = $videoId;
+              
+                // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
+                // if (!$liveChatId_arr['success']) {
+                //     return response()->json(
+                //         $liveChatId_arr,
+                //         400
+                //     );
+                // }
+                // $liveChatId = $liveChatId_arr['data'];              
+                // $stream->youtube_live_chat_id = $liveChatId;
+
+
              //   $stream->save();
                 //end
                 //    //
@@ -614,15 +619,15 @@ class LiveController extends Controller
 
                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
                 // $stream->youtube_access_token = $formdata['youtube_access_token'];
-                $stream->youtube_is_active = true;
-                $stream->save();
+            //    $stream->youtube_is_active = true;
+              
                 //start job
-                \Log::info('youtube', [
-                    'data' => 'start job',
-                ]);
+                // \Log::info('youtube', [
+                //     'data' => 'start job',
+                // ]);
 
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+            //    FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
 
                 return response()->json(

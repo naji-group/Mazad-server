@@ -55,7 +55,12 @@ if($this->social->code=="facebook"){
             foreach ($fbComments as $c) {
                 // حفظ فقط إذا لم يكن موجوداً (unique constraint on platform/comment_id)
                 try {
-                    $comment = LiveComment::create([
+                    $comment = LiveComment::updateOrCreate( [
+                        'platform'   => 'facebook',
+                        'comment_id' => $c['id'],
+                    ],
+                    [
+                  
                         'marketer_id' => $marketerId,
                         'agora_live_id' => $stream->agora_live_id,
                         'live_stream_id'=> $stream->id,
@@ -124,7 +129,11 @@ if($this->social->code=="facebook"){
 
             foreach ($ytComments as $c) {
                 try {
-                    $comment = LiveComment::create([
+                    $comment = LiveComment::updateOrCreate( [
+                        'platform'   => 'youtube',
+                        'comment_id' => $c['id'],
+                    ],
+                    [
                         'marketer_id' => $marketerId,
                         'agora_live_id' => $stream->agora_live_id,
                         'live_stream_id'=> $stream->id,
