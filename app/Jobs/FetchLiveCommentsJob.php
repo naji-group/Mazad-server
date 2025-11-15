@@ -126,8 +126,8 @@ if($this->social->code=="facebook"){
     //جلب اخر توكن
     $this->marketer_social->refresh();
     // التحقق من تاريخ صلاحية التوكن
-  //$is_refresh=  $this->refreshTokenIfNeeded($this->marketer_social);
-  $is_refresh=1;
+  $is_refresh=  $this->refreshTokenIfNeeded($this->marketer_social);
+ 
  if($is_refresh){
     // جلب التوكن الحديث بعد الحصول عليه من غوغل
     $this->marketer_social->refresh();
@@ -187,17 +187,12 @@ if($this->social->code=="facebook"){
     // \Log::info('youtube Notification sent ', [
     //     'data' =>['newSaved'=>$newSaved],
     // ]);
-
  if ($stream->fresh()->is_active) {
         dispatch(new self($this->streamId,$this->social,$this->marketer_social))->delay(now()->addSeconds(10));
         }
 
-    }
-
-   
+    }   
 }
-   
-
         // 5) إعادة جدولة نفس الـ Job بعد 10 ثواني طالما السجل لا يزال موجود (يحاكي polling كل 10s)
         // (يمكنك تغيير المنطق لإيقافه عندما ينتهي البث)
        
@@ -205,8 +200,15 @@ if($this->social->code=="facebook"){
 
     public function refreshTokenIfNeeded($marketersocial)
 {
-    // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
-    if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
+
+    $expires = Carbon::parse($marketersocial->expires_in_date);
+    $res=false;
+    //هل expires_in_date أقل أو يساوي الآن + 10 دقائق
+    if ($expires->lte(now()->addMinutes(10))) {
+        $res=true;
+    }
+    // إذا لم يقل عن 10 دقائق على الانتهاء → نجدد
+    if ($marketersocial->expires_in_date && $res) {
 
         $clientId     = config('services.google.client_id');
         $clientSecret = config('services.google.client_secret');

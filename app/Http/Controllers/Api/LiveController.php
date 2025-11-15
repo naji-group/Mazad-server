@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchLiveCommentsJob;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Carbon\Carbon;
 class LiveController extends Controller
 {
     protected static $ffmpegProcess = null;
@@ -1478,7 +1479,7 @@ class LiveController extends Controller
         ];
         return $res;
     }
-
+//temp
     public function getYoutubeLiveChatMessages($accessToken, $videoId, $liveChatId)
     {
         // 🔹 الخطوة 2: جلب الرسائل من live chat
@@ -1518,5 +1519,56 @@ class LiveController extends Controller
 
 
     }
+//end temp
+//test
+public function getrefreshToken(Request $request)
+{
+    $marketersocial_id=$request->marketersocial_id;
+    $marketersocial= MarketerSocial::find($marketersocial_id);
+    $expires = Carbon::parse($marketersocial->expires_in_date);
+$res=false;
+if ($expires->lte(now()->addMinutes(10))) {
+    $res=true;
+}
+ //$res=   $this->refreshTokenIfNeeded($marketersocial);
+return response()->json(['data'=>[
+    $res,
+  'now'=>  now(),
+   'expires_in_date'=> $marketersocial->expires_in_date]]);
+}
+public function refreshTokenIfNeeded($marketersocial)
+{
+    \Log::info("start Token Refreshed -".strval($marketersocial->expires_in_date->diffInMinutes(now())));
+    // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
+    // now=20    if( expires_in_date=30 -now() <=10 minutes) retutn true
+    if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
+        \Log::info("expired  Token Refreshed ");
+        $clientId     = config('services.google.client_id');
+        $clientSecret = config('services.google.client_secret');
+
+        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            'grant_type'    => 'refresh_token',
+            'refresh_token' => $marketersocial->refresh_token,
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+        ]);
+
+        if ($response->failed()) {
+            \Log::error("Google Token Refresh FAILED", $response->json());
+            return false;
+        }
+        $data = $response->json();
+        // حدث التوكين ووقت الانتهاء
+        $marketersocial->access_token = $data['access_token'];
+        $marketersocial->expires_in = $data['expires_in'];
+        $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
+        $marketersocial->save();
+        \Log::info("Google Access Token Refreshed Successfully");
+        return true;
+    }
+
+    return false;
+}
+//end test
 
 }
