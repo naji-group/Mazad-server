@@ -4,6 +4,7 @@ namespace App\Jobs;
 use App\Models\LiveStream;
 use App\Models\LiveComment;
 use App\Models\Marketer;
+use App\Models\MarketerSocial;
 use App\Models\Social;
 use App\Services\FacebookCommentsService;
 use App\Services\YouTubeCommentsService;
@@ -22,11 +23,13 @@ class FetchLiveCommentsJob implements ShouldQueue
 
     public $streamId;
 public Social $social;
+protected MarketerSocial $marketer_social;
     // You can inject services via container in handle()
-    public function __construct(int $streamId,Social $social)
+    public function __construct(int $streamId,Social $social,MarketerSocial $marketer_social)
     {
         $this->streamId = $streamId;
         $this->social=$social;
+        $this->$marketer_social=$marketer_social;
     }
 
     public function handle(FacebookCommentsService $fbService, YouTubeCommentsService $ytService)
@@ -102,7 +105,7 @@ if($this->social->code=="facebook"){
             }
             
         if ($stream->fresh()->is_active) {
-            dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
+            dispatch(new self($this->streamId,$this->social,$this->marketer_social))->delay(now()->addSeconds(10));
             }
     }
    
@@ -111,23 +114,29 @@ if($this->social->code=="facebook"){
 
     //تعليقات يو تيوب
   //$isfirstComment=  LiveComment::where('live_stream_id', $stream->id)->first();
-//   $lastYt=null;
-//   if($isfirstComment){
+ 
+ 
     $lastYt = LiveComment::where('live_stream_id', $stream->id)
     ->where('social_id', $this->social->id)
                 ->orderByDesc('comment_time')
                 ->value('comment_id');
- // }
-
+ 
 
     $newSaved = []; // نجمع التعليقات الجديدة لإرسال اشعار واحد مرتب
+    //جلب اخر توكن
+    $this->marketer_social->refresh();
+    // التحقق من تاريخ صلاحية التوكن
+  $is_refresh=  $this->refreshTokenIfNeeded($this->marketer_social);
 
- 
+ if($is_refresh){
+    // جلب التوكن الحديث بعد الحصول عليه من غوغل
+    $this->marketer_social->refresh();
+ }
     // 3) جلب تعليقات يوتيوب جديدة
-    if ($stream->youtube_live_chat_id && $stream->youtube_access_token) {
+    if ($stream->youtube_live_chat_id &&  $this->marketer_social->access_token) {
         try {
             \Log::info(" بدء جلب تعليقات يوتيوب الجديدة");
-            $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id, $stream->youtube_access_token, $lastYt);
+            $ytComments = $ytService->getNewComments($stream->youtube_live_chat_id,$this->marketer_social->access_token, $lastYt);
 
             foreach ($ytComments as $c) {
                 try {
@@ -180,7 +189,7 @@ if($this->social->code=="facebook"){
     // ]);
 
  if ($stream->fresh()->is_active) {
-        dispatch(new self($this->streamId,$this->social))->delay(now()->addSeconds(10));
+        dispatch(new self($this->streamId,$this->social,$this->marketer_social))->delay(now()->addSeconds(10));
         }
 
     }
@@ -193,6 +202,38 @@ if($this->social->code=="facebook"){
         // (يمكنك تغيير المنطق لإيقافه عندما ينتهي البث)
        
     }
+
+    public function refreshTokenIfNeeded($marketersocial)
+{
+    // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
+    if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
+
+        $clientId     = config('services.google.client_id');
+        $clientSecret = config('services.google.client_secret');
+
+        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            'grant_type'    => 'refresh_token',
+            'refresh_token' => $marketersocial->refresh_token,
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+        ]);
+
+        if ($response->failed()) {
+            \Log::error("Google Token Refresh FAILED", $response->json());
+            return false;
+        }
+        $data = $response->json();
+        // حدث التوكين ووقت الانتهاء
+        $marketersocial->access_token = $data['access_token'];
+        $marketersocial->expires_in = $data['expires_in'];
+        $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
+        $marketersocial->save();
+        \Log::info("Google Access Token Refreshed Successfully");
+        return true;
+    }
+
+    return false;
+}
 
     // protected function sendFcmNotification(array $tokens, array $comments)
     // {

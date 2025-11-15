@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
  
+use App\Models\MarketerSocial;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -27,14 +28,16 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
  
      protected $stream;
      protected $social;
+     protected $marketer_social;
      protected  $accessToken;
      protected $channelId;
      protected $attemptNumber;
-    public function __construct(LiveStream $stream, Social $social,$accessToken,$channelId, $attemptNumber = 1)
+    public function __construct(LiveStream $stream, Social $social,MarketerSocial $marketer_social,$channelId, $attemptNumber = 1)
     {
         $this->stream= $stream;
         $this->social = $social;
-        $this->accessToken=$accessToken;
+        $this->$marketer_social=$marketer_social;
+        $this->accessToken=$marketer_social->access_token;
         $this->channelId=$channelId;
         $this->attemptNumber = $attemptNumber;
     }
@@ -70,7 +73,7 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
             }
             // إعادة المحاولة بعد 10 ثواني
             dispatch(new GetYoutubeLiveChatIdJob(
-         $this->stream, $this->social,$this->accessToken,$this->channelId,$this->attemptNumber + 1
+         $this->stream, $this->social,$this->marketer_social,$this->channelId,$this->attemptNumber + 1
             ))->delay(now()->addSeconds($this->backoff));
             return;
         }
@@ -94,7 +97,7 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
         \Log::info('youtube', [
             'data' => 'start job',
         ]);
-        FetchLiveCommentsJob::dispatch($this->stream->id, $this->social)
+        FetchLiveCommentsJob::dispatch($this->stream->id, $this->social,$this->marketer_social)
             ->delay(now()->addSeconds(1));
     }
 

@@ -485,7 +485,7 @@ class LiveController extends Controller
             $channelName = $formdata['channelName'];
             $uid = $formdata['uid'];
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
-            $accessToken = $formdata['youtube_access_token'];
+           // $accessToken = $formdata['youtube_access_token'];
             \Log::info('youtube vars validated', [
                 'data' => $channelName . '-' .
                     $uid . '-' .
@@ -544,9 +544,11 @@ class LiveController extends Controller
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-              //  $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+               $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+
               //  $liveChatId = null;
                 //start
+                $accessToken= $marketer_social->access_token;
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
                 if (!$accessToken_arr['success']) {
                     return response()->json(
@@ -559,7 +561,7 @@ class LiveController extends Controller
                 $stream->youtube_channel_id = $channelId;               
                 $stream->save();
                 
-                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$accessToken,$channelId)->delay(now()->addSecond());
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$marketer_social,$channelId)->delay(now()->addSecond());
 
                 // $videoId_arr = $this->getYoutubeVideoId($channelId);
                 // if (!$videoId_arr['success']) {
@@ -735,9 +737,11 @@ class LiveController extends Controller
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-               // $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-                $liveChatId = null;
+               $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+              
+               $liveChatId = null;
                 //start
+                $accessToken= $marketer_social->access_token;
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
                 if (!$accessToken_arr['success']) {
                     return response()->json(
@@ -808,7 +812,7 @@ class LiveController extends Controller
                 $stream->youtube_channel_id = $channelId;               
                 $stream->save();
                 
-                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$accessToken,$channelId)->delay(now()->addSecond());
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$marketer_social,$channelId)->delay(now()->addSecond());
 
 
                 //start job
