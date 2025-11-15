@@ -36,7 +36,7 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
     {
         $this->stream= $stream;
         $this->social = $social;
-        $this->$marketer_social=$marketer_social;
+        $this->marketer_social=$marketer_social;
         $this->accessToken=$marketer_social->access_token;
         $this->channelId=$channelId;
         $this->attemptNumber = $attemptNumber;

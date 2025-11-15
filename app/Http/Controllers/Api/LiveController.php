@@ -738,7 +738,9 @@ class LiveController extends Controller
                 $social = Social::where('code', 'youtube')->first();
 
                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-              
+               \Log::info('youtube marketer_social', [
+                      'data' =>  $marketer_social->id,
+                    ]);
                $liveChatId = null;
                 //start
                 $accessToken= $marketer_social->access_token;

@@ -27,7 +27,7 @@ class LiveStartPushRequest extends FormRequest
             'uid' => 'required',
             'youtubeStreamKey' => 'required|string',
             'agora_live_id'=>'required',
-           'youtube_access_token' => 'required',
+           'youtube_access_token' => 'nullable',
               ];
     }
     public function messages(): array

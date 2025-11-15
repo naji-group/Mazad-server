@@ -29,7 +29,7 @@ protected MarketerSocial $marketer_social;
     {
         $this->streamId = $streamId;
         $this->social=$social;
-        $this->$marketer_social=$marketer_social;
+        $this->marketer_social=$marketer_social;
     }
 
     public function handle(FacebookCommentsService $fbService, YouTubeCommentsService $ytService)
