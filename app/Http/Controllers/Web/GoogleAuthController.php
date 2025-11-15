@@ -52,13 +52,22 @@ class GoogleAuthController extends Controller
     $access = $tokens['access_token'];
     $refresh = $tokens['refresh_token'] ?? null;
     $expires_in = $tokens['expires_in'];
-    $state=null;
+   // $state=null;
+    \Log::info('youtube state ', [
+        'data' =>$request->state,
+    ]);
+    $marketerId =null;
+
     if (isset($request->state)) {
-        $state = json_decode(base64_decode($request->state), true);
-        $marketerId = $state['marketer_id'];
-        \Log::info('youtube marketer id', [
-            'data' => $marketerId,
-        ]);
+ $marketerId=$request->state;
+        // $state = json_decode(base64_decode($request->state), true);
+        // \Log::info('youtube state decode', [
+        //     'data' => $state,
+        // ]);
+        // $marketerId =  $state;
+        // \Log::info('youtube marketer id', [
+        //     'data' => $marketerId,
+        // ]);
         
         $social = Social::where('code', 'youtube')->first();
         if ($social) {
@@ -85,15 +94,16 @@ class GoogleAuthController extends Controller
     \Log::info('youtube response', [
         'data' => $tokens,
     ]);
+   // return redirect('com.ae.zawed://oauthcallback?success=1');
  //   return redirect()->away($deepLink);
-
-      return response()->json([
-            'success' => true,
-            'access_token' => $tokens['access_token'],
-            'refresh_token' => $tokens['refresh_token'] ?? null,
-            'expires_in' => $tokens['expires_in'],
-            'state'=>$state,
-        ]) ;
+ return view('site.app-pages.success-auth');
+    //   return response()->json([
+    //         'success' => true,
+    //         'access_token' => $tokens['access_token'],
+    //         'refresh_token' => $tokens['refresh_token'] ?? null,
+    //         'expires_in' => $tokens['expires_in'],
+    //         'state'=>$marketerId,  
+    //     ]) ;
 }
 
 public function refreshTokenIfNeeded($marketersocial)
