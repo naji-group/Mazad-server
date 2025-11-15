@@ -126,8 +126,8 @@ if($this->social->code=="facebook"){
     //جلب اخر توكن
     $this->marketer_social->refresh();
     // التحقق من تاريخ صلاحية التوكن
-  $is_refresh=  $this->refreshTokenIfNeeded($this->marketer_social);
-
+  //$is_refresh=  $this->refreshTokenIfNeeded($this->marketer_social);
+  $is_refresh=1;
  if($is_refresh){
     // جلب التوكن الحديث بعد الحصول عليه من غوغل
     $this->marketer_social->refresh();

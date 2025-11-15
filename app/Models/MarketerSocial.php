@@ -17,6 +17,9 @@ class MarketerSocial extends Model
 'expires_in',
 'expires_in_date',
     ];
+    protected $casts = [
+        'expires_in_date' => 'datetime',
+    ];
     public function social(): BelongsTo
     {
         return $this->belongsTo(Social::class, 'social_id')->withDefault();
