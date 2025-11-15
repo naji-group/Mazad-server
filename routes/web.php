@@ -10,7 +10,7 @@ use App\Http\Controllers\Web\GoogleAuthController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/google/auth', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('/google/auth/{marketer_id}', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('/google/oauth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 Route::get('/storagelink', function () {

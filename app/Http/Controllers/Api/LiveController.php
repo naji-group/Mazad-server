@@ -530,8 +530,6 @@ class LiveController extends Controller
                 if ($response->failed()) {
 
                     \Log::error('youtube error', ['error' => $response->json()]);
-
-
                     return response()->json(
                         [
                             "success" => 0,
@@ -737,7 +735,7 @@ class LiveController extends Controller
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+               // $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
                 $liveChatId = null;
                 //start
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
@@ -747,28 +745,28 @@ class LiveController extends Controller
                         400
                     );
                 }
-                $channelId = $accessToken_arr['data'];
-                $videoId_arr = $this->getYoutubeVideoId($channelId);
-                if (!$videoId_arr['success']) {
-                    return response()->json(
-                        $videoId_arr,
-                        400
-                    );
-                }
-                $videoId = $videoId_arr['data'];
-                $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
-                if (!$videoId_arr['success']) {
-                    return response()->json(
-                        $liveChatId_arr,
-                        400
-                    );
-                }
-                $liveChatId = $liveChatId_arr['data'];
-                $stream->youtube_access_token = $accessToken;
-                $stream->youtube_channel_id = $channelId;
-                $stream->youtube_video_id = $videoId;
-                $stream->youtube_live_chat_id = $liveChatId;
-                $stream->save();
+                // $channelId = $accessToken_arr['data'];
+                // $videoId_arr = $this->getYoutubeVideoId($channelId);
+                // if (!$videoId_arr['success']) {
+                //     return response()->json(
+                //         $videoId_arr,
+                //         400
+                //     );
+                // }
+                // $videoId = $videoId_arr['data'];
+                // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
+                // if (!$videoId_arr['success']) {
+                //     return response()->json(
+                //         $liveChatId_arr,
+                //         400
+                //     );
+                // }
+                // $liveChatId = $liveChatId_arr['data'];
+                // $stream->youtube_access_token = $accessToken;
+                // $stream->youtube_channel_id = $channelId;
+                // $stream->youtube_video_id = $videoId;
+                // $stream->youtube_live_chat_id = $liveChatId;
+                // $stream->save();
                 //end
                 //    //
                 //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
@@ -803,19 +801,27 @@ class LiveController extends Controller
 
                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
                 // $stream->youtube_access_token = $formdata['youtube_access_token'];
-                $stream->youtube_is_active = true;
+                // $stream->youtube_is_active = true;
+                // $stream->save();
+                $channelId = $accessToken_arr['data'];
+                $stream->youtube_access_token = $accessToken;
+                $stream->youtube_channel_id = $channelId;               
                 $stream->save();
+                
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$accessToken,$channelId)->delay(now()->addSecond());
+
+
                 //start job
                 \Log::info('youtube', [
                     'data' => 'start job',
                 ]);
 
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+               // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
 
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['liveChatId' =>$liveChatId]]
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' =>$channelId]]
                 );
             } catch (\Exception $e) {
                 \Log::error('youtube error', ['error' => $e->getMessage()]);

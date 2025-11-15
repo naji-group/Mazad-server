@@ -71,6 +71,7 @@ if($this->social->code=="facebook"){
                         'comment_time' => $c['time']->toDateTimeString(),
                         'social_id'=>$this->social->id,
                     ]);
+                    if ($comment->wasRecentlyCreated) {
                     $newSaved[] = [
                         'platform'=>'facebook',
                         'comment_id'=>$c['id'],
@@ -79,6 +80,7 @@ if($this->social->code=="facebook"){
                         'comment_time'=>$c['time']->toIso8601String(),
                         'social_id'=>$this->social->id,
                     ];
+                }
                 } catch (\Exception $e) {
                     // قد يكون التعليق موجود مسبقًا بسبب سباق/مكرّر -> تجاهل
                     Log::warning('FB save comment failed: '.$e->getMessage());
@@ -144,6 +146,7 @@ if($this->social->code=="facebook"){
                         'comment_time' => $c['time']->toDateTimeString(),
                         'social_id'=>$this->social->id,
                     ]);
+                    if ($comment->wasRecentlyCreated) {
                     $newSaved[] = [
                         'platform'=>'youtube',
                         'comment_id'=>$c['id'],
@@ -152,6 +155,7 @@ if($this->social->code=="facebook"){
                         'comment_time'=>$c['time']->toDateTimeString(),
                         'social_id'=>strval($this->social->id),
                     ];
+                }
                 } catch (\Exception $e) {
                     Log::warning('YT save comment failed: '.$e->getMessage());
                 }

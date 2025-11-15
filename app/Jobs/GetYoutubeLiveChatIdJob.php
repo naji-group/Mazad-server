@@ -22,7 +22,7 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
     /**
      * Create a new job instance.
      */    
-     public $tries = 6;          // أقصى عدد محاولات
+     public $tries = 15;          // أقصى عدد محاولات
      public $backoff = 10;       // تأخير إعادة المحاولة (ثواني)
  
      protected $stream;
