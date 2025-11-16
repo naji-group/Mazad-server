@@ -31,6 +31,24 @@
 	<div class="container">
 		<!-- row -->
 		<div class="row">
+			@php
+			date_default_timezone_set('Asia/Dubai');
+			echo  ini_get('date.timezone');
+			 @endphp
+			 now:
+			  {{ now() }}
+			  <br/>
+			  now timezone:
+			  {{ now()->timezone('Asia/Dubai') }}
+			  <br/>
+			 @foreach ($pages as  $page)
+			 {{ $page->created_at }}
+			 <br/>
+			 {{ $page->created_at->timezone('Asia/Dubai') }}
+			 <br/>
+			 @endforeach
+		</div>
+		<div class="row">
 			<button class="btn  btn-primary" id="btn_sendToken"  >Save token</button>
 			<br/>
 			<div >

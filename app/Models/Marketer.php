@@ -34,6 +34,11 @@ class Marketer extends Authenticatable implements JWTSubject
         'provider_refresh_token',
         'firebase_token',
     ];
+    protected $casts = [
+        'created_at' => 'datetime:Africa/Casablanca',
+        'updated_at' => 'datetime:Africa/Casablanca',
+       
+    ];
     protected $appends = ['status_conv', 'local_image_url'];
     public function getLocalImageUrlAttribute()
     {

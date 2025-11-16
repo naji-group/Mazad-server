@@ -51,7 +51,8 @@ class MarketersTable
                 //     ->sortable(),
                 TextColumn::make('created_at')
                 ->label('تاريخ الانشاء')
-                    ->dateTime()
+                   // ->dateTime()
+                     ->dateTime(timezone: config('app.default_timezone'))
                     ->sortable()
                    // ->toggleable(isToggledHiddenByDefault: true)
                     ,

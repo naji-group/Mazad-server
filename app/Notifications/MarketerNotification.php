@@ -130,7 +130,7 @@ class MarketerNotification extends Notification
                     ],    
                 ]
             ];
-            \Log::info('notify', $data);
+          //  \Log::info('notify', $data);
 
             $payload = json_encode($data);
 $projectname='zawed-app';

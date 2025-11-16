@@ -66,7 +66,8 @@ return [
     */
 
     'timezone' => 'UTC',
-
+    'default_timezone' => 'Asia/Dubai',
+    //'timezone' => 'Africa/Casablanca',
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

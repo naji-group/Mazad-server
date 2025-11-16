@@ -142,6 +142,7 @@ if($this->social->code=="facebook"){
 
             foreach ($ytComments as $c) {
                 try {
+                    $comment_time=$c['time']->toDateTimeString();
                     $comment = LiveComment::updateOrCreate( [
                         'platform'   => 'youtube',
                         'comment_id' => $c['id'],
@@ -154,17 +155,18 @@ if($this->social->code=="facebook"){
                         'comment_id' => $c['id'],
                         'author_name' => $c['from_name'],
                         'message' => $c['message'],
-                        'comment_time' => $c['time']->toDateTimeString(),
+                        'comment_time' => $comment_time,
                         'social_id'=>$this->social->id,
                     ]);
                     if ($comment->wasRecentlyCreated) {
+                        $comment_time =  Carbon::parse($comment_time)->timezone(config('app.default_timezone'));
                   //  $newSaved[] = [
                         $newSaved = [
                         'platform'=>'youtube',
                         'comment_id'=>$c['id'],
                         'author_name'=>$c['from_name'],
                         'message'=>$c['message'],
-                        'comment_time'=>$c['time']->toDateTimeString(),
+                        'comment_time'=>$comment_time,
                         'social_id'=>strval($this->social->id),
                     ];
                     SendMarketerNotification::dispatch(

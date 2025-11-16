@@ -178,8 +178,8 @@ class MarketerController extends Controller
                 }
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.auth.login success'), "data" =>
-                     ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
-
+                    // ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
+                     ['token' => $token,'id'=>$user->id,'username'=>$user->username,'full_name'=>$user->full_name,'local_image_url'=>$user->local_image_url]]
                 );
             } else {
                 return response()->json(

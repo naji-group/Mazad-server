@@ -21,4 +21,10 @@ class Setting extends Model
 'has_image',
 'dir',
     ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Africa/Casablanca',
+        'updated_at' => 'datetime:Africa/Casablanca',
+       
+    ];
 }

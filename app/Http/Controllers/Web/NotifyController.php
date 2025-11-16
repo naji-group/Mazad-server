@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendMarketerNotification;
 use App\Models\Marketer;
+use App\Models\Setting;
 use Carbon\Traits\ToStringFormat;
 use Illuminate\Http\Request;
 use Google\Client as GoogleClient;
@@ -14,7 +15,8 @@ class NotifyController extends Controller
 {
     public function index()
     {
-        return view('site.test');
+        $pages=Setting::where('category','pages')->get();
+        return view('site.test',compact('pages'));
     }
 
 

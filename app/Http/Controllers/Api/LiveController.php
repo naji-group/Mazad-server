@@ -562,6 +562,9 @@ class LiveController extends Controller
                         500
                     );
                 }
+                \Log::info('youtube live success', [
+                    'data' => $response->json(),
+                ]);
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
@@ -1211,7 +1214,7 @@ class LiveController extends Controller
                 422
             );
         } else {
-            $liveStream = LiveStream::where('agora_live_id', $request->agora_live_id)->first();
+            $liveStream = LiveStream::where('id', $request->agora_live_id)->first();
 
             if (!$liveStream) {
                 return response()->json([
@@ -1221,7 +1224,7 @@ class LiveController extends Controller
                 ], 500);
             }
 
-            $liveStream->update(['is_active' => false]);
+            $liveStream->update(['is_active' => false,'end_date'=>now()]);
 
             return response()->json(
                 [
