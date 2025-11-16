@@ -511,6 +511,24 @@ class LiveController extends Controller
                         'rawOptions' => [
                             'rtcChannel' => $channelName,
                             'rtcStreamUid' => $uid,
+                            'transcoding' => [
+                                'width' => 720,
+                                'height' => 1280,
+                                'bitrate' => 1500,
+                                'fps' => 30,
+                                'orientationMode' => 1,
+                                'users' => [
+                                    [
+                                        'uid' => $uid, // استبدل <your-uid> بالمتغير $uid
+                                        'x' => 0,
+                                        'y' => 0,
+                                        'width' => 720,
+                                        'height' => 1280,
+                                        'zOrder' => 1
+                                    ]
+                                ]
+                            ]
+
                         ],
                         'rtmpUrl' => $rtmpUrl,
                         // 'idleTimeout' => 3600, // اختياري
@@ -523,6 +541,9 @@ class LiveController extends Controller
                     'Authorization' => $authHeader,
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+               
+               
+               
                 \Log::info('youtube', [
                     'data' => 'sendto:' . 'https://api.agora.io',
                 ]);
@@ -615,7 +636,7 @@ class LiveController extends Controller
                 //             'data' => "no response and liveChatId = null",
                 //         ]);
                 //     }
-//
+        //
 
 
                 // $stream->youtube_live_chat_id = $liveChatId ?? null;

@@ -100,8 +100,10 @@ if($this->social->code=="facebook"){
                 //     return strcmp($b['comment_time'], $a['comment_time']);
                 // });
                     // احصل على firebase_token(s) للمسوق
+
+
                 SendMarketerNotification::dispatch(
-                    [$stream->marketer_id],'','',[$newSaved] ,['fcm']);         
+                    [$stream->marketer_id],'','',$newSaved ,['fcm']);         
             }
             
         if ($stream->fresh()->is_active) {
@@ -156,7 +158,8 @@ if($this->social->code=="facebook"){
                         'social_id'=>$this->social->id,
                     ]);
                     if ($comment->wasRecentlyCreated) {
-                    $newSaved[] = [
+                  //  $newSaved[] = [
+                        $newSaved = [
                         'platform'=>'youtube',
                         'comment_id'=>$c['id'],
                         'author_name'=>$c['from_name'],
@@ -164,6 +167,8 @@ if($this->social->code=="facebook"){
                         'comment_time'=>$c['time']->toDateTimeString(),
                         'social_id'=>strval($this->social->id),
                     ];
+                    SendMarketerNotification::dispatch(
+                        [$stream->marketer_id],'','',$newSaved ,['database', 'fcm']);   
                 }
                 } catch (\Exception $e) {
                     Log::warning('YT save comment failed: '.$e->getMessage());
@@ -181,8 +186,10 @@ if($this->social->code=="facebook"){
         //     return strcmp($b['comment_time'], $a['comment_time']);
         // });
             // احصل على firebase_token(s) للمسوق
-        SendMarketerNotification::dispatch(
-            [$stream->marketer_id],'','',[$newSaved] ,['database', 'fcm']);         
+
+            //test
+        // SendMarketerNotification::dispatch(
+        //     [$stream->marketer_id],'','',[$newSaved] ,['database', 'fcm']);         
     }
     // \Log::info('youtube Notification sent ', [
     //     'data' =>['newSaved'=>$newSaved],

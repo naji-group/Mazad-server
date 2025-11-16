@@ -76,13 +76,11 @@ class MarketerNotification extends Notification
             $this->data["title"] = $this->title;
          $this->data["body"]= $this->body;
         $this->data["click_action"]= "FLUTTER_NOTIFICATION_CLICK";
-        //$dArr=[];
-        // $dArr["title"]='';
-        // $dArr["body"]="";
+        // $dArr=[];
+        // $dArr["title"]='-';
+        // $dArr["body"]="-";
         // $dArr["click_action"]="FLUTTER_NOTIFICATION_CLICK";
-              \Log::info('notify', [
-                        'data' => $this->data,
-                    ]);
+        \Log::info('notify', $this->data);
             $credentialsFilePath = storage_path('app/zawed-app-firebase-adminsdk.json');
 
             $client = new GoogleClient();
@@ -113,7 +111,8 @@ class MarketerNotification extends Notification
                    //  [ "title" =>null ]
                     [ "title" => $this->title ,"body"=>$this->body]
                      ,
-                     "data" => $this->data,   
+                    "data" =>  $this->data ,   
+                 // "data" => $dArr, //test
                      'apns' => [
                         'payload' => [
                             'aps' => [
@@ -131,6 +130,8 @@ class MarketerNotification extends Notification
                     ],    
                 ]
             ];
+            \Log::info('notify', $data);
+
             $payload = json_encode($data);
 $projectname='zawed-app';
             $ch = curl_init();
