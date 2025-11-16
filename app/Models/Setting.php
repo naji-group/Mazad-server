@@ -22,9 +22,5 @@ class Setting extends Model
 'dir',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime:Africa/Casablanca',
-        'updated_at' => 'datetime:Africa/Casablanca',
-       
-    ];
+  
 }
