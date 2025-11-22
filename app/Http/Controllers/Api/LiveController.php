@@ -486,7 +486,7 @@ class LiveController extends Controller
             $channelName = $formdata['channelName'];
             $uid = $formdata['uid'];
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
-           // $accessToken = $formdata['youtube_access_token'];
+            // $accessToken = $formdata['youtube_access_token'];
             \Log::info('youtube vars validated', [
                 'data' => $channelName . '-' .
                     $uid . '-' .
@@ -505,35 +505,161 @@ class LiveController extends Controller
                 $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
                 // الجسم المرسل إلى Agora API
-                $body = [
-                    'converter' => [
-                        'name' => "push-{$channelName}-" . time(),
-                        'rawOptions' => [
-                            'rtcChannel' => $channelName,
-                            'rtcStreamUid' => $uid,
-                            'transcoding' => [
-                                'width' => 720,
-                                'height' => 1280,
-                                'bitrate' => 1500,
-                                'fps' => 30,
-                                'orientationMode' => 1,
-                                'users' => [
-                                    [
-                                        'uid' => $uid, // استبدل <your-uid> بالمتغير $uid
-                                        'x' => 0,
-                                        'y' => 0,
-                                        'width' => 720,
-                                        'height' => 1280,
-                                        'zOrder' => 1
-                                    ]
-                                ]
-                            ]
+                // $body = [
+                //     'converter' => [
+                //         'name' => "push-{$channelName}-" . time(),
+                //         // 'transcodeOptions' => [
+                //         //     'width' => 720,
+                //         //     'height' => 1280,
+                //         //     'color' => '#000000',
+                //         //     // 'videoOptions' => [
+                //         //     //     'bitrate' => 1820,
+                //         //     //     'frameRate' => 30,
+                //         //     //     'gop' => 30,
+                //         //     //     'codecProfile' => 100,
+                //         //     // ],
+                //         // ],
+                //         'rawOptions' => [
+                //             'rtcChannel' => $channelName,
+                //             'rtcStreamUid' => $uid,
+                //             // 'transcoding' => [
+                //             //     'width' => 720,
+                //             //     'height' => 1280,
+                //             //     'videoBitrate' => 1500,
+                //             //     'videoFramerate' => 30,
+                //             //     'lowLatency' => false,
+                //             //     'videoGop' => 30,
+                //             //     'videoCodecProfile' => 100,
+                //             //     'backgroundColor' => "#000000",
 
+                //             //     // أهم شيء 👇
+                //             //     'orientationMode' => 1, // Fixed Portrait
+                //             //     'rotation' => 90,       // حل مشكلة الانقلاب
+
+                //             //     // لمنع قلب الكاميرا الأمامية
+                //             //     'mirrorMode' => 0,
+
+                //             //     // تأكيد تفعيل الفيديو والصوت
+                //             //     'audio' => true,
+                //             //     'video' => true,
+
+                //             //     'users' => [
+                //             //         [
+                //             //             'uid' => $uid,
+                //             //             'x' => 0,
+                //             //             'y' => 0,
+                //             //             'width' => 720,
+                //             //             'height' => 1280,
+                //             //             'zOrder' => 1
+                //             //         ]
+                //             //     ]
+                //             // ],
+
+                //         ],
+                //         'rtmpUrl' => $rtmpUrl,
+                //         // 'idleTimeout' => 3600, // اختياري
+                //     ]
+                //   ]  ;
+
+                //   $body_orginal = [
+                //     'converter' => [
+                //         'name' => "push-{$channelName}-" . time(),
+                //         // 'transcodeOptions' => [
+                //         //     'width' => 720,
+                //         //     'height' => 1280,
+                //         //     'color' => '#000000',
+                //         //     // 'videoOptions' => [
+                //         //     //     'bitrate' => 1820,
+                //         //     //     'frameRate' => 30,
+                //         //     //     'gop' => 30,
+                //         //     //     'codecProfile' => 100,
+                //         //     // ],
+                //         // ],
+                //         'rawOptions' => [
+                //             'rtcChannel' => $channelName,
+                //             'rtcStreamUid' => $uid,
+                //             'transcoding' => [
+                //                 'width' => 720,
+                //                 'height' => 1280,
+                //                 'videoBitrate' => 1500,
+                //                 'videoFramerate' => 30,
+                //                 'lowLatency' => false,
+                //                 'videoGop' => 30,
+                //                 'videoCodecProfile' => 100,
+                //                 'backgroundColor' => "#000000",
+
+                //                 // أهم شيء 👇
+                //                 'orientationMode' => 1, // Fixed Portrait
+                //                 'rotation' => 270,       // حل مشكلة الانقلاب
+
+                //                 // لمنع قلب الكاميرا الأمامية
+                //                 'mirrorMode' => 0,
+
+                //                 // تأكيد تفعيل الفيديو والصوت
+                //                 'audio' => true,
+                //                 'video' => true,
+
+                //                 'users' => [
+                //                     [
+                //                         'uid' => $uid,
+                //                         'x' => 0,
+                //                         'y' => 0,
+                //                         'width' => 720,
+                //                         'height' => 1280,
+                //                         'zOrder' => 1
+                //                     ]
+                //                 ]
+                //             ],
+
+                //         ],
+                //         'rtmpUrl' => $rtmpUrl,
+                //         // 'idleTimeout' => 3600, // اختياري
+                //     ]
+                //   ]  ;
+
+
+
+                  $body =[
+                    'converter' => [
+                        "name" =>  "push-{$channelName}-" . time(),
+                        "transcodeOptions" => [
+                            "rtcChannel" =>  $channelName,
+                            "audioOptions" => [
+                                "codecProfile" => "LC-AAC",
+                                "sampleRate" => 48000,
+                                "bitrate" => 48,
+                                "audioChannels" => 1
+                            ],
+                            "videoOptions" => [
+                                "canvas" => [
+                                    "width" => 480,
+                                    "height" => 640
+                                ],
+                                "layout" => [
+                                    [
+                                        "rtcStreamUid" =>$uid,
+                                        "region" => [
+                                            "xPos" => 0,
+                                            "yPos" => 0,
+                                            "zIndex" => 1,
+                                            "width" => 480,
+                                            "height" => 640
+                                        ],
+                                        "fillMode" => "fill",
+                                       // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+                                    ] 
+                                ],
+                               // "codecProfile" => "High",
+                                "frameRate" => 15,
+                                "gop" => 30,
+                                "bitrate" =>1000,
+                                "seiOptions" => []
+                            ]
                         ],
-                        'rtmpUrl' => $rtmpUrl,
-                        // 'idleTimeout' => 3600, // اختياري
-                    ],
-                ];
+                        "rtmpUrl" => $rtmpUrl ,
+                    ]
+
+                    ];
                 // تهيئة الـ Basic Auth
                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
                 // إرسال الطلب إلى Agora API
@@ -541,9 +667,9 @@ class LiveController extends Controller
                     'Authorization' => $authHeader,
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
-               
-               
-               
+
+
+
                 \Log::info('youtube', [
                     'data' => 'sendto:' . 'https://api.agora.io',
                 ]);
@@ -569,11 +695,11 @@ class LiveController extends Controller
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-               $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
 
-              //  $liveChatId = null;
+                //  $liveChatId = null;
                 //start
-                $accessToken= $marketer_social->access_token;
+                $accessToken = $marketer_social->access_token;
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
                 if (!$accessToken_arr['success']) {
                     return response()->json(
@@ -583,10 +709,10 @@ class LiveController extends Controller
                 }
                 $channelId = $accessToken_arr['data'];
                 $stream->youtube_access_token = $accessToken;
-                $stream->youtube_channel_id = $channelId;               
+                $stream->youtube_channel_id = $channelId;
                 $stream->save();
-                
-                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$marketer_social,$channelId)->delay(now()->addSecond());
+
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
 
                 // $videoId_arr = $this->getYoutubeVideoId($channelId);
                 // if (!$videoId_arr['success']) {
@@ -597,7 +723,7 @@ class LiveController extends Controller
                 // }
                 // $videoId = $videoId_arr['data'];
                 // $stream->youtube_video_id = $videoId;
-              
+
                 // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
                 // if (!$liveChatId_arr['success']) {
                 //     return response()->json(
@@ -609,7 +735,7 @@ class LiveController extends Controller
                 // $stream->youtube_live_chat_id = $liveChatId;
 
 
-             //   $stream->save();
+                //   $stream->save();
                 //end
                 //    //
                 //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
@@ -639,20 +765,20 @@ class LiveController extends Controller
                 //             'data' => "no response and liveChatId = null",
                 //         ]);
                 //     }
-        //
+                //
 
 
                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
                 // $stream->youtube_access_token = $formdata['youtube_access_token'];
-            //    $stream->youtube_is_active = true;
-              
+                //    $stream->youtube_is_active = true;
+
                 //start job
                 // \Log::info('youtube', [
                 //     'data' => 'start job',
                 // ]);
 
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-            //    FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+                //    FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
 
                 return response()->json(
@@ -755,20 +881,20 @@ class LiveController extends Controller
                 //     );
                 // }
 
-             
+
 
 
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
 
-               $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-               \Log::info('youtube marketer_social', [
-                      'data' =>  $marketer_social->id,
-                    ]);
-               $liveChatId = null;
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+                \Log::info('youtube marketer_social', [
+                    'data' => $marketer_social->id,
+                ]);
+                $liveChatId = null;
                 //start
-                $accessToken= $marketer_social->access_token;
+                $accessToken = $marketer_social->access_token;
                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
                 if (!$accessToken_arr['success']) {
                     return response()->json(
@@ -836,10 +962,10 @@ class LiveController extends Controller
                 // $stream->save();
                 $channelId = $accessToken_arr['data'];
                 $stream->youtube_access_token = $accessToken;
-                $stream->youtube_channel_id = $channelId;               
+                $stream->youtube_channel_id = $channelId;
                 $stream->save();
-                
-                GetYoutubeLiveChatIdJob::dispatch($stream, $social,$marketer_social,$channelId)->delay(now()->addSecond());
+
+                GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
 
 
                 //start job
@@ -848,11 +974,11 @@ class LiveController extends Controller
                 ]);
 
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-               // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+                // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
                 //                
 
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' =>$channelId]]
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' => $channelId]]
                 );
             } catch (\Exception $e) {
                 \Log::error('youtube error', ['error' => $e->getMessage()]);
@@ -1224,7 +1350,7 @@ class LiveController extends Controller
                 ], 500);
             }
 
-            $liveStream->update(['is_active' => false,'end_date'=>now()]);
+            $liveStream->update(['is_active' => false, 'end_date' => now()]);
 
             return response()->json(
                 [
@@ -1503,7 +1629,7 @@ class LiveController extends Controller
         ];
         return $res;
     }
-//temp
+    //temp
     public function getYoutubeLiveChatMessages($accessToken, $videoId, $liveChatId)
     {
         // 🔹 الخطوة 2: جلب الرسائل من live chat
@@ -1543,56 +1669,59 @@ class LiveController extends Controller
 
 
     }
-//end temp
+    //end temp
 //test
-public function getrefreshToken(Request $request)
-{
-    $marketersocial_id=$request->marketersocial_id;
-    $marketersocial= MarketerSocial::find($marketersocial_id);
-    $expires = Carbon::parse($marketersocial->expires_in_date);
-$res=false;
-if ($expires->lte(now()->addMinutes(10))) {
-    $res=true;
-}
- //$res=   $this->refreshTokenIfNeeded($marketersocial);
-return response()->json(['data'=>[
-    $res,
-  'now'=>  now(),
-   'expires_in_date'=> $marketersocial->expires_in_date]]);
-}
-public function refreshTokenIfNeeded($marketersocial)
-{
-    \Log::info("start Token Refreshed -".strval($marketersocial->expires_in_date->diffInMinutes(now())));
-    // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
-    // now=20    if( expires_in_date=30 -now() <=10 minutes) retutn true
-    if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
-        \Log::info("expired  Token Refreshed ");
-        $clientId     = config('services.google.client_id');
-        $clientSecret = config('services.google.client_secret');
-
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-            'grant_type'    => 'refresh_token',
-            'refresh_token' => $marketersocial->refresh_token,
-            'client_id'     => $clientId,
-            'client_secret' => $clientSecret,
-        ]);
-
-        if ($response->failed()) {
-            \Log::error("Google Token Refresh FAILED", $response->json());
-            return false;
+    public function getrefreshToken(Request $request)
+    {
+        $marketersocial_id = $request->marketersocial_id;
+        $marketersocial = MarketerSocial::find($marketersocial_id);
+        $expires = Carbon::parse($marketersocial->expires_in_date);
+        $res = false;
+        if ($expires->lte(now()->addMinutes(10))) {
+            $res = true;
         }
-        $data = $response->json();
-        // حدث التوكين ووقت الانتهاء
-        $marketersocial->access_token = $data['access_token'];
-        $marketersocial->expires_in = $data['expires_in'];
-        $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
-        $marketersocial->save();
-        \Log::info("Google Access Token Refreshed Successfully");
-        return true;
+        //$res=   $this->refreshTokenIfNeeded($marketersocial);
+        return response()->json([
+            'data' => [
+                $res,
+                'now' => now(),
+                'expires_in_date' => $marketersocial->expires_in_date
+            ]
+        ]);
     }
+    public function refreshTokenIfNeeded($marketersocial)
+    {
+        \Log::info("start Token Refreshed -" . strval($marketersocial->expires_in_date->diffInMinutes(now())));
+        // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
+        // now=20    if( expires_in_date=30 -now() <=10 minutes) retutn true
+        if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
+            \Log::info("expired  Token Refreshed ");
+            $clientId = config('services.google.client_id');
+            $clientSecret = config('services.google.client_secret');
 
-    return false;
-}
-//end test
+            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $marketersocial->refresh_token,
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+            ]);
+
+            if ($response->failed()) {
+                \Log::error("Google Token Refresh FAILED", $response->json());
+                return false;
+            }
+            $data = $response->json();
+            // حدث التوكين ووقت الانتهاء
+            $marketersocial->access_token = $data['access_token'];
+            $marketersocial->expires_in = $data['expires_in'];
+            $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
+            $marketersocial->save();
+            \Log::info("Google Access Token Refreshed Successfully");
+            return true;
+        }
+
+        return false;
+    }
+    //end test
 
 }

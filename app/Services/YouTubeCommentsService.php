@@ -27,7 +27,7 @@ class YouTubeCommentsService
   ->get('https://www.googleapis.com/youtube/v3/liveChat/messages', [
       'liveChatId' => $liveChatId,
       'part' => 'id,snippet,authorDetails',
-      'maxResults' => 200,
+      'maxResults' => 100,
   ]);
   if ($chatResponse->failed()) {
     \Log::error('live chat messages error', ['error' =>  $chatResponse->json()]);

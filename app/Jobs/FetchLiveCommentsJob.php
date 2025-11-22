@@ -16,7 +16,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
-
+use Carbon\CarbonTimeZone;
+use phpDocumentor\Reflection\Types\Integer;
 class FetchLiveCommentsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -58,6 +59,7 @@ if($this->social->code=="facebook"){
             foreach ($fbComments as $c) {
                 // حفظ فقط إذا لم يكن موجوداً (unique constraint on platform/comment_id)
                 try {
+                    $comment_time=$c['time']->toDateTimeString();
                     $comment = LiveComment::updateOrCreate( [
                         'platform'   => 'facebook',
                         'comment_id' => $c['id'],
@@ -71,18 +73,21 @@ if($this->social->code=="facebook"){
                         'comment_id' => $c['id'],
                         'author_name' => $c['from_name'],
                         'message' => $c['message'],
-                        'comment_time' => $c['time']->toDateTimeString(),
-                        'social_id'=>$this->social->id,
+                        'comment_time' =>  $comment_time,
+                        'social_id'=>strval($this->social->id),
                     ]);
                     if ($comment->wasRecentlyCreated) {
+                        $comment_time =  Carbon::parse($comment_time)->timezone(config('app.default_timezone'))->toIso8601String();
                     $newSaved[] = [
                         'platform'=>'facebook',
                         'comment_id'=>$c['id'],
                         'author_name'=>$c['from_name'],
                         'message'=>$c['message'],
-                        'comment_time'=>$c['time']->toIso8601String(),
-                        'social_id'=>$this->social->id,
+                        'comment_time'=> strval($comment_time),
+                        'social_id'=>strval($this->social->id),
                     ];
+                    SendMarketerNotification::dispatch(
+                        [$stream->marketer_id],'','',$newSaved ,['database', 'fcm']); 
                 }
                 } catch (\Exception $e) {
                     // قد يكون التعليق موجود مسبقًا بسبب سباق/مكرّر -> تجاهل
@@ -102,8 +107,8 @@ if($this->social->code=="facebook"){
                     // احصل على firebase_token(s) للمسوق
 
 
-                SendMarketerNotification::dispatch(
-                    [$stream->marketer_id],'','',$newSaved ,['fcm']);         
+                // SendMarketerNotification::dispatch(
+                //     [$stream->marketer_id],'','',$newSaved ,['fcm']);         
             }
             
         if ($stream->fresh()->is_active) {
@@ -159,14 +164,15 @@ if($this->social->code=="facebook"){
                         'social_id'=>$this->social->id,
                     ]);
                     if ($comment->wasRecentlyCreated) {
-                        $comment_time =  Carbon::parse($comment_time)->timezone(config('app.default_timezone'));
-                  //  $newSaved[] = [
+                        //$newcomment_time =  Carbon::parse($comment_time)->timezone(config('app.default_timezone'))->toIso8601String();
+                        $newcomment_time=$this->offset_timezone($comment_time,config('app.default_timezone'));
+                        //  $newSaved[] = [
                         $newSaved = [
                         'platform'=>'youtube',
                         'comment_id'=>$c['id'],
                         'author_name'=>$c['from_name'],
                         'message'=>$c['message'],
-                        'comment_time'=>$comment_time,
+                        'comment_time'=>strval($newcomment_time),
                         'social_id'=>strval($this->social->id),
                     ];
                     SendMarketerNotification::dispatch(
@@ -271,4 +277,22 @@ if($this->social->code=="facebook"){
     //         \Log::error('FCM send failed: '.$res->body());
     //     }
     // }
+    public function offset_timezone($time,$newtimezone)
+    {      
+
+        $timezone = new CarbonTimeZone($newtimezone);
+        $utcNow = Carbon::now('UTC');
+        $localNow = $utcNow->copy()->setTimezone($timezone);
+        
+        // فرق التوقيت بالدقائق
+        $diffInMinutes = (int)($localNow->utcOffset());
+        
+        $comment_time = Carbon::parse($time);
+        
+        // إضافة فرق التوقيت
+        $adjustedCommentTime = $comment_time->addMinutes($diffInMinutes);
+        
+        // اختبار النتيجة
+        return $adjustedCommentTime;
+    }
 }

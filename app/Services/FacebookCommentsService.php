@@ -17,13 +17,14 @@ class FacebookCommentsService
             'access_token' => $accessToken,
             'order' => 'reverse_chronological', // أحدث أولاً
             'live_filter' => 'stream',
-            'limit' => 50,
+            'limit' => 100,
         ]);
 
         if ($res->failed()) {
+            \Log::error('live chat messages error', ['error' =>  $res->json()]);
             return [];
         }
-
+        \Log::info( ' facebook comment res', $res->json());
         $data = $res->json('data', []);
 
         // قاعدة: نعيد من الأقدم إلى الأحدث، ونتخطى التعليقات الموجودة بالفعل (حتى comment_id == sinceCommentId)
