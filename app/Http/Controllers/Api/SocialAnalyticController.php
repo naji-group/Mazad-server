@@ -32,16 +32,17 @@ $basicStats = $service->getVideoStats($videoId);
 $startDate = Carbon::parse($livestream->start_date)->subDay()->toDateString();
 $endDate = Carbon::parse(now())->toDateString();
 // جلب تحليل ما بعد البث — مثلاً من يوم البث لليوم الحالي
-$report = $service->getAnalyticsForVideo($videoId, $startDate, $endDate);
+ $report = $service->getAnalyticsForVideo($videoId, $startDate, $endDate);
 
 // دمج وحفظ النتائج في قاعدة البيانات أو عرضها
 \Log::info('YouTube Stats', [
     'basic' => $basicStats,
-    'report' => $report,
+   'report' => $report,
 ]);
 return  response()->json(["success" => 1, "message" =>"ok", "data" => 
  [  'basic' => $basicStats,
- 'report' => $report,]]);
+ 'report' => $report,
+ ]]);
 
     }
 

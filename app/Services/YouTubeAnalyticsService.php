@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\CarbonInterval;
 use Google_Client;
 use Google_Service_YouTube;
 use Google_Service_YouTubeAnalytics;
@@ -66,11 +67,16 @@ class YouTubeAnalyticsService
             'VideoStats' => $response->getItems(),
             
         ]);
+        $duration = $item->getContentDetails()->getDuration();
+        $interval = CarbonInterval::make($duration);
+
+// نحولها إلى صيغة HH:MM:SS
+$formatted = $interval->format('%H:%I:%S');
         return [
             'viewCount' => $stats->getViewCount(),
             'likeCount' => $stats->getLikeCount(),
             'commentCount' => $stats->getCommentCount(),
-            'duration' => $item->getContentDetails()->getDuration(),
+            'duration' =>$formatted ,
         ];
     }
 
@@ -89,14 +95,14 @@ class YouTubeAnalyticsService
         ]);
 
         $rows = $response->getRows();
-
+        Log::info('YouTube Stats', [
+            'AnalyticsForVideo' =>$rows,
+            
+        ]);
         if (empty($rows)) {
             return null;
         }
-        Log::info('YouTube Stats', [
-            'AnalyticsForVideo' => $rows,
-            
-        ]);
+     
         // مثال: أول صف من النتائج
         $row = $rows[0];
 
@@ -108,38 +114,38 @@ class YouTubeAnalyticsService
         ];
     }
 
-    public function refreshTokenIfNeeded($marketersocial)
-    {
+    // public function refreshTokenIfNeeded($marketersocial)
+    // {
     
        
          
      
       
     
-            $clientId     = config('services.google.client_id');
-            $clientSecret = config('services.google.client_secret');
+    //         $clientId     = config('services.google.client_id');
+    //         $clientSecret = config('services.google.client_secret');
     
-            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-                'grant_type'    => 'refresh_token',
-                'refresh_token' => $marketersocial->refresh_token,
-                'client_id'     => $clientId,
-                'client_secret' => $clientSecret,
-            ]);
+    //         $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+    //             'grant_type'    => 'refresh_token',
+    //             'refresh_token' => $marketersocial->refresh_token,
+    //             'client_id'     => $clientId,
+    //             'client_secret' => $clientSecret,
+    //         ]);
     
-            if ($response->failed()) {
-                \Log::error("Google Token Refresh FAILED", $response->json());
-                return false;
-            }
-            $data = $response->json();
-            // حدث التوكين ووقت الانتهاء
-            $marketersocial->access_token = $data['access_token'];
-            $marketersocial->expires_in = $data['expires_in'];
-            $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
-            $marketersocial->save();
-            \Log::info("Google Access Token Refreshed Successfully");
+    //         if ($response->failed()) {
+    //             \Log::error("Google Token Refresh FAILED", $response->json());
+    //             return false;
+    //         }
+    //         $data = $response->json();
+    //         // حدث التوكين ووقت الانتهاء
+    //         $marketersocial->access_token = $data['access_token'];
+    //         $marketersocial->expires_in = $data['expires_in'];
+    //         $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
+    //         $marketersocial->save();
+    //         \Log::info("Google Access Token Refreshed Successfully");
             
         
     
-        return false;
-    }
+    //     return false;
+    // }
 }
