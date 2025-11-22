@@ -35,7 +35,7 @@
 		//	date_default_timezone_set('Asia/Dubai');
 			echo  ini_get('date.timezone');
 			$time='2025-11-18 01:26:28';
-			$timeDubai = Carbon\Carbon::parse($time)->timezone('Asia/Dubai')->toIso8601String();;
+			$timeDubai = Carbon\Carbon::parse($time)->timezone('Asia/Dubai')->toIso8601String();
 //$timeUtc = $timeDubai->copy()->timezone('UTC');
 
 //$newdate = $timeUtc->toIso8601String();
