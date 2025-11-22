@@ -504,120 +504,14 @@ class LiveController extends Controller
             try {
                 $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
-                // الجسم المرسل إلى Agora API
-                // $body = [
-                //     'converter' => [
-                //         'name' => "push-{$channelName}-" . time(),
-                //         // 'transcodeOptions' => [
-                //         //     'width' => 720,
-                //         //     'height' => 1280,
-                //         //     'color' => '#000000',
-                //         //     // 'videoOptions' => [
-                //         //     //     'bitrate' => 1820,
-                //         //     //     'frameRate' => 30,
-                //         //     //     'gop' => 30,
-                //         //     //     'codecProfile' => 100,
-                //         //     // ],
-                //         // ],
-                //         'rawOptions' => [
-                //             'rtcChannel' => $channelName,
-                //             'rtcStreamUid' => $uid,
-                //             // 'transcoding' => [
-                //             //     'width' => 720,
-                //             //     'height' => 1280,
-                //             //     'videoBitrate' => 1500,
-                //             //     'videoFramerate' => 30,
-                //             //     'lowLatency' => false,
-                //             //     'videoGop' => 30,
-                //             //     'videoCodecProfile' => 100,
-                //             //     'backgroundColor' => "#000000",
+                
 
-                //             //     // أهم شيء 👇
-                //             //     'orientationMode' => 1, // Fixed Portrait
-                //             //     'rotation' => 90,       // حل مشكلة الانقلاب
-
-                //             //     // لمنع قلب الكاميرا الأمامية
-                //             //     'mirrorMode' => 0,
-
-                //             //     // تأكيد تفعيل الفيديو والصوت
-                //             //     'audio' => true,
-                //             //     'video' => true,
-
-                //             //     'users' => [
-                //             //         [
-                //             //             'uid' => $uid,
-                //             //             'x' => 0,
-                //             //             'y' => 0,
-                //             //             'width' => 720,
-                //             //             'height' => 1280,
-                //             //             'zOrder' => 1
-                //             //         ]
-                //             //     ]
-                //             // ],
-
-                //         ],
-                //         'rtmpUrl' => $rtmpUrl,
-                //         // 'idleTimeout' => 3600, // اختياري
-                //     ]
-                //   ]  ;
-
-                //   $body_orginal = [
-                //     'converter' => [
-                //         'name' => "push-{$channelName}-" . time(),
-                //         // 'transcodeOptions' => [
-                //         //     'width' => 720,
-                //         //     'height' => 1280,
-                //         //     'color' => '#000000',
-                //         //     // 'videoOptions' => [
-                //         //     //     'bitrate' => 1820,
-                //         //     //     'frameRate' => 30,
-                //         //     //     'gop' => 30,
-                //         //     //     'codecProfile' => 100,
-                //         //     // ],
-                //         // ],
-                //         'rawOptions' => [
-                //             'rtcChannel' => $channelName,
-                //             'rtcStreamUid' => $uid,
-                //             'transcoding' => [
-                //                 'width' => 720,
-                //                 'height' => 1280,
-                //                 'videoBitrate' => 1500,
-                //                 'videoFramerate' => 30,
-                //                 'lowLatency' => false,
-                //                 'videoGop' => 30,
-                //                 'videoCodecProfile' => 100,
-                //                 'backgroundColor' => "#000000",
-
-                //                 // أهم شيء 👇
-                //                 'orientationMode' => 1, // Fixed Portrait
-                //                 'rotation' => 270,       // حل مشكلة الانقلاب
-
-                //                 // لمنع قلب الكاميرا الأمامية
-                //                 'mirrorMode' => 0,
-
-                //                 // تأكيد تفعيل الفيديو والصوت
-                //                 'audio' => true,
-                //                 'video' => true,
-
-                //                 'users' => [
-                //                     [
-                //                         'uid' => $uid,
-                //                         'x' => 0,
-                //                         'y' => 0,
-                //                         'width' => 720,
-                //                         'height' => 1280,
-                //                         'zOrder' => 1
-                //                     ]
-                //                 ]
-                //             ],
-
-                //         ],
-                //         'rtmpUrl' => $rtmpUrl,
-                //         // 'idleTimeout' => 3600, // اختياري
-                //     ]
-                //   ]  ;
-
-
+/*
+old
+ "width" => 480,
+                                    "height" => 640
+                                      "bitrate" =>1000,
+*/
 
                   $body =[
                     'converter' => [
@@ -632,8 +526,8 @@ class LiveController extends Controller
                             ],
                             "videoOptions" => [
                                 "canvas" => [
-                                    "width" => 480,
-                                    "height" => 640
+                                    "width" => 720,
+                                    "height" => 1280
                                 ],
                                 "layout" => [
                                     [
@@ -642,8 +536,8 @@ class LiveController extends Controller
                                             "xPos" => 0,
                                             "yPos" => 0,
                                             "zIndex" => 1,
-                                            "width" => 480,
-                                            "height" => 640
+                                            "width" => 720,
+                                            "height" => 1280
                                         ],
                                         "fillMode" => "fill",
                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
@@ -652,7 +546,7 @@ class LiveController extends Controller
                                // "codecProfile" => "High",
                                 "frameRate" => 15,
                                 "gop" => 30,
-                                "bitrate" =>1000,
+                                "bitrate" =>2260,
                                 "seiOptions" => []
                             ]
                         ],
@@ -713,73 +607,6 @@ class LiveController extends Controller
                 $stream->save();
 
                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
-
-                // $videoId_arr = $this->getYoutubeVideoId($channelId);
-                // if (!$videoId_arr['success']) {
-                //     return response()->json(
-                //         $videoId_arr,
-                //         400
-                //     );
-                // }
-                // $videoId = $videoId_arr['data'];
-                // $stream->youtube_video_id = $videoId;
-
-                // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
-                // if (!$liveChatId_arr['success']) {
-                //     return response()->json(
-                //         $liveChatId_arr,
-                //         400
-                //     );
-                // }
-                // $liveChatId = $liveChatId_arr['data'];              
-                // $stream->youtube_live_chat_id = $liveChatId;
-
-
-                //   $stream->save();
-                //end
-                //    //
-                //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
-                //         'part' => 'snippet',
-                //         'broadcastStatus' => 'active',
-                //         'key' => config('services.youtube.key'),
-
-                //     ]);
-                //     \Log::info('youtube', [
-                //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
-                //     ]);
-
-                //     \Log::info('youtube response', [
-                //         'data' => $response->json(),
-                //     ]);
-
-                //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
-                //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
-
-                //         \Log::info('youtube response', [
-                //             'data' => $response->json(),
-                //         ]);
-
-                //     } else {
-                //         $liveChatId = null; // لا يوجد بث مباشر حالياً
-                //         \Log::info('youtube response', [
-                //             'data' => "no response and liveChatId = null",
-                //         ]);
-                //     }
-                //
-
-
-                // $stream->youtube_live_chat_id = $liveChatId ?? null;
-                // $stream->youtube_access_token = $formdata['youtube_access_token'];
-                //    $stream->youtube_is_active = true;
-
-                //start job
-                // \Log::info('youtube', [
-                //     'data' => 'start job',
-                // ]);
-
-                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                //    FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
-                //                
 
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
@@ -1294,20 +1121,22 @@ class LiveController extends Controller
                 422
             );
         } else {
+           
             $stream = LiveStream::updateOrCreate(
                 ['agora_live_id' => $formdata['agora_live_id']],
                 [
                     'marketer_id' => $formdata['marketer_id'],
                     'is_active' => 1,
-                    'youtube_live_chat_id' => $formdata['youtube_live_chat_id'] ?? null,
-                    'youtube_access_token' => $formdata['youtube_access_token'] ?? null,
-                    'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
-                    'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
+                    'start_date'=>now(),
+                    // 'youtube_live_chat_id' => $formdata['youtube_live_chat_id'] ?? null,
+                    // 'youtube_access_token' => $formdata['youtube_access_token'] ?? null,
+                    // 'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
+                    // 'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
                 ]
             );
 
             // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-            FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
+       //     FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
             return response()->json(
                 [
                     "success" => 1,

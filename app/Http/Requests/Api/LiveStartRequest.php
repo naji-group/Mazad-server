@@ -25,10 +25,10 @@ class LiveStartRequest extends FormRequest
             'marketer_id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
            
             'agora_live_id' => 'required',
-            'youtube_live_chat_id' => 'nullable',
-            'youtube_access_token' => 'nullable',
-            'facebook_live_video_id' => 'nullable',
-            'facebook_access_token' => 'nullable',
+            // 'youtube_live_chat_id' => 'nullable',
+            // 'youtube_access_token' => 'nullable',
+            // 'facebook_live_video_id' => 'nullable',
+            // 'facebook_access_token' => 'nullable',
  
               ];
     }
