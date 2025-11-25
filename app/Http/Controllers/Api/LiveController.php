@@ -900,126 +900,321 @@ old
 
     }
     //TIKtok
+    // public function tiktok_push(Request $request)
+    // {
+
+    //     $formdata = $request->all();
+    //     $storrequest = new LiveStartTiktokRequest();
+    //     $validator = Validator::make(
+    //         $formdata,
+    //         $storrequest->rules(),
+    //         $storrequest->messages()
+    //     );
+    //     if ($validator->fails()) {
+    //         \Log::error('tiktok validator error', ['error' =>$validator->errors()]);
+    //         return response()->json(
+    //             ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+    //             ,
+    //             422
+    //         );
+    //     } else {
+    //         $channel = $request->channel;
+    //         $rtmpUrl = $request->rtmpUrl;
+    //         $uid = $request->uid ?? '0';
+
+    //         $appId = config('services.agora.app_id');
+    //         $customerId = config('services.agora.customer_key');
+    //         $customerCertificate = config('services.agora.customer_secret');
+    //         $baseUrl = "https://api.agora.io/v1/apps";
+    //         //  return response()->json([ "a"=>$appId, $customerId, $customerCertificate]);
+    //         try {
+    //             // 1️⃣ Generate resourceId
+    //             $resourceResponse = Http::withBasicAuth($customerId, $customerCertificate)
+    //                 ->post("$baseUrl/$appId/cloud_recording/acquire", [
+    //                     'cname' => $channel,
+    //                     'uid' => 0,
+    //                     'clientRequest' => [],
+    //                    // 'clientRequest' => new \stdClass(),
+    //                 ]);
+
+    //             if (!$resourceResponse->successful()) {
+    //                 //Failed to acquire resourceId
+
+    //                 \Log::error('tiktok_push error', ['error' =>$resourceResponse->json()]);
+
+    //                 return response()->json(
+    //                     [
+    //                         "success" => 0,
+    //                         "message" => __('api_messages.faild'),
+    //                         "data" => $resourceResponse->json()
+    //                     ]
+    //                     ,
+    //                     500
+    //                 );
+    //             }
+
+    //             $resourceId = $resourceResponse->json('resourceId');
+
+    //             // 2️⃣ Start streaming (RTMP push)
+    //             $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
+    //                 ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/live/start", [
+    //                     'cname' => $channel,
+    //                     'uid' => $uid,
+    //                     'clientRequest' => [
+    //                         'streamUrl' => $rtmpUrl,
+    //                         'recordingConfig' => [
+    //                             'maxIdleTime' => 30,
+    //                             'streamTypes' => 2,
+    //                             'channelType' => 1,
+    //                             'videoStreamType' => 0,
+    //                         ],
+    //                         'transcodingConfig' => [
+    //                             'width' => 720,
+    //                             'height' => 1280,
+    //                             'fps' => 30,
+    //                             'bitrate' => 1200,
+    //                             'mixedVideoLayout' => 1,
+    //                         ],
+    //                     ],
+    //                 ]);
+
+    //             if (!$startResponse->successful()) {
+    //                 //Failed to start streaming
+    //                 \Log::error('tiktok cloud_recording error', ['error' =>$startResponse->json()]);
+    //                 return response()->json(
+    //                     [
+    //                         "success" => 0,
+    //                         "message" => __('api_messages.live create failed'),
+    //                         "data" => $startResponse->json()
+    //                     ]
+    //                     ,
+    //                     500
+    //                 );
+    //             }
+
+    //             $sid = $startResponse->json('sid');
+
+    //             \Log::info('TikTok RTMP started', [
+    //                 'channel' => $channel,
+    //                 'resourceId' => $resourceId,
+    //                 'sid' => $sid,
+    //             ]);
+    //             return response()->json(
+    //                 [
+    //                     "success" => 1,
+    //                     "message" => __('api_messages.live created'),
+    //                     "data" => [
+    //                         'resourceId' => $resourceId,
+    //                         'sid' => $sid,
+    //                         'serverResponse' => $startResponse->json()
+    //                     ]
+    //                 ]
+    //             );
+    //         } catch (\Exception $e) {
+    //             \Log::error(' Tiktok RTMP start error', ['error' => $e->getMessage()]);
+    //             return response()->json(
+    //                 [
+    //                     "success" => 0,
+    //                     "message" => __('api_messages.Operation failed'),
+    //                     "data" => $e->getMessage()
+    //                 ],
+    //                 500
+    //             );
+    //         }
+    //     }
+
+
+
+    // }
+
     public function tiktok_push(Request $request)
-    {
+{
+    $formdata = $request->all();
+    $storrequest = new LiveStartTiktokRequest();
+    $validator = Validator::make(
+        $formdata,
+        $storrequest->rules(),
+        $storrequest->messages()
+    );
 
-        $formdata = $request->all();
-        $storrequest = new LiveStartTiktokRequest();
-        $validator = Validator::make(
-            $formdata,
-            $storrequest->rules(),
-            $storrequest->messages()
-        );
-        if ($validator->fails()) {
-            return response()->json(
-                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-                ,
-                422
-            );
-        } else {
-            $channel = $request->channel;
-            $rtmpUrl = $request->rtmpUrl;
-            $uid = $request->uid ?? '1';
+    if ($validator->fails()) {
+        \Log::error('tiktok validator error', ['error' =>$validator->errors()]);
+        return response()->json([
+            "success" => 0,
+            "message" => $validator->errors()?->first(),
+            "data" => $validator->errors()
+        ], 422);
+    }
 
-            $appId = config('services.agora.app_id');
-            $customerId = config('services.agora.customer_key');
-            $customerCertificate = config('services.agora.customer_secret');
-            $baseUrl = "https://api.agora.io/v1/apps";
-            //  return response()->json([ "a"=>$appId, $customerId, $customerCertificate]);
-            try {
-                // 1️⃣ Generate resourceId
-                $resourceResponse = Http::withBasicAuth($customerId, $customerCertificate)
-                    ->post("$baseUrl/$appId/cloud_recording/acquire", [
-                        'cname' => $channel,
-                        'uid' => $uid,
-                        'clientRequest' => new \stdClass(),
-                    ]);
+    $channel = $request->channel;
+    $rtmpUrl = $request->rtmpUrl;
+    $uid = isset($request->uid) ? (int)$request->uid : 0;
+    $uid = (string)$uid ;
+    $appId = config('services.agora.app_id');
+    $customerId = config('services.agora.customer_key');
+    $customerCertificate = config('services.agora.customer_secret');
+    $baseUrl = "https://api.agora.io/v1/apps";
 
-                if (!$resourceResponse->successful()) {
-                    //Failed to acquire resourceId
-                    return response()->json(
-                        [
-                            "success" => 0,
-                            "message" => __('api_messages.faild'),
-                            "data" => $resourceResponse->json()
-                        ]
-                        ,
-                        500
-                    );
-                }
+    try {
+        // $recordingUid = 13;
+       //  $uid = (string)$recordingUid;
+        // 1️⃣ Acquire resourceId
+        $resourceResponse = Http::withBasicAuth($customerId, $customerCertificate)
+            ->post("$baseUrl/$appId/cloud_recording/acquire", [
+                "cname" => $channel,
+        "uid" => $uid,
+        "clientRequest" => new \stdClass() // يمكن تركها فارغة
+            ]);
 
-                $resourceId = $resourceResponse->json('resourceId');
-
-                // 2️⃣ Start streaming (RTMP push)
-                $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
-                    ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/live/start", [
-                        'cname' => $channel,
-                        'uid' => $uid,
-                        'clientRequest' => [
-                            'streamUrl' => $rtmpUrl,
-                            'recordingConfig' => [
-                                'maxIdleTime' => 30,
-                                'streamTypes' => 2,
-                                'channelType' => 1,
-                                'videoStreamType' => 0,
-                            ],
-                            'transcodingConfig' => [
-                                'width' => 720,
-                                'height' => 1280,
-                                'fps' => 30,
-                                'bitrate' => 1200,
-                                'mixedVideoLayout' => 1,
-                            ],
-                        ],
-                    ]);
-
-                if (!$startResponse->successful()) {
-                    //Failed to start streaming
-                    return response()->json(
-                        [
-                            "success" => 0,
-                            "message" => __('api_messages.live create failed'),
-                            "data" => $startResponse->json()
-                        ]
-                        ,
-                        500
-                    );
-                }
-
-                $sid = $startResponse->json('sid');
-
-                \Log::info('TikTok RTMP started', [
-                    'channel' => $channel,
-                    'resourceId' => $resourceId,
-                    'sid' => $sid,
-                ]);
-                return response()->json(
-                    [
-                        "success" => 1,
-                        "message" => __('api_messages.live created'),
-                        "data" => [
-                            'resourceId' => $resourceId,
-                            'sid' => $sid,
-                            'serverResponse' => $startResponse->json()
-                        ]
-                    ]
-                );
-            } catch (\Exception $e) {
-                \Log::error(' Tiktok RTMP start error', ['error' => $e->getMessage()]);
-                return response()->json(
-                    [
-                        "success" => 0,
-                        "message" => __('api_messages.Operation failed'),
-                        "data" => $e->getMessage()
-                    ],
-                    500
-                );
-            }
+        if (!$resourceResponse->successful()) {
+            \Log::error('tiktok_push error', ['error' =>$resourceResponse->json()]);
+            return response()->json([
+                "success" => 0,
+                "message" => __('api_messages.failed'),
+                "data" => $resourceResponse->json()
+            ], 500);
         }
 
+        $resourceId = $resourceResponse->json('resourceId');
+        \Log::info('tiktok', [
+            'resourceResponse_id' => $resourceId,'data'=>$resourceResponse->json(),
+        ]);
+        
+        // 2️⃣ Start live streaming (RTMP push)
+        $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
+            ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start", [
+                "cname" => $channel,
+        "uid" =>  $uid,
 
+        "clientRequest" => [
 
+            // هذا الجزء إجباري لكي يختفي الخطأ
+            "recordingFileConfig" => [
+                "avFileType" => ["hls"], // أي قيمة مقبولة
+            ],
+
+            "recordingConfig" => [
+                "maxIdleTime" => 30,
+                "streamTypes" => 2,
+                "channelType" => 1,
+                "videoStreamType" => 0,
+                "mixedVideoLayout" => 1,
+                "subscribeVideoUids"=> [
+                    "#allstream#"
+                ],
+                "subscribeAudioUids"=> [
+                    "#allstream#"
+                ],
+               // "subscribeUidGroup"=>1
+            ],
+
+            "transcodingConfig" => [
+                "width" => 720,
+                "height" => 1280,
+                "fps" => 30,
+                "bitrate" => 1500,
+                "mixedVideoLayout" => 1,
+            ],
+
+            // هذا الجزء يخبر Agora أنك تريد الـ Live Streaming
+            "liveStreamConfig" => [
+                "streamUrl" => $rtmpUrl
+            ],
+
+            // RTMP output
+            "liveStreamingConfig" => [
+                [
+                    "url" => $rtmpUrl,
+                    "token" => ""
+                ]
+            ],
+        ]
+     
+            
+            ]);
+/*
+    $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
+            ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start", [
+                "cname" => $channel,
+        "uid" =>  $uid,
+
+        "clientRequest" => [
+
+            // هذا الجزء إجباري لكي يختفي الخطأ
+            "recordingFileConfig" => [
+                "avFileType" => ["hls"], // أي قيمة مقبولة
+            ],
+
+            "recordingConfig" => [
+                "maxIdleTime" => 30,
+                "streamTypes" => 2,
+                "channelType" => 1,
+                "videoStreamType" => 0,
+                "mixedVideoLayout" => 1,
+            ],
+
+            "transcodingConfig" => [
+                "width" => 720,
+                "height" => 1280,
+                "fps" => 30,
+                "bitrate" => 1500,
+                "mixedVideoLayout" => 1,
+            ],
+
+            // هذا الجزء يخبر Agora أنك تريد الـ Live Streaming
+            "liveStreamConfig" => [
+                "streamUrl" => $rtmpUrl
+            ],
+
+            // RTMP output
+            "liveStreamingConfig" => [
+                [
+                    "url" => $rtmpUrl,
+                    "token" => ""
+                ]
+            ],
+        ]
+     
+            
+            ]);
+*/
+        if (!$startResponse->successful()) {
+            \Log::error('tiktok cloud_recording error', ['error' =>$startResponse->json()]);
+            return response()->json([
+                "success" => 0,
+                "message" => __('api_messages.live create failed'),
+                "data" => $startResponse->json()
+            ], 500);
+        }
+
+        $sid = $startResponse->json('sid');
+
+        \Log::info('TikTok RTMP started', [
+            'channel' => $channel,
+            'resourceId' => $resourceId,
+            'sid' => $sid,
+        ]);
+
+        return response()->json([
+            "success" => 1,
+            "message" => __('api_messages.live created'),
+            "data" => [
+                'resourceId' => $resourceId,
+                'sid' => $sid,
+                'serverResponse' => $startResponse->json()
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Tiktok RTMP start error', ['error' => $e->getMessage()]);
+        return response()->json([
+            "success" => 0,
+            "message" => __('api_messages.Operation failed'),
+            "data" => $e->getMessage()
+        ], 500);
     }
+}
+
     //stop
     public function tiktok_stop_push(Request $request)
     {
@@ -1051,13 +1246,14 @@ old
             try {
                 // 2️⃣ Stop RTMP stream
                 $stopResponse = Http::withBasicAuth($customerId, $customerCertificate)
-                    ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/sid/$sid/mode/live/stop", [
+                    ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/sid/$sid/mode/mix/stop", [
                         'cname' => $channel,
-                        'uid' => $uid,
+                        'uid' =>  "0",
                         'clientRequest' => new \stdClass(),
                     ]);
 
                 if (!$stopResponse->successful()) {
+                    \Log::error(' Tiktok RTMP stop error', ['error_stop' => $stopResponse->json()]);
                     //Failed to stop RTMP stream
                     return response()->json(
                         [

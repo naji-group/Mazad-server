@@ -24,7 +24,7 @@ class LiveStartTiktokRequest extends FormRequest
         return [
             'channel' => 'required|string',
             'rtmpUrl' => 'required|string',
-            'uid' => 'nullable|string',
+            'uid' => 'nullable',
  
               ];
     }
