@@ -1080,104 +1080,63 @@ old
             'resourceResponse_id' => $resourceId,'data'=>$resourceResponse->json(),
         ]);
         
+       
+
+        $data = [
+            "cname" => $channel,
+            "uid" =>  $uid,
+        
+            "clientRequest" => [
+        
+                "token" => "",
+        
+                "recordingConfig" => [
+                    "channelType" => 0,
+                    "streamTypes" => 2,
+                    "audioProfile" => 1,
+                    "videoStreamType" => 0,
+                    "maxIdleTime" => 120,
+        
+                    "transcodingConfig" => [
+                        "width" => 360,
+                        "height" => 640,
+                        "fps" => 30,
+                        "bitrate" => 600,
+                        "maxResolutionUid" => "1",
+                        "mixedVideoLayout" => 1,
+                    ],
+                ],
+        
+                "recordingFileConfig" => [
+                    "avFileType" => [
+                        "hls",
+                        "mp4"
+                    ]
+                ],
+        
+                "storageConfig" => [
+                    "vendor" => 0,
+                    "region" => 0,
+                    "bucket" => "axxxx",
+                    "accessKey" =>   $customerId ,
+                    "secretKey" =>$customerCertificate ,
+                    
+                ],
+                "liveStreamingConfig" => [
+                    [
+                        "url" => $rtmpUrl,  // رابط TikTok RTMP
+                        "token" => ""        // فارغ
+                    ]
+                ],
+            ]
+        ];
+
         // 2️⃣ Start live streaming (RTMP push)
         $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
-            ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start", [
-                "cname" => $channel,
-        "uid" =>  $uid,
+            ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start",             
+            $data             
+        );
 
-        "clientRequest" => [
-
-            // هذا الجزء إجباري لكي يختفي الخطأ
-            "recordingFileConfig" => [
-                "avFileType" => ["hls"], // أي قيمة مقبولة
-            ],
-
-            "recordingConfig" => [
-                "maxIdleTime" => 30,
-                "streamTypes" => 2,
-                "channelType" => 1,
-                "videoStreamType" => 0,
-                "mixedVideoLayout" => 1,
-                "subscribeVideoUids"=> [
-                    "#allstream#"
-                ],
-                "subscribeAudioUids"=> [
-                    "#allstream#"
-                ],
-               // "subscribeUidGroup"=>1
-            ],
-
-            "transcodingConfig" => [
-                "width" => 720,
-                "height" => 1280,
-                "fps" => 30,
-                "bitrate" => 1500,
-                "mixedVideoLayout" => 1,
-            ],
-
-            // هذا الجزء يخبر Agora أنك تريد الـ Live Streaming
-            "liveStreamConfig" => [
-                "streamUrl" => $rtmpUrl
-            ],
-
-            // RTMP output
-            "liveStreamingConfig" => [
-                [
-                    "url" => $rtmpUrl,
-                    "token" => ""
-                ]
-            ],
-        ]
-     
-            
-            ]);
-/*
-    $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
-            ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start", [
-                "cname" => $channel,
-        "uid" =>  $uid,
-
-        "clientRequest" => [
-
-            // هذا الجزء إجباري لكي يختفي الخطأ
-            "recordingFileConfig" => [
-                "avFileType" => ["hls"], // أي قيمة مقبولة
-            ],
-
-            "recordingConfig" => [
-                "maxIdleTime" => 30,
-                "streamTypes" => 2,
-                "channelType" => 1,
-                "videoStreamType" => 0,
-                "mixedVideoLayout" => 1,
-            ],
-
-            "transcodingConfig" => [
-                "width" => 720,
-                "height" => 1280,
-                "fps" => 30,
-                "bitrate" => 1500,
-                "mixedVideoLayout" => 1,
-            ],
-
-            // هذا الجزء يخبر Agora أنك تريد الـ Live Streaming
-            "liveStreamConfig" => [
-                "streamUrl" => $rtmpUrl
-            ],
-
-            // RTMP output
-            "liveStreamingConfig" => [
-                [
-                    "url" => $rtmpUrl,
-                    "token" => ""
-                ]
-            ],
-        ]
-     
-            
-            ]);
-*/
         if (!$startResponse->successful()) {
             \Log::error('tiktok cloud_recording error', ['error' =>$startResponse->json()]);
             return response()->json([
