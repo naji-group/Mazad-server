@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Http;
 
 class GoogleAuthController extends Controller
 {
+    public function livepush_redirect(Request $request)
+    {    
+        $data = $request->json();
+\Log::info('livepush response', [
+        'data' =>$data,
+    ]);
+   return response()->json($data) ;
+    }
     public function redirectToGoogle($marketer_id)
     {
         $state=$marketer_id;

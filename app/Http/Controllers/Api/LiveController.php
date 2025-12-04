@@ -463,7 +463,7 @@ class LiveController extends Controller
         // }      
     }
 
-    // end Instgram
+//     // end Instgram
     public function youtube_push(Request $request)
     {
         //  التحقق من المدخلات
@@ -562,12 +562,9 @@ old
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
 
-
-
                 \Log::info('youtube', [
                     'data' => 'sendto:' . 'https://api.agora.io',
                 ]);
-
                 // التحقق من النتيجة
                 if ($response->failed()) {
 
@@ -626,202 +623,421 @@ old
         }
 
     }
+//     public function youtube_push(Request $request)
+//     {
+//         //  التحقق من المدخلات
 
-    public function youtube_push_test(Request $request)
-    {
-        // ✅ التحقق من المدخلات
+//         $formdata = $request->all();
+//         $storrequest = new LiveStartPushRequest();
+//         $validator = Validator::make(
+//             $formdata,
+//             $storrequest->rules(),
+//             $storrequest->messages()
+//         );
+//         if ($validator->fails()) {
+//             return response()->json(
+//                 ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+//                 ,
+//                 422
+//             );
+//         } else {
 
-        $formdata = $request->all();
-        $storrequest = new LiveStartPushRequest();
-        $validator = Validator::make(
-            $formdata,
-            $storrequest->rules(),
-            $storrequest->messages()
-        );
-        if ($validator->fails()) {
-            return response()->json(
-                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-                ,
-                422
-            );
-        } else {
+//             $channelName = $formdata['channelName'];
+//             $uid = $formdata['uid'];
+//             $youtubeStreamKey = $formdata['youtubeStreamKey'];
+//             // $accessToken = $formdata['youtube_access_token'];
+//             \Log::info('youtube vars validated', [
+//                 'data' => $channelName . '-' .
+//                     $uid . '-' .
+//                     $youtubeStreamKey,
+//             ]);
 
-            $channelName = $formdata['channelName'];
-            $uid = $formdata['uid'];
-            $youtubeStreamKey = $formdata['youtubeStreamKey'];
-            $accessToken = $formdata['youtube_access_token'];
-            \Log::info('youtube vars validated', [
-                'data' => $channelName . '-' .
-                    $uid . '-' .
-                    $youtubeStreamKey,
-            ]);
+//             // إعداد المتغيرات من env
+//             $appId = config('services.agora.app_id');
+//             $customerKey = config('services.agora.customer_key');
+//             $customerSecret = config('services.agora.customer_secret');
+//             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
 
-            // إعداد المتغيرات من env
-            $appId = config('services.agora.app_id');
-            $customerKey = config('services.agora.customer_key');
-            $customerSecret = config('services.agora.customer_secret');
-            $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+//             //return  response()->json($appId);
+//             // RTMP URL ليوتيوب
+//             try {
+//                 $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
-            //return  response()->json($appId);
-            // RTMP URL ليوتيوب
-            try {
-                // $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
+                
 
-                // // الجسم المرسل إلى Agora API
-                // $body = [
-                //     'converter' => [
-                //         'name' => "push-{$channelName}-" . time(),
-                //         'rawOptions' => [
-                //             'rtcChannel' => $channelName,
-                //             'rtcStreamUid' => $uid,
-                //         ],
-                //         'rtmpUrl' => $rtmpUrl,
-                //         // 'idleTimeout' => 3600, // اختياري
-                //     ],
-                // ];
-                // تهيئة الـ Basic Auth
-                // $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
-                // إرسال الطلب إلى Agora API
-                // $response = Http::withHeaders([
-                //     'Authorization' => $authHeader,
-                //     'Content-Type' => 'application/json',
-                // ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+// /*
+// old
+//  "width" => 480,
+//                                     "height" => 640
+//                                       "bitrate" =>1000,
+// */
 
-                // \Log::info('youtube', [
-                //     'data' => 'sendto:' . 'https://api.agora.io',
-                // ]);
+//                   $body =[
+//                     'converter' => [
+//                         "name" =>  "push-{$channelName}-" . time(),
+//                         "transcodeOptions" => [
+//                             "rtcChannel" =>  $channelName,
+//                             "audioOptions" => [
+//                                 "codecProfile" => "LC-AAC",
+//                                 "sampleRate" => 48000,
+//                                 "bitrate" => 48,
+//                                 "audioChannels" => 1
+//                             ],
+//                             "videoOptions" => [
+//                                 "canvas" => [
+//                                     "width" => 720,
+//                                     "height" => 1280
+//                                 ],
+//                                 "layout" => [
+//                                     [
+//                                         "rtcStreamUid" =>$uid,
+//                                         "region" => [
+//                                             "xPos" => 0,
+//                                             "yPos" => 0,
+//                                             "zIndex" => 1,
+//                                             "width" => 720,
+//                                             "height" => 1280
+//                                         ],
+//                                         "fillMode" => "fill",
+//                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+//                                     ] 
+//                                 ],
+//                                // "codecProfile" => "High",
+//                                 "frameRate" => 15,
+//                                 "gop" => 30,
+//                                 "bitrate" =>2260,
+//                                 "seiOptions" => []
+//                             ]
+//                         ],
+//                         "rtmpUrl" => $rtmpUrl ,
+//                     ]
 
-                // التحقق من النتيجة
-                // if ($response->failed()) {
-
-                //     \Log::error('youtube error', ['error' => $response->json()]);
-
-
-                //     return response()->json(
-                //         [
-                //             "success" => 0,
-                //             "message" => __('api_messages.live create failed'),
-                //             "data" => $response->json()
-                //         ]
-                //         ,
-                //         500
-                //     );
-                // }
-
-
-
-
-                //بدء جلب التعليقات
-                $stream = LiveStream::find($formdata['agora_live_id']);
-                $social = Social::where('code', 'youtube')->first();
-
-                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-                \Log::info('youtube marketer_social', [
-                    'data' => $marketer_social->id,
-                ]);
-                $liveChatId = null;
-                //start
-                $accessToken = $marketer_social->access_token;
-                $accessToken_arr = $this->getYoutubechanneld($accessToken);
-                if (!$accessToken_arr['success']) {
-                    return response()->json(
-                        $accessToken_arr,
-                        400
-                    );
-                }
-                // $channelId = $accessToken_arr['data'];
-                // $videoId_arr = $this->getYoutubeVideoId($channelId);
-                // if (!$videoId_arr['success']) {
-                //     return response()->json(
-                //         $videoId_arr,
-                //         400
-                //     );
-                // }
-                // $videoId = $videoId_arr['data'];
-                // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
-                // if (!$videoId_arr['success']) {
-                //     return response()->json(
-                //         $liveChatId_arr,
-                //         400
-                //     );
-                // }
-                // $liveChatId = $liveChatId_arr['data'];
-                // $stream->youtube_access_token = $accessToken;
-                // $stream->youtube_channel_id = $channelId;
-                // $stream->youtube_video_id = $videoId;
-                // $stream->youtube_live_chat_id = $liveChatId;
-                // $stream->save();
-                //end
-                //    //
-                //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
-                //         'part' => 'snippet',
-                //         'broadcastStatus' => 'active',
-                //         'key' => config('services.youtube.key'),
-
-                //     ]);
-                //     \Log::info('youtube', [
-                //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
-                //     ]);
-
-                //     \Log::info('youtube response', [
-                //         'data' => $response->json(),
-                //     ]);
-
-                //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
-                //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
-
-                //         \Log::info('youtube response', [
-                //             'data' => $response->json(),
-                //         ]);
-
-                //     } else {
-                //         $liveChatId = null; // لا يوجد بث مباشر حالياً
-                //         \Log::info('youtube response', [
-                //             'data' => "no response and liveChatId = null",
-                //         ]);
-                //     }
-//
+//                     ];
+//                 // تهيئة الـ Basic Auth
+//                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+//                 // إرسال الطلب إلى Agora API
+//                 $response = Http::withHeaders([
+//                     'Authorization' => $authHeader,
+//                     'Content-Type' => 'application/json',
+//                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
 
 
-                // $stream->youtube_live_chat_id = $liveChatId ?? null;
-                // $stream->youtube_access_token = $formdata['youtube_access_token'];
-                // $stream->youtube_is_active = true;
-                // $stream->save();
-                $channelId = $accessToken_arr['data'];
-                $stream->youtube_access_token = $accessToken;
-                $stream->youtube_channel_id = $channelId;
-                $stream->save();
 
-                GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
+//                 \Log::info('youtube', [
+//                     'data' => 'sendto:' . 'https://api.agora.io',
+//                 ]);
+//                 \Log::info('youtube live success', [
+//                     'data' => $response->json(),
+//                 ]);
+//                 // التحقق من النتيجة
+//                 if ($response->failed()) {
+
+//                     \Log::error('youtube error', ['error' => $response->json()]);
+//                     return response()->json(
+//                         [
+//                             "success" => 0,
+//                             "message" => __('api_messages.live create failed'),
+//                             "data" => $response->json()
+//                         ]
+//                         ,
+//                         500
+//                     );
+//                 }
+// //cast stream
+// $servercastream = "rtmp://ingest.castream.io/stream";
+// $streamKeycastream = "7100af03e7c45493"; // Stream Key من حسابك
+// $rtmpUrlcastream = $servercastream."/".$streamKeycastream;
+// $body2 =[
+//     'converter' => [
+//         "name" =>  "push-{$channelName}-2" . time(),
+//         "transcodeOptions" => [
+//             "rtcChannel" =>  $channelName,
+//             "audioOptions" => [
+//                 "codecProfile" => "LC-AAC",
+//                 "sampleRate" => 48000,
+//                 "bitrate" => 48,
+//                 "audioChannels" => 1
+//             ],
+//             "videoOptions" => [
+//                 "canvas" => [
+//                     "width" => 720,
+//                     "height" => 1280
+//                 ],
+//                 "layout" => [
+//                     [
+//                         "rtcStreamUid" =>$uid,
+//                         "region" => [
+//                             "xPos" => 0,
+//                             "yPos" => 0,
+//                             "zIndex" => 1,
+//                             "width" => 720,
+//                             "height" => 1280
+//                         ],
+//                         "fillMode" => "fill",
+//                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+//                     ] 
+//                 ],
+//                // "codecProfile" => "High",
+//                 "frameRate" => 15,
+//                 "gop" => 30,
+//                 "bitrate" =>2260,
+//                 "seiOptions" => []
+//             ]
+//         ],
+//         "rtmpUrl" => $rtmpUrlcastream ,
+//     ]
+
+//     ];
+//                 $response = Http::withHeaders([
+//                     'Authorization' => $authHeader,
+//                     'Content-Type' => 'application/json',
+//                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body2);
 
 
-                //start job
-                \Log::info('youtube', [
-                    'data' => 'start job',
-                ]);
+// //end cast streram
 
-                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
-                //                
+//                 \Log::info('castream live success', [
+//                     'data' => $response->json(),
+//                 ]);
+//                 //بدء جلب التعليقات
+//                 $stream = LiveStream::find($formdata['agora_live_id']);
+//                 $social = Social::where('code', 'youtube')->first();
 
-                return response()->json(
-                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' => $channelId]]
-                );
-            } catch (\Exception $e) {
-                \Log::error('youtube error', ['error' => $e->getMessage()]);
-                return response()->json(
-                    [
-                        "success" => 0,
-                        "message" => __('api_messages.Operation failed'),
-                        "data" => $e->getMessage()
-                    ]
-                    ,
-                    500
-                );
-            }
-        }
+//                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
 
-    }
+//                 //  $liveChatId = null;
+//                 //start
+//                 $accessToken = $marketer_social->access_token;
+//                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
+//                 if (!$accessToken_arr['success']) {
+//                     return response()->json(
+//                         $accessToken_arr,
+//                         400
+//                     );
+//                 }
+//                 $channelId = $accessToken_arr['data'];
+//                 $stream->youtube_access_token = $accessToken;
+//                 $stream->youtube_channel_id = $channelId;
+//                 $stream->save();
+
+//                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
+
+//                 return response()->json(
+//                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
+//                 );
+//             } catch (\Exception $e) {
+//                 \Log::error('youtube error', ['error' => $e->getMessage()]);
+//                 return response()->json(
+//                     [
+//                         "success" => 0,
+//                         "message" => __('api_messages.Operation failed'),
+//                         "data" => $e->getMessage()
+//                     ]
+//                     ,
+//                     500
+//                 );
+//             }
+//         }
+
+//     }
+
+
+
+//     public function youtube_push_test(Request $request)
+//     {
+//         // ✅ التحقق من المدخلات
+
+//         $formdata = $request->all();
+//         $storrequest = new LiveStartPushRequest();
+//         $validator = Validator::make(
+//             $formdata,
+//             $storrequest->rules(),
+//             $storrequest->messages()
+//         );
+//         if ($validator->fails()) {
+//             return response()->json(
+//                 ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+//                 ,
+//                 422
+//             );
+//         } else {
+
+//             $channelName = $formdata['channelName'];
+//             $uid = $formdata['uid'];
+//             $youtubeStreamKey = $formdata['youtubeStreamKey'];
+//             $accessToken = $formdata['youtube_access_token'];
+//             \Log::info('youtube vars validated', [
+//                 'data' => $channelName . '-' .
+//                     $uid . '-' .
+//                     $youtubeStreamKey,
+//             ]);
+
+//             // إعداد المتغيرات من env
+//             $appId = config('services.agora.app_id');
+//             $customerKey = config('services.agora.customer_key');
+//             $customerSecret = config('services.agora.customer_secret');
+//             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+
+//             //return  response()->json($appId);
+//             // RTMP URL ليوتيوب
+//             try {
+//                 // $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
+
+//                 // // الجسم المرسل إلى Agora API
+//                 // $body = [
+//                 //     'converter' => [
+//                 //         'name' => "push-{$channelName}-" . time(),
+//                 //         'rawOptions' => [
+//                 //             'rtcChannel' => $channelName,
+//                 //             'rtcStreamUid' => $uid,
+//                 //         ],
+//                 //         'rtmpUrl' => $rtmpUrl,
+//                 //         // 'idleTimeout' => 3600, // اختياري
+//                 //     ],
+//                 // ];
+//                 // تهيئة الـ Basic Auth
+//                 // $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+//                 // إرسال الطلب إلى Agora API
+//                 // $response = Http::withHeaders([
+//                 //     'Authorization' => $authHeader,
+//                 //     'Content-Type' => 'application/json',
+//                 // ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+
+//                 // \Log::info('youtube', [
+//                 //     'data' => 'sendto:' . 'https://api.agora.io',
+//                 // ]);
+
+//                 // التحقق من النتيجة
+//                 // if ($response->failed()) {
+
+//                 //     \Log::error('youtube error', ['error' => $response->json()]);
+
+
+//                 //     return response()->json(
+//                 //         [
+//                 //             "success" => 0,
+//                 //             "message" => __('api_messages.live create failed'),
+//                 //             "data" => $response->json()
+//                 //         ]
+//                 //         ,
+//                 //         500
+//                 //     );
+//                 // }
+
+
+
+
+//                 //بدء جلب التعليقات
+//                 $stream = LiveStream::find($formdata['agora_live_id']);
+//                 $social = Social::where('code', 'youtube')->first();
+
+//                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+//                 \Log::info('youtube marketer_social', [
+//                     'data' => $marketer_social->id,
+//                 ]);
+//                 $liveChatId = null;
+//                 //start
+//                 $accessToken = $marketer_social->access_token;
+//                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
+//                 if (!$accessToken_arr['success']) {
+//                     return response()->json(
+//                         $accessToken_arr,
+//                         400
+//                     );
+//                 }
+//                 // $channelId = $accessToken_arr['data'];
+//                 // $videoId_arr = $this->getYoutubeVideoId($channelId);
+//                 // if (!$videoId_arr['success']) {
+//                 //     return response()->json(
+//                 //         $videoId_arr,
+//                 //         400
+//                 //     );
+//                 // }
+//                 // $videoId = $videoId_arr['data'];
+//                 // $liveChatId_arr = $this->getYoutubeLiveChatId($accessToken, $videoId);
+//                 // if (!$videoId_arr['success']) {
+//                 //     return response()->json(
+//                 //         $liveChatId_arr,
+//                 //         400
+//                 //     );
+//                 // }
+//                 // $liveChatId = $liveChatId_arr['data'];
+//                 // $stream->youtube_access_token = $accessToken;
+//                 // $stream->youtube_channel_id = $channelId;
+//                 // $stream->youtube_video_id = $videoId;
+//                 // $stream->youtube_live_chat_id = $liveChatId;
+//                 // $stream->save();
+//                 //end
+//                 //    //
+//                 //     $response = Http::get('https://www.googleapis.com/youtube/v3/liveBroadcasts', [
+//                 //         'part' => 'snippet',
+//                 //         'broadcastStatus' => 'active',
+//                 //         'key' => config('services.youtube.key'),
+
+//                 //     ]);
+//                 //     \Log::info('youtube', [
+//                 //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
+//                 //     ]);
+
+//                 //     \Log::info('youtube response', [
+//                 //         'data' => $response->json(),
+//                 //     ]);
+
+//                 //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
+//                 //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
+
+//                 //         \Log::info('youtube response', [
+//                 //             'data' => $response->json(),
+//                 //         ]);
+
+//                 //     } else {
+//                 //         $liveChatId = null; // لا يوجد بث مباشر حالياً
+//                 //         \Log::info('youtube response', [
+//                 //             'data' => "no response and liveChatId = null",
+//                 //         ]);
+//                 //     }
+// //
+
+
+//                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
+//                 // $stream->youtube_access_token = $formdata['youtube_access_token'];
+//                 // $stream->youtube_is_active = true;
+//                 // $stream->save();
+//                 $channelId = $accessToken_arr['data'];
+//                 $stream->youtube_access_token = $accessToken;
+//                 $stream->youtube_channel_id = $channelId;
+//                 $stream->save();
+
+//                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
+
+
+//                 //start job
+//                 \Log::info('youtube', [
+//                     'data' => 'start job',
+//                 ]);
+
+//                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+//                 // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+//                 //                
+
+//                 return response()->json(
+//                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' => $channelId]]
+//                 );
+//             } catch (\Exception $e) {
+//                 \Log::error('youtube error', ['error' => $e->getMessage()]);
+//                 return response()->json(
+//                     [
+//                         "success" => 0,
+//                         "message" => __('api_messages.Operation failed'),
+//                         "data" => $e->getMessage()
+//                     ]
+//                     ,
+//                     500
+//                 );
+//             }
+//         }
+
+//     }
 
     /**
      * إيقاف البث (حذف الـ RTMP Converter)
