@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LiveStartTiktokRequest extends FormRequest
+class LiveStartJacoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class LiveStartTiktokRequest extends FormRequest
         return [
             'channel' => 'required|string',
             'rtmpUrl' => 'required|string',
-            'agora_live_id'=>'nullable',
-            'uid' => 'nullable',
+            'agora_live_id'=>'required',
+            'uid' => 'required',
 
               ];
     }

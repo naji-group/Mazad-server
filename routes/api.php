@@ -54,6 +54,9 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         //end test
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
         Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 
+
+        Route::post('jaco/start-push', [LiveController::class, 'jaco_push']);
+        Route::post('jaco/stop-push', [LiveController::class, 'jaco_stop_push']); 
         
 Route::post('/start', [LiveController::class, 'start']);    
 Route::post('/end', [LiveController::class, 'endLiveStream']); 
