@@ -602,6 +602,7 @@ old
                 $channelId = $accessToken_arr['data'];
                 $stream->youtube_access_token = $accessToken;
                 $stream->youtube_channel_id = $channelId;
+                $stream->youtube_is_active = true;
                 $stream->save();
 
                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
@@ -1141,10 +1142,10 @@ old
             $uid = $formdata['uid'];
             $rtmpUrl = $formdata['rtmpUrl'];
        
-            \Log::info('youtube vars validated', [
-                'data' => $channelName  
+            // \Log::info('youtube vars validated', [
+            //     'data' => $channelName  
                     
-            ]);
+            // ]);
 
             // إعداد المتغيرات من env
             $appId = config('services.agora.app_id');
@@ -1208,9 +1209,12 @@ old
                 // \Log::info('tiktok', [
                 //     'data' => 'sendto:' . 'https://api.agora.io',
                 // ]);
-                \Log::info('tiktok live success', [
-                    'data' => $response->json(),
-                ]);
+                // \Log::info('tiktok live success', [
+                //     'data' => $response->json(),
+                // ]);
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->tiktok_is_active = true;
+                $stream->save();
                 return response()->json(
                                         ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
                                     );
@@ -1228,13 +1232,9 @@ old
                         500
                     );
                 }
-//cast stream
  
-//end cast streram
 
-                // \Log::info('castream live success', [
-                //     'data' => $response->json(),
-                // ]);
+         
        
     
         } catch (\Exception $e) {
@@ -1527,9 +1527,8 @@ old
                  500
              );
          }
-         //success
-         //end job             
-         $stream = LiveStream::find($request->input('agora_live_id'));
+                  
+         $stream = LiveStream::find($formdata['agora_live_id']);
          $stream->tiktok_is_active = false;
          $stream->save();
          return response()->json(
@@ -1581,10 +1580,10 @@ public function jaco_push(Request $request)
         $uid = $formdata['uid'];
         $rtmpUrl = $formdata['rtmpUrl'];
    
-        \Log::info('jaco vars validated', [
-            'data' => $channelName  
+        // \Log::info('jaco vars validated', [
+        //     'data' => $channelName  
                 
-        ]);
+        // ]);
 
         // إعداد المتغيرات من env
         $appId = config('services.agora.app_id');
@@ -1648,11 +1647,11 @@ public function jaco_push(Request $request)
             // \Log::info('jaco', [
             //     'data' => 'sendto:' . 'https://api.agora.io',
             // ]);
-            \Log::info('jaco live success', [
-                'data' => $response->json(),
-            ]);
+            // \Log::info('jaco live success', [
+            //     'data' => $response->json(),
+            // ]);
 
-            $stream = LiveStream::find($request->input('agora_live_id'));
+            $stream = LiveStream::find($formdata['agora_live_id']);
             $stream->jaco_is_active = true;
             $stream->save();
             return response()->json(
@@ -1678,8 +1677,7 @@ public function jaco_push(Request $request)
 
             // \Log::info('castream live success', [
             //     'data' => $response->json(),
-            // ]);
-   
+            // ]);   
 
     } catch (\Exception $e) {
         \Log::error('jaco RTMP start error', ['error' => $e->getMessage()]);
@@ -1738,7 +1736,7 @@ public function jaco_push(Request $request)
          }
          //success
          //end job             
-         $stream = LiveStream::find($request->input('agora_live_id'));
+         $stream = LiveStream::find($formdata['agora_live_id']);
          $stream->jaco_is_active = false;
          $stream->save();
          return response()->json(
@@ -1760,10 +1758,7 @@ public function jaco_push(Request $request)
          );
      }
 ////////////////
-
-
     }
-
     }
 
 

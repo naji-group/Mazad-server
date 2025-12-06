@@ -24,7 +24,7 @@ class LiveStartTiktokRequest extends FormRequest
         return [
             'channel' => 'required|string',
             'rtmpUrl' => 'required|string',
-            'agora_live_id'=>'nullable',
+            'agora_live_id'=>'required',
             'uid' => 'nullable',
 
               ];
