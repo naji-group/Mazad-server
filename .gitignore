@@ -24,6 +24,10 @@ Homestead.json
 .phpunit.result.cache
 
 /public/build
+/public/tiktok/node_modules
+/public/tiktok/logs
+/public/tiktok/package.json
+/public/tiktok/package-lock.json
 /storage/pail
 .env.backup
 .env.production
