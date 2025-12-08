@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LiveStartTiktokRequest;
+use App\Http\Requests\Api\LiveFetchTiktokCommentRequest;
+ 
 use App\Models\LiveComment;
 use App\Models\LiveStream;
 use App\Models\Social;
@@ -17,7 +18,7 @@ class TikTokController extends Controller
 
         public function startListener(Request $request)
         {
-            return response()->json(base_path());
+           
             $request->validate([
                 'username' => 'required|string',
                 'livestream_id' => 'required|string',
@@ -74,7 +75,7 @@ $res_arr=[
 
 public function fetch_comment(Request $request) {
     $formdata = $request->all();
-    $storrequest = new LiveStartTiktokRequest();
+    $storrequest = new LiveFetchTiktokCommentRequest();
     $validator = Validator::make(
         $formdata,
         $storrequest->rules(),

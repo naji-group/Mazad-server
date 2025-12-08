@@ -26,6 +26,7 @@ Route::post('resetpassword', [MarketerController::class, 'resetpassword']);
 //test
 Route::post('/tiktok/start', [TikTokController::class, 'startListener']);
 Route::post('/tiktok/stop', [TikTokController::class, 'stopListener']);
+Route::post('/live/tiktok/fetchcomment', [TikTokController::class, 'fetch_comment']); 
 //endtest
 Route::middleware('auth_marketer:api_marketers')->group(function () {
  
@@ -60,7 +61,7 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         //end test
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
         Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 
-        Route::post('tiktok/fetchcomment', [TikTokController::class, 'fetch_comment']); 
+     //   Route::post('tiktok/fetchcomment', [TikTokController::class, 'fetch_comment']); 
         Route::post('jaco/start-push', [LiveController::class, 'jaco_push']);
         Route::post('jaco/stop-push', [LiveController::class, 'jaco_stop_push']); 
         
