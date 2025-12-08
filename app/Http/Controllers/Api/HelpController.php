@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use Carbon\Carbon;
+use Carbon\CarbonTimeZone;
 // use App\Models\Marketer;
  
 // use Illuminate\Http\Request;
@@ -69,6 +71,24 @@ class HelpController extends Controller
   { 
   chmod($filePath, 0755);  
   chmod(dirname($filePath), 0755);  
+  }
+  public function offset_timezone($time,$newtimezone)
+  {      
+
+      $timezone = new CarbonTimeZone($newtimezone);
+      $utcNow = Carbon::now('UTC');
+      $localNow = $utcNow->copy()->setTimezone($timezone);
+      
+      // فرق التوقيت بالدقائق
+      $diffInMinutes = (int)($localNow->utcOffset());
+      
+      $comment_time = Carbon::parse($time);
+      
+      // إضافة فرق التوقيت
+      $adjustedCommentTime = $comment_time->addMinutes($diffInMinutes);
+      
+      // اختبار النتيجة
+      return $adjustedCommentTime;
   }
 
 }
