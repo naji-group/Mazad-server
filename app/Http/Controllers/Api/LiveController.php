@@ -1168,8 +1168,8 @@ old
                             ],
                             "videoOptions" => [
                                 "canvas" => [
-                                    "width" => 720,
-                                    "height" => 1280
+                                    "width" => 1080,
+                                    "height" => 1920
                                 ],
                                 "layout" => [
                                     [
@@ -1178,15 +1178,15 @@ old
                                             "xPos" => 0,
                                             "yPos" => 0,
                                             "zIndex" => 1,
-                                            "width" => 720,
-                                            "height" => 1280
+                                            "width" => 1080,
+                                            "height" => 1920
                                         ],
                                         "fillMode" => "fill",
                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
                                     ] 
                                 ],
                                // "codecProfile" => "High",
-                                "frameRate" => 15,
+                                "frameRate" => 60,
                                 "gop" => 30,
                                 "bitrate" =>2260,
                                 "seiOptions" => []
@@ -1606,8 +1606,8 @@ public function jaco_push(Request $request)
                         ],
                         "videoOptions" => [
                             "canvas" => [
-                                "width" => 720,
-                                "height" => 1280
+                                "width" => 1080,
+                                "height" => 1920
                             ],
                             "layout" => [
                                 [
@@ -1616,15 +1616,15 @@ public function jaco_push(Request $request)
                                         "xPos" => 0,
                                         "yPos" => 0,
                                         "zIndex" => 1,
-                                        "width" => 720,
-                                        "height" => 1280
+                                        "width" => 1080,
+                                        "height" => 1920
                                     ],
                                     "fillMode" => "fill",
                                    // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
                                 ] 
                             ],
                            // "codecProfile" => "High",
-                            "frameRate" => 15,
+                            "frameRate" => 60,
                             "gop" => 30,
                             "bitrate" =>2260,
                             "seiOptions" => []

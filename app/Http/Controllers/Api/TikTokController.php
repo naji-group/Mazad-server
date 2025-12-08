@@ -18,16 +18,26 @@ class TikTokController extends Controller
 
         public function startListener(Request $request)
         {
-           
+           // return exec('whoami');
+           // return shell_exec("ls -la");
             $request->validate([
                 'username' => 'required|string',
-                'livestream_id' => 'required|string',
+                'livestream_id' => 'required',
             ]);    
             $username = $request->username;
             $livestream_id = $request->livestream_id;
- $res_arr= $this->startListener_method($username,$livestream_id);
-            // توليد JWT للتوثيق
-                    return response()->json($res_arr);
+            try{
+                $res_arr= $this->startListener_method($username,$livestream_id);
+                // توليد JWT للتوثيق
+                        return response()->json($res_arr);
+            }catch (\Exception $e) {
+                return response()->json([
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ], 500);
+            }
+
         }
     
         // إيقاف listener
@@ -35,7 +45,7 @@ class TikTokController extends Controller
 {
     $request->validate([
         'username' => 'required|string',
-        'livestream_id' => 'required|string',
+        'livestream_id' => 'required',
     ]);
     $res_arr=$this->stopListener_method($request->username,$request->livestream_id);    
     return response()->json($res_arr);
@@ -44,30 +54,48 @@ class TikTokController extends Controller
 
 public function startListener_method($username,$livestream_id)
 {
+
     $id=auth('api_marketers')->user()->id;
     $jwt = auth('api_marketers')->tokenById( $id);
     $processName = "tiktok-{$username}-{$livestream_id}";
-    
-    // تشغيل listener
-    $cmd = "pm2 start tiktok/listener.js --name {$processName} -- {$username} {$livestream_id} {$jwt}";
-    exec($cmd);
+    $pm2 = trim(shell_exec("which pm2"));
 
-    return $res_arr=[
+   // $home = '/var/www/.pm2';
+    $listenerPath = base_path("tiktok/listener.js");
+    $cmd = "HOME=/var/www/.pm2 $pm2 start {$listenerPath} --name {$processName} -- {$username} {$livestream_id} {$jwt}";
+    $output = shell_exec("$cmd 2>&1");
+    // تشغيل listener
+   // $cmd = "pm2 start tiktok/listener.js --name {$processName} -- {$username} {$livestream_id} {$jwt}";
+   // exec($cmd);
+
+
+     $res_arr=[
         "status" => "started",
-        "username" => $username,
+      //  "username" => $username,
         "livestream_id" => $livestream_id,
-        "process" => $processName
+        "process" => $processName,
+        'command' => $cmd,
+    'output' => $output
     ];
+    return $res_arr;
 }
 public function stopListener_method($username,$livestream_id )
 {
 
     $processName = "tiktok-{$username}-{$livestream_id}";
 
-    exec("pm2 delete {$processName}");
+    $pm2 = trim(shell_exec("which pm2"));
+    $cmd = "HOME=/var/www/.pm2 $pm2 delete {$processName} 2>&1";
+    $output = shell_exec($cmd);
+
+
+
+   // exec("pm2 delete {$processName}");
 $res_arr=[
     "status" => "stopped",
-    "process" => $processName
+    "process" => $processName,
+    "output"=> $output ,
+
 ];
     return $res_arr;
 
