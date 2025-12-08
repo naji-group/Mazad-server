@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\LiveController;
 use App\Http\Controllers\Api\SocialAnalyticController;
-use App\Http\Controllers\APi\TikTokController;
+use App\Http\Controllers\Api\TikTokController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MarketerController;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\APi;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
@@ -17,6 +17,7 @@ class TikTokController extends Controller
 
         public function startListener(Request $request)
         {
+            return response()->json(base_path());
             $request->validate([
                 'username' => 'required|string',
                 'livestream_id' => 'required|string',
