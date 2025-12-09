@@ -464,7 +464,7 @@ class LiveController extends Controller
         // }      
     }
 
-//     // end Instgram
+    //     // end Instgram
     public function youtube_push(Request $request)
     {
         //  التحقق من المدخلات
@@ -505,20 +505,20 @@ class LiveController extends Controller
             try {
                 $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
-                
 
-/*
-old
- "width" => 480,
-                                    "height" => 640
-                                      "bitrate" =>1000,
-*/
 
-                  $body =[
+                /*
+                old
+                 "width" => 480,
+                                                    "height" => 640
+                                                      "bitrate" =>1000,
+                */
+
+                $body = [
                     'converter' => [
-                        "name" =>  "push-{$channelName}-" . time(),
+                        "name" => "push-{$channelName}-" . time(),
                         "transcodeOptions" => [
-                            "rtcChannel" =>  $channelName,
+                            "rtcChannel" => $channelName,
                             "audioOptions" => [
                                 "codecProfile" => "LC-AAC",
                                 "sampleRate" => 48000,
@@ -532,7 +532,7 @@ old
                                 ],
                                 "layout" => [
                                     [
-                                        "rtcStreamUid" =>$uid,
+                                        "rtcStreamUid" => $uid,
                                         "region" => [
                                             "xPos" => 0,
                                             "yPos" => 0,
@@ -541,20 +541,20 @@ old
                                             "height" => 1280
                                         ],
                                         "fillMode" => "fill",
-                                       // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
-                                    ] 
+                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+                                    ]
                                 ],
-                               // "codecProfile" => "High",
+                                // "codecProfile" => "High",
                                 "frameRate" => 15,
                                 "gop" => 30,
-                                "bitrate" =>2260,
+                                "bitrate" => 2260,
                                 "seiOptions" => []
                             ]
                         ],
-                        "rtmpUrl" => $rtmpUrl ,
+                        "rtmpUrl" => $rtmpUrl,
                     ]
 
-                    ];
+                ];
                 // تهيئة الـ Basic Auth
                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
                 // إرسال الطلب إلى Agora API
@@ -625,11 +625,11 @@ old
         }
 
     }
-//     public function youtube_push(Request $request)
+    //     public function youtube_push(Request $request)
 //     {
 //         //  التحقق من المدخلات
 
-//         $formdata = $request->all();
+    //         $formdata = $request->all();
 //         $storrequest = new LiveStartPushRequest();
 //         $validator = Validator::make(
 //             $formdata,
@@ -644,7 +644,7 @@ old
 //             );
 //         } else {
 
-//             $channelName = $formdata['channelName'];
+    //             $channelName = $formdata['channelName'];
 //             $uid = $formdata['uid'];
 //             $youtubeStreamKey = $formdata['youtubeStreamKey'];
 //             // $accessToken = $formdata['youtube_access_token'];
@@ -654,27 +654,27 @@ old
 //                     $youtubeStreamKey,
 //             ]);
 
-//             // إعداد المتغيرات من env
+    //             // إعداد المتغيرات من env
 //             $appId = config('services.agora.app_id');
 //             $customerKey = config('services.agora.customer_key');
 //             $customerSecret = config('services.agora.customer_secret');
 //             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
 
-//             //return  response()->json($appId);
+    //             //return  response()->json($appId);
 //             // RTMP URL ليوتيوب
 //             try {
 //                 $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
-                
 
-// /*
+
+    // /*
 // old
 //  "width" => 480,
 //                                     "height" => 640
 //                                       "bitrate" =>1000,
 // */
 
-//                   $body =[
+    //                   $body =[
 //                     'converter' => [
 //                         "name" =>  "push-{$channelName}-" . time(),
 //                         "transcodeOptions" => [
@@ -714,7 +714,7 @@ old
 //                         "rtmpUrl" => $rtmpUrl ,
 //                     ]
 
-//                     ];
+    //                     ];
 //                 // تهيئة الـ Basic Auth
 //                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
 //                 // إرسال الطلب إلى Agora API
@@ -725,7 +725,7 @@ old
 
 
 
-//                 \Log::info('youtube', [
+    //                 \Log::info('youtube', [
 //                     'data' => 'sendto:' . 'https://api.agora.io',
 //                 ]);
 //                 \Log::info('youtube live success', [
@@ -734,7 +734,7 @@ old
 //                 // التحقق من النتيجة
 //                 if ($response->failed()) {
 
-//                     \Log::error('youtube error', ['error' => $response->json()]);
+    //                     \Log::error('youtube error', ['error' => $response->json()]);
 //                     return response()->json(
 //                         [
 //                             "success" => 0,
@@ -789,25 +789,25 @@ old
 //         "rtmpUrl" => $rtmpUrlcastream ,
 //     ]
 
-//     ];
+    //     ];
 //                 $response = Http::withHeaders([
 //                     'Authorization' => $authHeader,
 //                     'Content-Type' => 'application/json',
 //                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body2);
 
 
-// //end cast streram
+    // //end cast streram
 
-//                 \Log::info('castream live success', [
+    //                 \Log::info('castream live success', [
 //                     'data' => $response->json(),
 //                 ]);
 //                 //بدء جلب التعليقات
 //                 $stream = LiveStream::find($formdata['agora_live_id']);
 //                 $social = Social::where('code', 'youtube')->first();
 
-//                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+    //                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
 
-//                 //  $liveChatId = null;
+    //                 //  $liveChatId = null;
 //                 //start
 //                 $accessToken = $marketer_social->access_token;
 //                 $accessToken_arr = $this->getYoutubechanneld($accessToken);
@@ -822,9 +822,9 @@ old
 //                 $stream->youtube_channel_id = $channelId;
 //                 $stream->save();
 
-//                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
+    //                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
 
-//                 return response()->json(
+    //                 return response()->json(
 //                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['converter' => $response->json()]]
 //                 );
 //             } catch (\Exception $e) {
@@ -841,15 +841,15 @@ old
 //             }
 //         }
 
-//     }
+    //     }
 
 
 
-//     public function youtube_push_test(Request $request)
+    //     public function youtube_push_test(Request $request)
 //     {
 //         // ✅ التحقق من المدخلات
 
-//         $formdata = $request->all();
+    //         $formdata = $request->all();
 //         $storrequest = new LiveStartPushRequest();
 //         $validator = Validator::make(
 //             $formdata,
@@ -864,7 +864,7 @@ old
 //             );
 //         } else {
 
-//             $channelName = $formdata['channelName'];
+    //             $channelName = $formdata['channelName'];
 //             $uid = $formdata['uid'];
 //             $youtubeStreamKey = $formdata['youtubeStreamKey'];
 //             $accessToken = $formdata['youtube_access_token'];
@@ -874,18 +874,18 @@ old
 //                     $youtubeStreamKey,
 //             ]);
 
-//             // إعداد المتغيرات من env
+    //             // إعداد المتغيرات من env
 //             $appId = config('services.agora.app_id');
 //             $customerKey = config('services.agora.customer_key');
 //             $customerSecret = config('services.agora.customer_secret');
 //             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
 
-//             //return  response()->json($appId);
+    //             //return  response()->json($appId);
 //             // RTMP URL ليوتيوب
 //             try {
 //                 // $rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/{$youtubeStreamKey}";
 
-//                 // // الجسم المرسل إلى Agora API
+    //                 // // الجسم المرسل إلى Agora API
 //                 // $body = [
 //                 //     'converter' => [
 //                 //         'name' => "push-{$channelName}-" . time(),
@@ -905,17 +905,17 @@ old
 //                 //     'Content-Type' => 'application/json',
 //                 // ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
 
-//                 // \Log::info('youtube', [
+    //                 // \Log::info('youtube', [
 //                 //     'data' => 'sendto:' . 'https://api.agora.io',
 //                 // ]);
 
-//                 // التحقق من النتيجة
+    //                 // التحقق من النتيجة
 //                 // if ($response->failed()) {
 
-//                 //     \Log::error('youtube error', ['error' => $response->json()]);
+    //                 //     \Log::error('youtube error', ['error' => $response->json()]);
 
 
-//                 //     return response()->json(
+    //                 //     return response()->json(
 //                 //         [
 //                 //             "success" => 0,
 //                 //             "message" => __('api_messages.live create failed'),
@@ -929,11 +929,11 @@ old
 
 
 
-//                 //بدء جلب التعليقات
+    //                 //بدء جلب التعليقات
 //                 $stream = LiveStream::find($formdata['agora_live_id']);
 //                 $social = Social::where('code', 'youtube')->first();
 
-//                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+    //                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
 //                 \Log::info('youtube marketer_social', [
 //                     'data' => $marketer_social->id,
 //                 ]);
@@ -976,23 +976,23 @@ old
 //                 //         'broadcastStatus' => 'active',
 //                 //         'key' => config('services.youtube.key'),
 
-//                 //     ]);
+    //                 //     ]);
 //                 //     \Log::info('youtube', [
 //                 //         'data' => 'sendto:'.'https://www.googleapis.com/youtube/v3',
 //                 //     ]);
 
-//                 //     \Log::info('youtube response', [
+    //                 //     \Log::info('youtube response', [
 //                 //         'data' => $response->json(),
 //                 //     ]);
 
-//                 //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
+    //                 //     if ($response->successful() && isset($response->json()['items'][0]['snippet']['liveChatId'])) {
 //                 //         $liveChatId = $response->json()['items'][0]['snippet']['liveChatId'];
 
-//                 //         \Log::info('youtube response', [
+    //                 //         \Log::info('youtube response', [
 //                 //             'data' => $response->json(),
 //                 //         ]);
 
-//                 //     } else {
+    //                 //     } else {
 //                 //         $liveChatId = null; // لا يوجد بث مباشر حالياً
 //                 //         \Log::info('youtube response', [
 //                 //             'data' => "no response and liveChatId = null",
@@ -1001,7 +1001,7 @@ old
 // //
 
 
-//                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
+    //                 // $stream->youtube_live_chat_id = $liveChatId ?? null;
 //                 // $stream->youtube_access_token = $formdata['youtube_access_token'];
 //                 // $stream->youtube_is_active = true;
 //                 // $stream->save();
@@ -1010,19 +1010,19 @@ old
 //                 $stream->youtube_channel_id = $channelId;
 //                 $stream->save();
 
-//                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
+    //                 GetYoutubeLiveChatIdJob::dispatch($stream, $social, $marketer_social, $channelId)->delay(now()->addSecond());
 
 
-//                 //start job
+    //                 //start job
 //                 \Log::info('youtube', [
 //                     'data' => 'start job',
 //                 ]);
 
-//                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+    //                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
 //                 // FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
 //                 //                
 
-//                 return response()->json(
+    //                 return response()->json(
 //                     ["success" => 1, "message" => __('api_messages.live created'), "data" => ['channelId' => $channelId]]
 //                 );
 //             } catch (\Exception $e) {
@@ -1039,7 +1039,7 @@ old
 //             }
 //         }
 
-//     }
+    //     }
 
     /**
      * إيقاف البث (حذف الـ RTMP Converter)
@@ -1118,7 +1118,7 @@ old
 
     }
     //TIKtok
-   
+
 
     public function tiktok_push(Request $request)
     {
@@ -1129,22 +1129,22 @@ old
             $storrequest->rules(),
             $storrequest->messages()
         );
-    
+
         if ($validator->fails()) {
-            \Log::error('tiktok validator error', ['error' =>$validator->errors()]);
+            \Log::error('tiktok validator error', ['error' => $validator->errors()]);
             return response()->json([
                 "success" => 0,
                 "message" => $validator->errors()?->first(),
                 "data" => $validator->errors()
             ], 422);
-        }else{
-        $channelName = $formdata['channel'];
+        } else {
+            $channelName = $formdata['channel'];
             $uid = $formdata['uid'];
             $rtmpUrl = $formdata['rtmpUrl'];
-       
+
             // \Log::info('youtube vars validated', [
             //     'data' => $channelName  
-                    
+
             // ]);
 
             // إعداد المتغيرات من env
@@ -1152,14 +1152,14 @@ old
             $customerKey = config('services.agora.customer_key');
             $customerSecret = config('services.agora.customer_secret');
             $region = env('AGORA_REGION', 'na');// or ap, eu, cn
-  
+
             try {
-     
-                  $body =[
+
+                $body = [
                     'converter' => [
-                        "name" =>  "push-{$channelName}-tiktok" . time(),
+                        "name" => "push-{$channelName}-tiktok" . time(),
                         "transcodeOptions" => [
-                            "rtcChannel" =>  $channelName,
+                            "rtcChannel" => $channelName,
                             "audioOptions" => [
                                 "codecProfile" => "LC-AAC",
                                 "sampleRate" => 48000,
@@ -1173,7 +1173,7 @@ old
                                 ],
                                 "layout" => [
                                     [
-                                        "rtcStreamUid" =>$uid,
+                                        "rtcStreamUid" => $uid,
                                         "region" => [
                                             "xPos" => 0,
                                             "yPos" => 0,
@@ -1182,20 +1182,20 @@ old
                                             "height" => 1920
                                         ],
                                         "fillMode" => "fill",
-                                       // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
-                                    ] 
+                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+                                    ]
                                 ],
-                               // "codecProfile" => "High",
+                                // "codecProfile" => "High",
                                 "frameRate" => 60,
                                 "gop" => 30,
-                                "bitrate" =>2260,
+                                "bitrate" => 2260,
                                 "seiOptions" => []
                             ]
                         ],
-                        "rtmpUrl" => $rtmpUrl ,
+                        "rtmpUrl" => $rtmpUrl,
                     ]
 
-                    ];
+                ];
                 // تهيئة الـ Basic Auth
                 $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
                 // إرسال الطلب إلى Agora API
@@ -1215,9 +1215,21 @@ old
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $stream->tiktok_is_active = true;
                 $stream->save();
+
+                // جلب التعليقات
+                $tikctrlr = new TikTokController();
+                $social = Social::where('code', 'tiktok')->first();
+                $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
+                if ($msocial) {
+                    $tiktok_username = $msocial->link;
+                    $res_arr= $tikctrlr->startListener_method($tiktok_username, $stream->id);
+                    \Log::info('TikTok comment started',$res_arr);
+
+                }
+
                 return response()->json(
-                                        ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
-                                    );
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
+                );
                 // التحقق من النتيجة
                 if ($response->failed()) {
 
@@ -1232,24 +1244,24 @@ old
                         500
                     );
                 }
- 
 
-         
-       
-    
-        } catch (\Exception $e) {
-            \Log::error('Tiktok RTMP start error', ['error' => $e->getMessage()]);
-            return response()->json([
-                "success" => 0,
-                "message" => __('api_messages.Operation failed'),
-                "data" => $e->getMessage()
-            ], 500);
+
+
+
+
+            } catch (\Exception $e) {
+                \Log::error('Tiktok RTMP start error', ['error' => $e->getMessage()]);
+                return response()->json([
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ], 500);
+            }
         }
     }
-}
     //tiktok with record
 
-//     public function tiktok_push(Request $request)
+    //     public function tiktok_push(Request $request)
 // {
 //     $formdata = $request->all();
 //     $storrequest = new LiveStartTiktokRequest();
@@ -1259,7 +1271,7 @@ old
 //         $storrequest->messages()
 //     );
 
-//     if ($validator->fails()) {
+    //     if ($validator->fails()) {
 //         \Log::error('tiktok validator error', ['error' =>$validator->errors()]);
 //         return response()->json([
 //             "success" => 0,
@@ -1268,7 +1280,7 @@ old
 //         ], 422);
 //     }
 
-//     $channel = $request->channel;
+    //     $channel = $request->channel;
 //     $rtmpUrl = $request->rtmpUrl;
 //     $uid = isset($request->uid) ? (int)$request->uid : 0;
 //     $uid = (string)$uid ;
@@ -1277,7 +1289,7 @@ old
 //     $customerCertificate = config('services.agora.customer_secret');
 //     $baseUrl = "https://api.agora.io/v1/apps";
 
-//     try {
+    //     try {
 //         // $recordingUid = 13;
 //        //  $uid = (string)$recordingUid;
 //         // 1️⃣ Acquire resourceId
@@ -1288,7 +1300,7 @@ old
 //         "clientRequest" => new \stdClass() // يمكن تركها فارغة
 //             ]);
 
-//         if (!$resourceResponse->successful()) {
+    //         if (!$resourceResponse->successful()) {
 //             \Log::error('tiktok_push error', ['error' =>$resourceResponse->json()]);
 //             return response()->json([
 //                 "success" => 0,
@@ -1297,29 +1309,29 @@ old
 //             ], 500);
 //         }
 
-//         $resourceId = $resourceResponse->json('resourceId');
+    //         $resourceId = $resourceResponse->json('resourceId');
 //         \Log::info('tiktok', [
 //             'resourceResponse_id' => $resourceId,'data'=>$resourceResponse->json(),
 //         ]);
-        
-       
 
-//         $data = [
+
+
+    //         $data = [
 //             "cname" => $channel,
 //             "uid" =>  $uid,
-        
-//             "clientRequest" => [
-        
-//                 "token" => "",
-        
-//                 "recordingConfig" => [
+
+    //             "clientRequest" => [
+
+    //                 "token" => "",
+
+    //                 "recordingConfig" => [
 //                     "channelType" => 0,
 //                     "streamTypes" => 2,
 //                     "audioProfile" => 1,
 //                     "videoStreamType" => 0,
 //                     "maxIdleTime" => 120,
-        
-//                     "transcodingConfig" => [
+
+    //                     "transcodingConfig" => [
 //                         "width" => 360,
 //                         "height" => 640,
 //                         "fps" => 30,
@@ -1328,22 +1340,22 @@ old
 //                         "mixedVideoLayout" => 1,
 //                     ],
 //                 ],
-        
-//                 "recordingFileConfig" => [
+
+    //                 "recordingFileConfig" => [
 //                     "avFileType" => [
 //                         "hls",
 //                         "mp4"
 //                     ]
 //                 ],
-        
-//                 "storageConfig" => [
+
+    //                 "storageConfig" => [
 //                     "vendor" => 0,
 //                     "region" => 0,
 //                     "bucket" => "axxxx",
 //                     "accessKey" =>   $customerId ,
 //                     "secretKey" =>$customerCertificate ,
-                    
-//                 ],
+
+    //                 ],
 //                 "liveStreamingConfig" => [
 //                     [
 //                         "url" => $rtmpUrl,  // رابط TikTok RTMP
@@ -1353,13 +1365,13 @@ old
 //             ]
 //         ];
 
-//         // 2️⃣ Start live streaming (RTMP push)
+    //         // 2️⃣ Start live streaming (RTMP push)
 //         $startResponse = Http::withBasicAuth($customerId, $customerCertificate)
 //             ->post("$baseUrl/$appId/cloud_recording/resourceid/$resourceId/mode/mix/start",             
 //             $data             
 //         );
 
-//         if (!$startResponse->successful()) {
+    //         if (!$startResponse->successful()) {
 //             \Log::error('tiktok cloud_recording error', ['error' =>$startResponse->json()]);
 //             return response()->json([
 //                 "success" => 0,
@@ -1368,15 +1380,15 @@ old
 //             ], 500);
 //         }
 
-//         $sid = $startResponse->json('sid');
+    //         $sid = $startResponse->json('sid');
 
-//         \Log::info('TikTok RTMP started', [
+    //         \Log::info('TikTok RTMP started', [
 //             'channel' => $channel,
 //             'resourceId' => $resourceId,
 //             'sid' => $sid,
 //         ]);
 
-//         return response()->json([
+    //         return response()->json([
 //             "success" => 1,
 //             "message" => __('api_messages.live created'),
 //             "data" => [
@@ -1386,7 +1398,7 @@ old
 //             ]
 //         ]);
 
-//     } catch (\Exception $e) {
+    //     } catch (\Exception $e) {
 //         \Log::error('Tiktok RTMP start error', ['error' => $e->getMessage()]);
 //         return response()->json([
 //             "success" => 0,
@@ -1485,280 +1497,291 @@ old
     public function tiktok_stop_push(Request $request)
     {
 
-     /////////////
- //LiveStopPushRequest       
- $formdata = $request->all();
- $storrequest = new LiveStopPushRequest();
- $validator = Validator::make(
-     $formdata,
-     $storrequest->rules(),
-     $storrequest->messages()
- );
- if ($validator->fails()) {
-     return response()->json(
-         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-         ,
-         422
-     );
- } else {
-
-     $converterId = $formdata['converterId'];
-     $appId = config('services.agora.app_id');
-     $customerKey = config('services.agora.customer_key');
-     $customerSecret = config('services.agora.customer_secret');
-     $region = env('AGORA_REGION', 'na');
-     try {
-         $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
-
-         // DELETE إلى Agora API
-         $response = Http::withHeaders([
-             'Authorization' => $authHeader,
-             'Content-Type' => 'application/json',
-         ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
-
-         if ($response->failed()) {
-             return response()->json(
-                 [
-                     "success" => 0,
-                     "message" => __('api_messages.Operation failed'),
-                     "data" => $response->json()
-                 ]
-                 ,
-                 500
-             );
-         }
-                  
-         $stream = LiveStream::find($formdata['agora_live_id']);
-         $stream->tiktok_is_active = false;
-         $stream->save();
-         return response()->json(
-             [
-                 "success" => 1,
-                 "message" => __('api_messages.live stoped'),
-                 "data" => ['result' => $response->json()]
-             ]
-         );
-     } catch (\Exception $e) {
-         return response()->json(
-             [
-                 "success" => 0,
-                 "message" => __('api_messages.Operation failed'),
-                 "data" => $e->getMessage()
-             ]
-             ,
-             500
-         );
-     }
-////////////////
-
-
-    }
-
-    }
-
-//Jaco
-
-public function jaco_push(Request $request)
-{
-    $formdata = $request->all();
-    $storrequest = new LiveStartJacoRequest();
-    $validator = Validator::make(
-        $formdata,
-        $storrequest->rules(),
-        $storrequest->messages()
-    );
-
-    if ($validator->fails()) {
-        \Log::error('jaco validator error', ['error' =>$validator->errors()]);
-        return response()->json([
-            "success" => 0,
-            "message" => $validator->errors()?->first(),
-            "data" => $validator->errors()
-        ], 422);
-    }else{
-    $channelName = $formdata['channel'];
-        $uid = $formdata['uid'];
-        $rtmpUrl = $formdata['rtmpUrl'];
-   
-        // \Log::info('jaco vars validated', [
-        //     'data' => $channelName  
-                
-        // ]);
-
-        // إعداد المتغيرات من env
-        $appId = config('services.agora.app_id');
-        $customerKey = config('services.agora.customer_key');
-        $customerSecret = config('services.agora.customer_secret');
-        $region = env('AGORA_REGION', 'na');// or ap, eu, cn
-
-        try {
- 
-              $body =[
-                'converter' => [
-                    "name" =>  "push-{$channelName}-jaco" . time(),
-                    "transcodeOptions" => [
-                        "rtcChannel" =>  $channelName,
-                        "audioOptions" => [
-                            "codecProfile" => "LC-AAC",
-                            "sampleRate" => 48000,
-                            "bitrate" => 48,
-                            "audioChannels" => 1
-                        ],
-                        "videoOptions" => [
-                            "canvas" => [
-                                "width" => 1080,
-                                "height" => 1920
-                            ],
-                            "layout" => [
-                                [
-                                    "rtcStreamUid" =>$uid,
-                                    "region" => [
-                                        "xPos" => 0,
-                                        "yPos" => 0,
-                                        "zIndex" => 1,
-                                        "width" => 1080,
-                                        "height" => 1920
-                                    ],
-                                    "fillMode" => "fill",
-                                   // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
-                                ] 
-                            ],
-                           // "codecProfile" => "High",
-                            "frameRate" => 60,
-                            "gop" => 30,
-                            "bitrate" =>2260,
-                            "seiOptions" => []
-                        ]
-                    ],
-                    "rtmpUrl" => $rtmpUrl ,
-                ]
-
-                ];
-            // تهيئة الـ Basic Auth
-            $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
-            // إرسال الطلب إلى Agora API
-            $response = Http::withHeaders([
-                'Authorization' => $authHeader,
-                'Content-Type' => 'application/json',
-            ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
-
-
-
-            // \Log::info('jaco', [
-            //     'data' => 'sendto:' . 'https://api.agora.io',
-            // ]);
-            // \Log::info('jaco live success', [
-            //     'data' => $response->json(),
-            // ]);
-
-            $stream = LiveStream::find($formdata['agora_live_id']);
-            $stream->jaco_is_active = true;
-            $stream->save();
+        /////////////
+        //LiveStopPushRequest       
+        $formdata = $request->all();
+        $storrequest = new LiveStopPushRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
             return response()->json(
-                                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
-                                );
-            // التحقق من النتيجة
-            if ($response->failed()) {
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
 
-                \Log::error('jaco error', ['error' => $response->json()]);
+            $converterId = $formdata['converterId'];
+            $appId = config('services.agora.app_id');
+            $customerKey = config('services.agora.customer_key');
+            $customerSecret = config('services.agora.customer_secret');
+            $region = env('AGORA_REGION', 'na');
+            try {
+                $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+
+                // DELETE إلى Agora API
+                $response = Http::withHeaders([
+                    'Authorization' => $authHeader,
+                    'Content-Type' => 'application/json',
+                ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
+
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.Operation failed'),
+                            "data" => $response->json()
+                        ]
+                        ,
+                        500
+                    );
+                }
+
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->tiktok_is_active = false;
+                $stream->save();
+
+                  // جلب التعليقات
+                  $tikctrlr = new TikTokController();
+                  $social = Social::where('code', 'tiktok')->first();
+                  $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
+                  if ($msocial) {
+                      $tiktok_username = $msocial->link;
+                      $res_arr=$tikctrlr->stopListener_method($tiktok_username, $stream->id);  
+                      \Log::info('TikTok comment started',$res_arr);
+                  }
+
+                return response()->json(
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.live stoped'),
+                        "data" => ['result' => $response->json()]
+                    ]
+                );
+            } catch (\Exception $e) {
                 return response()->json(
                     [
                         "success" => 0,
-                        "message" => __('api_messages.live create failed'),
-                        "data" => $response->json()
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
                     ]
                     ,
                     500
                 );
             }
-//cast stream
+            ////////////////
 
-//end cast streram
 
-            // \Log::info('castream live success', [
-            //     'data' => $response->json(),
-            // ]);   
+        }
 
-    } catch (\Exception $e) {
-        \Log::error('jaco RTMP start error', ['error' => $e->getMessage()]);
-        return response()->json([
-            "success" => 0,
-            "message" => __('api_messages.Operation failed'),
-            "data" => $e->getMessage()
-        ], 500);
     }
-}
-}
+
+    //Jaco
+
+    public function jaco_push(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LiveStartJacoRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+
+        if ($validator->fails()) {
+            \Log::error('jaco validator error', ['error' => $validator->errors()]);
+            return response()->json([
+                "success" => 0,
+                "message" => $validator->errors()?->first(),
+                "data" => $validator->errors()
+            ], 422);
+        } else {
+            $channelName = $formdata['channel'];
+            $uid = $formdata['uid'];
+            $rtmpUrl = $formdata['rtmpUrl'];
+
+            // \Log::info('jaco vars validated', [
+            //     'data' => $channelName  
+
+            // ]);
+
+            // إعداد المتغيرات من env
+            $appId = config('services.agora.app_id');
+            $customerKey = config('services.agora.customer_key');
+            $customerSecret = config('services.agora.customer_secret');
+            $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+
+            try {
+
+                $body = [
+                    'converter' => [
+                        "name" => "push-{$channelName}-jaco" . time(),
+                        "transcodeOptions" => [
+                            "rtcChannel" => $channelName,
+                            "audioOptions" => [
+                                "codecProfile" => "LC-AAC",
+                                "sampleRate" => 48000,
+                                "bitrate" => 48,
+                                "audioChannels" => 1
+                            ],
+                            "videoOptions" => [
+                                "canvas" => [
+                                    "width" => 1080,
+                                    "height" => 1920
+                                ],
+                                "layout" => [
+                                    [
+                                        "rtcStreamUid" => $uid,
+                                        "region" => [
+                                            "xPos" => 0,
+                                            "yPos" => 0,
+                                            "zIndex" => 1,
+                                            "width" => 1080,
+                                            "height" => 1920
+                                        ],
+                                        "fillMode" => "fill",
+                                        // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+                                    ]
+                                ],
+                                // "codecProfile" => "High",
+                                "frameRate" => 60,
+                                "gop" => 30,
+                                "bitrate" => 2260,
+                                "seiOptions" => []
+                            ]
+                        ],
+                        "rtmpUrl" => $rtmpUrl,
+                    ]
+
+                ];
+                // تهيئة الـ Basic Auth
+                $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+                // إرسال الطلب إلى Agora API
+                $response = Http::withHeaders([
+                    'Authorization' => $authHeader,
+                    'Content-Type' => 'application/json',
+                ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+
+
+
+                // \Log::info('jaco', [
+                //     'data' => 'sendto:' . 'https://api.agora.io',
+                // ]);
+                // \Log::info('jaco live success', [
+                //     'data' => $response->json(),
+                // ]);
+
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->jaco_is_active = true;
+                $stream->save();
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
+                );
+                // التحقق من النتيجة
+                if ($response->failed()) {
+
+                    \Log::error('jaco error', ['error' => $response->json()]);
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.live create failed'),
+                            "data" => $response->json()
+                        ]
+                        ,
+                        500
+                    );
+                }
+                //cast stream
+
+                //end cast streram
+
+                // \Log::info('castream live success', [
+                //     'data' => $response->json(),
+                // ]);   
+
+            } catch (\Exception $e) {
+                \Log::error('jaco RTMP start error', ['error' => $e->getMessage()]);
+                return response()->json([
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ], 500);
+            }
+        }
+    }
     public function jaco_stop_push(Request $request)
     {
 
-     /////////////
- //LiveStopPushRequest       
- $formdata = $request->all();
- $storrequest = new LiveStopPushRequest();
- $validator = Validator::make(
-     $formdata,
-     $storrequest->rules(),
-     $storrequest->messages()
- );
- if ($validator->fails()) {
-     return response()->json(
-         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-         ,
-         422
-     );
- } else {
+        /////////////
+        //LiveStopPushRequest       
+        $formdata = $request->all();
+        $storrequest = new LiveStopPushRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
 
-     $converterId = $formdata['converterId'];
-     $appId = config('services.agora.app_id');
-     $customerKey = config('services.agora.customer_key');
-     $customerSecret = config('services.agora.customer_secret');
-     $region = env('AGORA_REGION', 'na');
-     try {
-         $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+            $converterId = $formdata['converterId'];
+            $appId = config('services.agora.app_id');
+            $customerKey = config('services.agora.customer_key');
+            $customerSecret = config('services.agora.customer_secret');
+            $region = env('AGORA_REGION', 'na');
+            try {
+                $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
 
-         // DELETE إلى Agora API
-         $response = Http::withHeaders([
-             'Authorization' => $authHeader,
-             'Content-Type' => 'application/json',
-         ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
+                // DELETE إلى Agora API
+                $response = Http::withHeaders([
+                    'Authorization' => $authHeader,
+                    'Content-Type' => 'application/json',
+                ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
 
-         if ($response->failed()) {
-             return response()->json(
-                 [
-                     "success" => 0,
-                     "message" => __('api_messages.Operation failed'),
-                     "data" => $response->json()
-                 ]
-                 ,
-                 500
-             );
-         }
-         //success
-         //end job             
-         $stream = LiveStream::find($formdata['agora_live_id']);
-         $stream->jaco_is_active = false;
-         $stream->save();
-         return response()->json(
-             [
-                 "success" => 1,
-                 "message" => __('api_messages.live stoped'),
-                 "data" => ['result' => $response->json()]
-             ]
-         );
-     } catch (\Exception $e) {
-         return response()->json(
-             [
-                 "success" => 0,
-                 "message" => __('api_messages.Operation failed'),
-                 "data" => $e->getMessage()
-             ]
-             ,
-             500
-         );
-     }
-////////////////
-    }
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.Operation failed'),
+                            "data" => $response->json()
+                        ]
+                        ,
+                        500
+                    );
+                }
+                //success
+                //end job             
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->jaco_is_active = false;
+                $stream->save();
+                return response()->json(
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.live stoped'),
+                        "data" => ['result' => $response->json()]
+                    ]
+                );
+            } catch (\Exception $e) {
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ]
+                    ,
+                    500
+                );
+            }
+            ////////////////
+        }
     }
 
 
@@ -1782,13 +1805,13 @@ public function jaco_push(Request $request)
                 422
             );
         } else {
-           
+
             $stream = LiveStream::updateOrCreate(
                 ['agora_live_id' => $formdata['agora_live_id']],
                 [
                     'marketer_id' => $formdata['marketer_id'],
                     'is_active' => 1,
-                    'start_date'=>now(),
+                    'start_date' => now(),
                     // 'youtube_live_chat_id' => $formdata['youtube_live_chat_id'] ?? null,
                     // 'youtube_access_token' => $formdata['youtube_access_token'] ?? null,
                     // 'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
@@ -1797,7 +1820,7 @@ public function jaco_push(Request $request)
             );
 
             // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-       //     FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
+            //     FetchLiveCommentsJob::dispatch($stream->id)->delay(now()->addSeconds(1));
             return response()->json(
                 [
                     "success" => 1,
