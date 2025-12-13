@@ -91,4 +91,32 @@ class HelpController extends Controller
       return $adjustedCommentTime;
   }
 
+  public function date_diff($start_date=null,$end_date=null)
+  {
+      // إذا كان لدينا تاريخ البدء والانتهاء
+      if ($start_date && $end_date) {
+          $start = Carbon::parse($start_date );
+          $end = Carbon::parse($end_date);
+          
+          // حساب المدة بالثواني
+          $durationSeconds = $start->diffInSeconds($end);
+          
+          // تحويل إلى HH:mm:ss
+          $hours = floor($durationSeconds / 3600);
+          $minutes = floor(($durationSeconds % 3600) / 60);
+          $seconds = $durationSeconds % 60;
+          $durationFormatted = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+          
+          return [
+            'duration_seconds'=>   $durationSeconds ,
+            'duration_str'=>$durationFormatted,
+          ];
+      }
+      return [
+        'duration_seconds'=>  0,
+        'duration_str'=>"0",
+      ];
+     
+  }
+
 }

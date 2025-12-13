@@ -15,6 +15,12 @@ class LivestreamSocial extends Model
         'likes_count',
         'notes',
 
+        'dislike_count',
+        'favorite_count',
+        'duration',
+        'duration_str',
+        'start_date',
+        'end_date',
     ];
     public function livestream(): BelongsTo
     {

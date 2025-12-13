@@ -16,6 +16,8 @@ use App\Http\Requests\Api\LiveStopPushRequest;
 use App\Http\Requests\Api\LiveStopTiktokRequest;
 use App\Jobs\GetYoutubeLiveChatIdJob;
 use App\Jobs\SendMarketerNotification;
+use App\Jobs\YouTubeAnalyticsJob;
+use App\Models\LivestreamSocial;
 use App\Models\Livevar;
 use Google\Service\Datastream\Stream;
 use Illuminate\Http\Request;
@@ -588,7 +590,12 @@ class LiveController extends Controller
                 $social = Social::where('code', 'youtube')->first();
 
                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-
+//Analytic
+                $sts_model = new LivestreamSocial();
+                $sts_model->start_date = now();
+                $sts_model->live_stream_id = $stream->id;
+                $sts_model->social_id = $social->id;
+                $sts_model->save();
                 //  $liveChatId = null;
                 //start
                 $accessToken = $marketer_social->access_token;
@@ -1095,6 +1102,12 @@ class LiveController extends Controller
                 $stream = LiveStream::find($request->input('agora_live_id'));
                 $stream->youtube_is_active = false;
                 $stream->save();
+                //Analytic
+                $sts_model =  LivestreamSocial::where('live_stream_id',$stream->id)->where('social_id',$stream->social_id)->first();
+                $sts_model->end_date = now();          
+                $sts_model->save();
+                YouTubeAnalyticsJob::dispatch($sts_model)->delay(now()->addSecond());
+
                 return response()->json(
                     [
                         "success" => 1,
@@ -1186,9 +1199,9 @@ class LiveController extends Controller
                                     ]
                                 ],
                                 // "codecProfile" => "High",
-                                "frameRate" => 60,
+                                "frameRate" => 30,
                                 "gop" => 30,
-                                "bitrate" => 2260,
+                                "bitrate" => 6000,
                                 "seiOptions" => []
                             ]
                         ],
@@ -1222,9 +1235,10 @@ class LiveController extends Controller
                 $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
                 if ($msocial) {
                     $tiktok_username = $msocial->link;
-                    $res_arr= $tikctrlr->startListener_method($tiktok_username, $stream->id);
-                    \Log::info('TikTok comment started',$res_arr);
-
+                    $res_arr = $tikctrlr->startListener_method($tiktok_username, $stream->id);
+                    /*
+                    \Log::info('TikTok comment started', $res_arr);
+*/
                 }
 
                 return response()->json(
@@ -1544,15 +1558,17 @@ class LiveController extends Controller
                 $stream->tiktok_is_active = false;
                 $stream->save();
 
-                  // جلب التعليقات
-                  $tikctrlr = new TikTokController();
-                  $social = Social::where('code', 'tiktok')->first();
-                  $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
-                  if ($msocial) {
-                      $tiktok_username = $msocial->link;
-                      $res_arr=$tikctrlr->stopListener_method($tiktok_username, $stream->id);  
-                      \Log::info('TikTok comment started',$res_arr);
-                  }
+                // جلب التعليقات
+                $tikctrlr = new TikTokController();
+                $social = Social::where('code', 'tiktok')->first();
+                $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
+                if ($msocial) {
+                    $tiktok_username = $msocial->link;
+                    $res_arr = $tikctrlr->stopListener_method($tiktok_username, $stream->id);
+                    /*
+                    \Log::info('TikTok comment started', $res_arr);
+                    */
+                }
 
                 return response()->json(
                     [
@@ -1647,7 +1663,7 @@ class LiveController extends Controller
                                     ]
                                 ],
                                 // "codecProfile" => "High",
-                                "frameRate" => 60,
+                                "frameRate" => 30,
                                 "gop" => 30,
                                 "bitrate" => 2260,
                                 "seiOptions" => []

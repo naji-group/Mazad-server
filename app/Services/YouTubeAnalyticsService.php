@@ -76,7 +76,10 @@ $formatted = $interval->format('%H:%I:%S');
             'viewCount' => $stats->getViewCount(),
             'likeCount' => $stats->getLikeCount(),
             'commentCount' => $stats->getCommentCount(),
+            'dislikeCount'=>$stats->getDislikeCount(),
+            'favoriteCount' =>$stats->getFavoriteCount(),
             'duration' =>$formatted ,
+           
         ];
     }
 

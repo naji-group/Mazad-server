@@ -11,6 +11,7 @@ use App\Models\Social;
 use Illuminate\Http\Request;
 use App\Jobs\SendMarketerNotification;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 class TikTokController extends Controller
 {
         // تشغيل listener
@@ -123,7 +124,11 @@ $social=Social::where('code',$platform_code)->first();
     // تخزين في قاعدة البيانات
     // TikTokComment::create($data);
     try {
-        $comment_time=$request->timestamp->toDateTimeString();
+
+        $datet = Carbon::createFromTimestampMs($request->createtime);
+$orgtime=$datet->format('Y-m-d H:i:s');
+        $ctime = Carbon::parse($orgtime);
+        $comment_time= $ctime->toDateTimeString();
         $comment = LiveComment::updateOrCreate( [
             'platform'   => $platform_code,
             'comment_id' => $request->commentId,
@@ -136,7 +141,7 @@ $social=Social::where('code',$platform_code)->first();
             'comment_id' => $request->commentId,
             'author_name' =>   $request->author_name,
             'message' => $request->comment,
-            'comment_time' => $request->createtime,
+            'comment_time' => $comment_time,
             'social_id'=>$social->id,
         ]);
         if ($comment->wasRecentlyCreated) {

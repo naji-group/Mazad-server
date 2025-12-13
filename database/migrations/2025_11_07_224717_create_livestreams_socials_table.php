@@ -6,8 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
+    /**  
+       
+     * Run the migrations.add_dislike_count_to_livestreams_socials_table
      */
     public function up(): void
     {
