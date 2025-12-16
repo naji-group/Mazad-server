@@ -34,7 +34,7 @@ client.on(WebcastEvent.CHAT, async (data) => {
     //console.log(data.user.uniqueId + ": " + data.comment);
     console.log(data.comment);
     logger.info(`Connected to room comment: ${data.comment}`);
-    logger.info(`data to room comment: ${JSON.stringify(data, null, 2)}`);
+   // logger.info(`data to room comment: ${JSON.stringify(data, null, 2)}`);
     const commentData = {
         author_name: data.user.nickname,
         comment: data.comment,
