@@ -147,10 +147,10 @@ class MarketerForm
                                         $q->where('marketer_id', $record->id)
                                         ;
                                     }
-                                ])->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social) {
+                                ])->where('code','tiktok')->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social) {
                                     $fields[] = Group::make([
                                         TextInput::make("socials.{$social->id}.link")
-                                            ->label("رابط {$social->name}")
+                                            ->label("حساب {$social->name}")
                                             ->hiddenOn('create')
                                             ->afterStateHydrated(function ($component, $state, $record) use ($social) {
                                                 if ($record) {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RestreamController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\NotifyController;
@@ -45,7 +46,10 @@ Route::post('saveToken', [NotifyController::class, 'savetoken'])->name('saveToke
  Route::post('sendbytoken', [NotifyController::class, 'sendbytoken']);
  Route::get('testnotify', [NotifyController::class, 'testnotify']);
 
-
+ Route::prefix('restream')->group(function () {
+  Route::get('login/{marketer_id}', [RestreamController::class, 'login']);
+  Route::get('redirect', [RestreamController::class, 'redirectfromReastream']);
+ });
 /*
 Route::prefix('marketer')->group(function () {
     Route::get('/login', [MarketerAuthController::class, 'showLoginForm'])->name('marketer.login');

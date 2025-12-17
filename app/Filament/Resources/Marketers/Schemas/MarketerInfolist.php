@@ -59,13 +59,13 @@ class MarketerInfolist
                             'marketersocials' => function ($q) use ($record) {
                                 $q->where('marketer_id', $record->id);
                             }
-                        ])->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social
+                        ])->where('code','tiktok')->where('is_extra',null)->orWhere('is_extra',false)->orderBy('sequence')->get() as $social
                     ) {
                         $marketerSocial = $social->marketersocials?->first();
 
                         $fields[] = Group::make([
                             TextEntry::make("socials.{$social->id}.link")
-                                ->label("رابط {$social->name}")
+                                ->label("حساب {$social->name}")
                                 ->default($marketerSocial?->link ?? '-')
                                 ->url(fn () => $marketerSocial?->link, true) // عرض كرابط
                                 ->columnSpan(3),
