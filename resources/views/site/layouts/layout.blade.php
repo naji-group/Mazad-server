@@ -6,6 +6,7 @@
   @php
   $homeCtrlr=new App\Http\Controllers\Web\HomeController();
     $pages=$homeCtrlr->pages_menu();
+  $home_name=  $homeCtrlr->home_name();
  @endphp
  
   @include('site.layouts.head') 

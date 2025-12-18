@@ -57,7 +57,7 @@
             <div id="responsive-nav">
                 <!-- NAV -->
                 <ul class="main-nav nav navbar-nav">
-                    <li class="active"><a href="{{ url('/') }}">Home</a></li>
+                    <li class="active"><a href="{{ url('/') }}"> {{ $home_name}}</a></li>
                     @foreach ($pages as $page )
                     <li  ><a href="{{ route('site.pages',$page->code) }}">{{ $page->name }}</a></li>
                     @endforeach

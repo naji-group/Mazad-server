@@ -10,8 +10,15 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $pages=Setting::where('category','home')->get();
-$breadcrumb='Home';
+        $breadcrumb='Home';
+        $pages=Setting::where('category','home')->orderBy('sequence')->get();
+        if($pages){
+if($pages->first()){
+    $breadcrumb=$pages->first()->name;
+}
+        }
+
+ 
         return view('site.home',compact(['pages','breadcrumb']));
     }
     public function static_page($slug)
@@ -34,4 +41,13 @@ $breadcrumb='Home';
       return $pages;
        
     }
+    public function home_name()
+    {
+        $breadcrumb='Home';
+    $page=Setting::where('category','home')->orderBy('sequence')->first();
+    if($page){
+        $breadcrumb=$page->first()->name;
+                }
+                return   $breadcrumb;
+}
 }
