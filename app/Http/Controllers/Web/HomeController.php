@@ -10,8 +10,9 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $page=Setting::where('category','pages')->get();
-        return view('site.home');
+        $pages=Setting::where('category','home')->get();
+$breadcrumb='Home';
+        return view('site.home',compact(['pages','breadcrumb']));
     }
     public function static_page($slug)
     {

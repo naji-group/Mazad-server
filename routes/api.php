@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\LiveController;
+use App\Http\Controllers\Api\RestreamController;
 use App\Http\Controllers\Api\SocialAnalyticController;
 use App\Http\Controllers\Api\TikTokController;
 use Illuminate\Http\Request;
@@ -19,6 +20,13 @@ Route::middleware(SetLocale::class)->group(function ()  {
 Route::post('loginmarketer', [MarketerController::class, 'login']);
 Route::post('loginmarketerbyprovider', [MarketerController::class, 'loginprovider']);
 Route::post('resetpassword', [MarketerController::class, 'resetpassword']); 
+
+Route::prefix('restream')->group(function () {
+    Route::post('profile', [RestreamController::class, 'getUserProfile']);
+     
+   
+    
+   });
 //Route::get('loginmarketer/{provider}', 'SocialController@redirect');
 // Route::get('loginmarketerprovider/{provider}', [MarketerController::class, 'provider_redirect'])->name('api_provider_redirect')->middleware('web');
  

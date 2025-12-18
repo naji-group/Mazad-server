@@ -49,6 +49,8 @@ Route::post('saveToken', [NotifyController::class, 'savetoken'])->name('saveToke
  Route::prefix('restream')->group(function () {
   Route::get('login/{marketer_id}', [RestreamController::class, 'login']);
   Route::get('redirect', [RestreamController::class, 'redirectfromReastream']);
+  //Route::get('tokenredirect', [RestreamController::class, 'tokenRedirect']);
+  
  });
 /*
 Route::prefix('marketer')->group(function () {

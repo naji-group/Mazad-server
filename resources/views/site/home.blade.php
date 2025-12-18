@@ -12,7 +12,7 @@
                 <div class="col-md-12">
                     <h3 class="breadcrumb-header"></h3>
                     <ul class="breadcrumb-tree">
-                        <li><a href="#">Home</a></li>
+                        <li><a href="#"> {{ Str::of($breadcrumb )->toHtmlString() }}</a></li>
                       
                     </ul>
                 </div>
@@ -23,13 +23,18 @@
     </div>
     <!-- /BREADCRUMB -->
 
-    <!-- SECTION -->
-    <div class="section">
+       <!-- SECTION -->
+       <div class="section">
         <!-- container -->
-        <div class="container">
+        <div class="container" style="direction: rtl">
             <!-- row -->
+            @foreach ($pages as $page)
             <div class="row">
+                {{ Str::of($page->value )->toHtmlString() }}  
+               
             </div>
+            @endforeach
+        
             <!-- /row -->
         </div>
         <!-- /container -->
