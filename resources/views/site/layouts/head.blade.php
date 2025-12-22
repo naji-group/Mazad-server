@@ -10,7 +10,7 @@
 
      <!-- Google font -->
      <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
-
+     <link rel="shortcut icon" href="site/img/logo.png">
      <!-- Bootstrap -->
      <link type="text/css" rel="stylesheet" href="{{ asset('site/css/bootstrap.min.css')}}"/>
 

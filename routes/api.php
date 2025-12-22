@@ -75,6 +75,10 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         
 Route::post('/start', [LiveController::class, 'start']);    
 Route::post('/end', [LiveController::class, 'endLiveStream']); 
+
+Route::post('restream/start-comment', [RestreamController::class, 'restream_comment_get']);
+Route::post('restream/stop-comment', [RestreamController::class, 'restream_comment_stop']); 
+ 
     });
     Route::prefix('auction')->group(function () {
         Route::post('add', [AuctionController::class, 'store']);

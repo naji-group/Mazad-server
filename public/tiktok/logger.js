@@ -14,8 +14,8 @@ if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
 }
 
-export function createLogger(livestreamId = "default") {
-    const logFile = path.join(logDir, `listener_${livestreamId}.log`);
+export function createLogger(livestreamId = "default",source="tik") {
+    const logFile = path.join(logDir, `listener_${livestreamId}_${source}.log`);
 
     return winston.createLogger({
         level: "info",

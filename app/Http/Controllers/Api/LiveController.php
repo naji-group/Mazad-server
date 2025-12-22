@@ -49,6 +49,9 @@ class LiveController extends Controller
             $livestream->is_active = 1;
             $livestream->save();
             $resArr['agora_live_id'] = $livestream->id;
+            \Log::info('agora', [
+                'data' => $resArr,
+            ]);
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.live created'), "data" => $resArr]
             );
@@ -2251,6 +2254,8 @@ class LiveController extends Controller
 
         return false;
     }
+
+ 
     //end test
 
 }

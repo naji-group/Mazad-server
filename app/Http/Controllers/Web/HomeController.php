@@ -43,10 +43,10 @@ if($pages->first()){
     }
     public function home_name()
     {
-        $breadcrumb='Home';
+        $breadcrumb='';
     $page=Setting::where('category','home')->orderBy('sequence')->first();
     if($page){
-        $breadcrumb=$page->first()->name;
+        $breadcrumb=$page->name;
                 }
                 return   $breadcrumb;
 }
