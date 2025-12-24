@@ -22,13 +22,13 @@ class LiveCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fbToken'=>'required',
-            'title'=>'nullable',
-            'description'=>'nullable',
-            'agora_live_id'=>'required'
+           // 'fbToken'=>'required',
+           // 'title'=>'nullable',
+          //  'description'=>'nullable',
+            'agora_live_id'=>'required',
+            'channel' => 'required|string',
+            'rtmpUrl' => 'required|string',
          //   'id'=> 'required|not_in:0|in:'.auth('api_marketers')->user()->id,
-  
- 
               ];
     }
     public function messages(): array
@@ -38,6 +38,7 @@ class LiveCreateRequest extends FormRequest
     // 'id.*'=> __('api_messages.user not found'),
  'fbToken.*'=>__('api_messages.data empty'),
  'agora_live_id.*'=>__('api_messages.data empty'),
+ 'rtmpUrl.*'=>__('api_messages.data empty'),
     ];
     
 }

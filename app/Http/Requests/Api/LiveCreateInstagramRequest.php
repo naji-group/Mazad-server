@@ -22,9 +22,9 @@ class LiveCreateInstagramRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'agora_url' => 'required|string',
-            'instagram_url' => 'required|string',
-            'instagram_key' => 'required|string', 
+            'channel' => 'required|string',
+            'rtmpUrl' => 'required|string',
+            'agora_live_id'=>'required',
               ];
     }
     public function messages(): array
@@ -32,9 +32,9 @@ class LiveCreateInstagramRequest extends FormRequest
  
    return[     
     // 'id.*'=> __('api_messages.user not found'), 
- 'agora_url.*'=>__('api_messages.data empty'),
-'instagram_url.*'=>__('api_messages.data empty'),
-'instagram_key.*'=>__('api_messages.data empty'),
+ 'channel.*'=>__('api_messages.data empty'),
+'rtmpUrl.*'=>__('api_messages.data empty'),
+'agora_live_id.*'=>__('api_messages.data empty'),
     ];
     
 }

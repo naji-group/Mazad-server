@@ -21,12 +21,12 @@ Route::post('loginmarketer', [MarketerController::class, 'login']);
 Route::post('loginmarketerbyprovider', [MarketerController::class, 'loginprovider']);
 Route::post('resetpassword', [MarketerController::class, 'resetpassword']); 
 
-Route::prefix('restream')->group(function () {
-    Route::post('profile', [RestreamController::class, 'getUserProfile']);
+// Route::prefix('restream')->group(function () {
+//     Route::post('profile', [RestreamController::class, 'getUserProfile']);
      
    
     
-   });
+//    });
 //Route::get('loginmarketer/{provider}', 'SocialController@redirect');
 // Route::get('loginmarketerprovider/{provider}', [MarketerController::class, 'provider_redirect'])->name('api_provider_redirect')->middleware('web');
  
@@ -76,8 +76,8 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
 Route::post('/start', [LiveController::class, 'start']);    
 Route::post('/end', [LiveController::class, 'endLiveStream']); 
 
-Route::post('restream/start-comment', [RestreamController::class, 'restream_comment_get']);
-Route::post('restream/stop-comment', [RestreamController::class, 'restream_comment_stop']); 
+// Route::post('restream/start-comment', [RestreamController::class, 'restream_comment_get']);
+// Route::post('restream/stop-comment', [RestreamController::class, 'restream_comment_stop']); 
  
     });
     Route::prefix('auction')->group(function () {

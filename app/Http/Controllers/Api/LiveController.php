@@ -13,13 +13,13 @@ use App\Http\Requests\Api\LiveStartPushRequest;
 use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
-use App\Http\Requests\Api\LiveStopTiktokRequest;
+//use App\Http\Requests\Api\LiveStopTiktokRequest;
 use App\Jobs\GetYoutubeLiveChatIdJob;
-use App\Jobs\SendMarketerNotification;
+//use App\Jobs\SendMarketerNotification;
 use App\Jobs\YouTubeAnalyticsJob;
 use App\Models\LivestreamSocial;
-use App\Models\Livevar;
-use Google\Service\Datastream\Stream;
+//use App\Models\Livevar;
+//use Google\Service\Datastream\Stream;
 use Illuminate\Http\Request;
 use App\Models\MarketerSocial;
 use App\Models\Marketer;
@@ -30,8 +30,8 @@ use App\Http\Requests\Api\TokenSaveRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\FetchLiveCommentsJob;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+//use Symfony\Component\Process\Process;
+//use Symfony\Component\Process\Exception\ProcessFailedException;
 use Carbon\Carbon;
 class LiveController extends Controller
 {
@@ -119,60 +119,78 @@ class LiveController extends Controller
             );
         } else {
             $fbToken = $request->input('fbToken');
-            $title = $request->input('title', 'My Laravel Live Stream');
-            $description = $request->input('description', 'Streaming live');
+            $rtmpUrl = $request->input('rtmpUrl');
+            $channelName = $request->input('channel');
+            $uid = (string) (auth('api_marketers')->user()->id);
+            $platform = 'facebook';
+            // $title = $request->input('title', 'My Live Stream');
+            // $description = $request->input('description', 'Streaming live');
             try {
-                // 🔹 1. الحصول على الصفحات التابعة للمستخدم
-                $pagesRes = Http::get("https://graph.facebook.com/v19.0/me/accounts", [
-                    'access_token' => $fbToken,
-                ]);
-                $pages = $pagesRes->json();
-                if (empty($pages['data']) || count($pages['data']) === 0) {
-                    return response()->json(
-                        [
-                            "success" => 0,
-                            "message" => __('api_messages.No pages found'),
-                            "data" => 'No pages found for this user.'
-                        ]
-                        ,
-                        404
-                    );
-                }
-                // 🔹 نختار الصفحة الأولى (أو يمكنك تعديل الكود لاختيار صفحة محددة)
-                $page = $pages['data'][0];
-                $pageId = $page['id'];
-                $pageToken = $page['access_token'];
-
-                // 🔹 2. إنشاء البث المباشر
-                $liveRes = Http::asJson()->post("https://graph.facebook.com/v19.0/{$pageId}/live_videos", [
-                    'status' => 'LIVE_NOW',
-                    'title' => $title,
-                    'description' => $description,
-                    'access_token' => $pageToken,
-                ]);
-                $liveData = $liveRes->json();
-                // 🔹 3. في حالة الخطأ
-                if ($liveRes->failed()) {
+                $response = $this->push_rtmp($channelName, $uid, $rtmpUrl, $platform);
+                if ($response->failed()) {
                     return response()->json(
                         [
                             "success" => 0,
                             "message" => __('api_messages.live create failed'),
-                            "data" => $liveData['error']['message'] ?? 'Failed to create Facebook Live.'
+                            "data" => $response->json(),
                         ]
                         ,
                         500
                     );
                 }
+                // 🔹 1. الحصول على الصفحات التابعة للمستخدم
+                // $pagesRes = Http::get("https://graph.facebook.com/v19.0/me/accounts", [
+                //     'access_token' => $fbToken,
+                // ]);
 
-                $livevar = Livevar::updateOrCreate(
-                    ['marketer_id' => auth('api_marketers')->user()->id, 'live_video_id' => $liveData['id']],
-                    [
-                        'first_value' => $pageId,
-                        'second_value' => $pageToken,
-                        'is_active' => 1,
-                        'social' => 'facebook',
-                    ]
-                );
+                // $pages = $pagesRes->json();
+                // if (empty($pages['data']) || count($pages['data']) === 0) {
+                //     return response()->json(
+                //         [
+                //             "success" => 0,
+                //             "message" => __('api_messages.No pages found'),
+                //             "data" => 'No pages found for this user.'
+                //         ]
+                //         ,
+                //         404
+                //     );
+                // }
+                // 🔹 نختار الصفحة الأولى (أو يمكنك تعديل الكود لاختيار صفحة محددة)
+                // $page = $pages['data'][0];
+                // $pageId = $page['id'];
+                // $pageToken = $page['access_token'];
+
+                // 🔹 2. إنشاء البث المباشر
+                // $liveRes = Http::asJson()->post("https://graph.facebook.com/v19.0/{$pageId}/live_videos", [
+                //     'status' => 'LIVE_NOW',
+                //     'title' => $title,
+                //     'description' => $description,
+                //     'access_token' => $pageToken,
+                // ]);
+                //   $liveData = $liveRes->json();
+                // 🔹 3. في حالة الخطأ
+
+                // if ($liveRes->failed()) {
+                //     return response()->json(
+                //         [
+                //             "success" => 0,
+                //             "message" => __('api_messages.live create failed'),
+                //             "data" => $liveData['error']['message'] ?? 'Failed to create Facebook Live.'
+                //         ]
+                //         ,
+                //         500
+                //     );
+                // }
+
+                // $livevar = Livevar::updateOrCreate(
+                //     ['marketer_id' => auth('api_marketers')->user()->id, 'live_video_id' => $liveData['id']],
+                //     [
+                //         'first_value' => $pageId,
+                //         'second_value' => $pageToken,
+                //         'is_active' => 1,
+                //         'social' => 'facebook',
+                //     ]
+                // );
 
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($request->input('agora_live_id'));
@@ -185,10 +203,12 @@ class LiveController extends Controller
                 $stream->save();
                 //start job
                 // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
-                FetchLiveCommentsJob::dispatch($stream->id, $social)->delay(now()->addSeconds(1));
+                FetchLiveCommentsJob::dispatch($stream->id, $social, $marketer_social)->delay(now()->addSeconds(1));
+
+
 
                 \Log::info('facebook', [
-                    'data' => $liveData,
+                    'data' => "-" //$liveData,
                 ]);
                 /*
                 'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
@@ -196,7 +216,7 @@ class LiveController extends Controller
                 */
                 // 🔹 4. الإرجاع
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $liveData]
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ""]//$liveData]
                     //     [
                     //     'page_id' => $pageId,
                     //     'page_name' => $page['name'],
@@ -240,27 +260,28 @@ class LiveController extends Controller
             );
         } else {
             $liveVideoId = $request->live_video_id;
-
+            $converterId = $formdata['converterId'];
             // $pageToken = $request->page_token;
             try {
-                $livevar = Livevar::where('marketer_id', auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
-                $pageToken = $livevar->second_value;
-                $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
-                    'end_live_video' => true,
-                    'access_token' => $pageToken,
-                ]);
-                if ($response->failed()) {
-                    return response()->json(
-                        [
-                            "success" => 0,
-                            "message" => __('api_messages.Operation failed'),
-                            "data" => $response->json()
-                        ],
-                        500
-                    );
-                }
+                $response = $this->stop_push_rtmp($converterId);
+                // $livevar = Livevar::where('marketer_id', auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
+                // $pageToken = $livevar->second_value;
+                // $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
+                //     'end_live_video' => true,
+                //     'access_token' => $pageToken,
+                // ]);
+                // if ($response->failed()) {
+                //     return response()->json(
+                //         [
+                //             "success" => 0,
+                //             "message" => __('api_messages.Operation failed'),
+                //             "data" => $response->json()
+                //         ],
+                //         500
+                //     );
+                // }
 
-                //end job             
+                           
                 $stream = LiveStream::find($request->input('agora_live_id'));
                 $stream->facebook_is_active = false;
                 $stream->save();
@@ -281,25 +302,91 @@ class LiveController extends Controller
         }
     }
     //instagram
-    private function checkFfmpeg()
-    {
-        try {
-            $process = new Process(['ffmpeg', '-version']);
-            $process->run();
+    // private function checkFfmpeg()
+    // {
+    //     try {
+    //         $process = new Process(['ffmpeg', '-version']);
+    //         $process->run();
 
-            if ($process->isSuccessful()) {
-                return true;
-            }
+    //         if ($process->isSuccessful()) {
+    //             return true;
+    //         }
 
-            return false;
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
+    //         return false;
+    //     } catch (\Throwable $e) {
+    //         return false;
+    //     }
+    // }
+
     public function create_instagram_live(Request $request)
     {
         $formdata = $request->all();
         $storrequest = new LiveCreateInstagramRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+
+        if ($validator->fails()) {
+            \Log::error('jaco validator error', ['error' => $validator->errors()]);
+            return response()->json([
+                "success" => 0,
+                "message" => $validator->errors()?->first(),
+                "data" => $validator->errors()
+            ], 422);
+        } else {
+            $channelName = $formdata['channel'];            
+            $rtmpUrl = $formdata['rtmpUrl'];
+            $uid = (string) (auth('api_marketers')->user()->id);
+             
+            $platform="instagram";
+            try {
+
+                $response = $this->push_rtmp($channelName, $uid, $rtmpUrl, $platform);
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.live create failed'),
+                            "data" => $response->json(),
+                        ]
+                        ,
+                        500
+                    );
+                }
+           
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->instagram_is_active = true;
+                $stream->save();
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
+                );
+
+                //cast stream
+
+                //end cast streram
+
+                // \Log::info('castream live success', [
+                //     'data' => $response->json(),
+                // ]);   
+
+            } catch (\Exception $e) {
+                \Log::error('jaco RTMP start error', ['error' => $e->getMessage()]);
+                return response()->json([
+                    "success" => 0,
+                    "message" => __('api_messages.Operation failed'),
+                    "data" => $e->getMessage()
+                ], 500);
+            }
+        }
+    }
+    public function end_instagram_live(Request $request)
+    {
+        /////////////
+        //LiveStopPushRequest       
+        $formdata = $request->all();
+        $storrequest = new LiveStopPushRequest();
         $validator = Validator::make(
             $formdata,
             $storrequest->rules(),
@@ -312,99 +399,34 @@ class LiveController extends Controller
                 422
             );
         } else {
-
-            // فحص وجود FFmpeg أولاً
-            if (!$this->checkFfmpeg()) {
-                //FFmpeg not found on this server. Please install it first.
-                return response()->json(
-                    [
-                        "success" => 0,
-                        "message" => __('api_messages.Operation failed'),
-                        "data" => ["error" => "FFmpeg not installed"]
-
-                    ],
-                    500
-                );
-            }
-
-            if (self::$ffmpegProcess) {
-                //Live already running.
-                return response()->json(
-                    [
-                        "success" => 0,
-                        "message" => __('api_messages.live already created'),
-                        "data" => []
-                    ],
-                    400
-                );
-            }
-
-            $agoraUrl = $request->agora_url;
-            $instagramUrl = $request->instagram_url;
-            $instagramKey = $request->instagram_key;
-
-            $fullRtmp = "{$instagramUrl}/{$instagramKey}";
-
-            $ffmpegArgs = [
-                'ffmpeg',
-                '-re',
-                '-i',
-                $agoraUrl,
-                '-c:v',
-                'libx264',
-                '-preset',
-                'veryfast',
-                '-maxrate',
-                '3000k',
-                '-bufsize',
-                '6000k',
-                '-c:a',
-                'aac',
-                '-b:a',
-                '128k',
-                '-ar',
-                '44100',
-                '-f',
-                'flv',
-                $fullRtmp,
-            ];
-
+            $converterId = $formdata['converterId'];
+           // $liveVideoId = $formdata['live_video_id'];   
             try {
-
-                //  بناء الأمر الكامل لتشغيله في الخلفية
-                // $cmd = implode(' ', $ffmpegArgs) . " > /dev/null 2>&1 & echo $!";
-                // $pid = exec($cmd);
-                // if ($pid) {
-                //     // حفظ PID لتتمكن من إيقاف البث لاحقًا
-                //     cache(['instagram_ffmpeg_pid' => $pid], now()->addHours(2));
-                //     return response()->json(
-                //         ["success" => 1, 
-                //         "message" => __('api_messages.live created'), 
-                //         "data" =>['pid' => $pid]
-                //         ] );
-                // }else{
-                //     return response()->json([
-                //         "success" => 0,
-                //         "message" => __('api_messages.Operation failed'),
-                //         "data" => []
-                //     ], 500);
-                // }
-                $process = new Process($ffmpegArgs);
-                $process->setTimeout(0);
-                $process->start();
-
-                self::$ffmpegProcess = $process;
-
-                //Live started successfully.
+                $response = $this->stop_push_rtmp($converterId);
+           
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.Operation failed'),
+                            "data" => $response->json()
+                        ]
+                        ,
+                        500
+                    );
+                }
+                //success                          
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->instagram_is_active = false;
+                $stream->save();
                 return response()->json(
                     [
                         "success" => 1,
-                        "message" => __('api_messages.live created'),
-                        "data" => ['pid' => $process->getPid()]
+                        "message" => __('api_messages.live stoped'),
+                        "data" => ['result' => $response->json()]
                     ]
                 );
-            } catch (ProcessFailedException $e) {
-                // Failed to start stream.
+            } catch (\Exception $e) {
                 return response()->json(
                     [
                         "success" => 0,
@@ -415,59 +437,10 @@ class LiveController extends Controller
                     500
                 );
             }
-
+            ////////////////
         }
     }
 
-    /**
-     * إنهاء بث مباشر موجود facebook
-     */
-    public function end_instagram_live(Request $request)
-    {
-        // $formdata = $request->all();
-        // $storrequest = new LiveEndInstagramRequest();
-        // $validator = Validator::make(
-        //     $formdata,
-        //     $storrequest->rules(),
-        //     $storrequest->messages()
-        // );
-        // if ($validator->fails()) {
-        //     return response()->json(
-        //         ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
-        //         ,422);
-        // } else {   
-        try {
-            if (!self::$ffmpegProcess) {
-                //No live stream running.
-                return response()->json(['message' => 'No live stream running.'], 400);
-            }
-
-            $process = self::$ffmpegProcess;
-
-            if ($process->isRunning()) {
-                if (!defined('SIGINT')) {
-                    define('SIGINT', 2); // ✅ دعم Windows
-                }
-
-                $process->stop(3, SIGINT);
-            }
-
-            self::$ffmpegProcess = null;
-
-            return response()->json(
-                ["success" => 1, "message" => __('api_messages.live stoped'), "data" => []]
-            );
-
-        } catch (\Exception $e) {
-            //Error stopping live stream.            
-            return response()->json([
-                "success" => 0,
-                "message" => __('api_messages.Operation failed'),
-                "data" => $e->getMessage()
-            ], 500);
-        }
-        // }      
-    }
 
     //     // end Instgram
     public function youtube_push(Request $request)
@@ -593,7 +566,7 @@ class LiveController extends Controller
                 $social = Social::where('code', 'youtube')->first();
 
                 $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
-//Analytic
+                //Analytic
                 $sts_model = new LivestreamSocial();
                 $sts_model->start_date = now();
                 $sts_model->live_stream_id = $stream->id;
@@ -1054,6 +1027,7 @@ class LiveController extends Controller
     /**
      * إيقاف البث (حذف الـ RTMP Converter)
      */
+
     public function youtube_stop_push(Request $request)
     {
         //LiveStopPushRequest       
@@ -1071,9 +1045,6 @@ class LiveController extends Controller
                 422
             );
         } else {
-
-
-
 
             $converterId = $formdata['converterId'];
             $appId = config('services.agora.app_id');
@@ -1106,8 +1077,8 @@ class LiveController extends Controller
                 $stream->youtube_is_active = false;
                 $stream->save();
                 //Analytic
-                $sts_model =  LivestreamSocial::where('live_stream_id',$stream->id)->where('social_id',$stream->social_id)->first();
-                $sts_model->end_date = now();          
+                $sts_model = LivestreamSocial::where('live_stream_id', $stream->id)->where('social_id', $stream->social_id)->first();
+                $sts_model->end_date = now();
                 $sts_model->save();
                 YouTubeAnalyticsJob::dispatch($sts_model)->delay(now()->addSecond());
 
@@ -1561,7 +1532,7 @@ class LiveController extends Controller
                 $stream->tiktok_is_active = false;
                 $stream->save();
 
-                // جلب التعليقات
+                //  التعليقات
                 $tikctrlr = new TikTokController();
                 $social = Social::where('code', 'tiktok')->first();
                 $msocial = MarketerSocial::where('marketer_id', $stream->marketer_id)->where('social_id', $social->id)->first();
@@ -1692,13 +1663,6 @@ class LiveController extends Controller
                 // \Log::info('jaco live success', [
                 //     'data' => $response->json(),
                 // ]);
-
-                $stream = LiveStream::find($formdata['agora_live_id']);
-                $stream->jaco_is_active = true;
-                $stream->save();
-                return response()->json(
-                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
-                );
                 // التحقق من النتيجة
                 if ($response->failed()) {
 
@@ -1713,6 +1677,13 @@ class LiveController extends Controller
                         500
                     );
                 }
+                $stream = LiveStream::find($formdata['agora_live_id']);
+                $stream->jaco_is_active = true;
+                $stream->save();
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => $response->json()]
+                );
+
                 //cast stream
 
                 //end cast streram
@@ -2255,7 +2226,100 @@ class LiveController extends Controller
         return false;
     }
 
- 
-    //end test
+    public function push_rtmp($channelName, $uid, $rtmpUrl, $platform)
+    {
+
+        // \Log::info('jaco vars validated', [
+        //     'data' => $channelName  
+
+        // ]);
+
+        // إعداد المتغيرات من env
+        $appId = config('services.agora.app_id');
+        $customerKey = config('services.agora.customer_key');
+        $customerSecret = config('services.agora.customer_secret');
+        $region = env('AGORA_REGION', 'na');// or ap, eu, cn
+        $body = [
+            'converter' => [
+                "name" => "push-{$channelName}-{$platform}" . time(),
+                "transcodeOptions" => [
+                    "rtcChannel" => $channelName,
+                    "audioOptions" => [
+                        "codecProfile" => "LC-AAC",
+                        "sampleRate" => 48000,
+                        "bitrate" => 48,
+                        "audioChannels" => 1
+                    ],
+                    "videoOptions" => [
+                        "canvas" => [
+                            "width" => 1080,
+                            "height" => 1920
+                        ],
+                        "layout" => [
+                            [
+                                "rtcStreamUid" => $uid,
+                                "region" => [
+                                    "xPos" => 0,
+                                    "yPos" => 0,
+                                    "zIndex" => 1,
+                                    "width" => 1080,
+                                    "height" => 1920
+                                ],
+                                "fillMode" => "fill",
+                                // "placeholderImageUrl" => "http://example.agora.io/user_placeholder.jpg"
+                            ]
+                        ],
+                        // "codecProfile" => "High",
+                        "frameRate" => 30,
+                        "gop" => 30,
+                        "bitrate" => 2260,
+                        "seiOptions" => []
+                    ]
+                ],
+                "rtmpUrl" => $rtmpUrl,
+            ]
+
+        ];
+        // تهيئة الـ Basic Auth
+        $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+        // إرسال الطلب إلى Agora API
+        $response = Http::withHeaders([
+            'Authorization' => $authHeader,
+            'Content-Type' => 'application/json',
+        ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
+
+
+
+        // \Log::info('jaco', [
+        //     'data' => 'sendto:' . 'https://api.agora.io',
+        // ]);
+        // \Log::info('jaco live success', [
+        //     'data' => $response->json(),
+        // ]);
+// التحقق من النتيجة
+        if ($response->failed()) {
+
+            \Log::error($platform . ' error', ['error' => $response->json()]);
+
+        }
+
+        return $response;
+    }
+
+    public function stop_push_rtmp($converterId)
+    {
+        // $converterId = $formdata['converterId'];
+        $appId = config('services.agora.app_id');
+        $customerKey = config('services.agora.customer_key');
+        $customerSecret = config('services.agora.customer_secret');
+        $region = env('AGORA_REGION', 'na');
+        $authHeader = 'Basic ' . base64_encode("{$customerKey}:{$customerSecret}");
+        // DELETE إلى Agora API
+        $response = Http::withHeaders([
+            'Authorization' => $authHeader,
+            'Content-Type' => 'application/json',
+        ])->delete("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters/{$converterId}");
+        return $response;
+    }
 
 }

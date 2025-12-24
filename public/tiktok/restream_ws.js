@@ -32,7 +32,7 @@ function connect() {
     try {
       const action = JSON.parse(data.toString());
       console.log('📩 Message:', action);
-  logger.info(`data to room comment: ${JSON.stringify(data, null, 2)}`);
+  logger.info(`data to room comment: ${data}`);
       // 🔹 هنا يمكنك:
       // - إرسال التعليق إلى Laravel API
       // - بثه عبر Redis / Socket.IO

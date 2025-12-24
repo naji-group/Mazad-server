@@ -22,10 +22,10 @@ class LiveEndFacebookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'live_video_id' => 'required|string',
-            'page_token' => 'nullable|string',
+          //  'live_video_id' => 'required|string',
+           // 'page_token' => 'nullable|string',
             'agora_live_id' => 'required',
-  
+            'converterId'=>'required'
  
               ];
     }
@@ -37,6 +37,7 @@ class LiveEndFacebookRequest extends FormRequest
  'live_video_id.*'=>__('api_messages.data empty'),
  'page_token.*'=>__('api_messages.data empty'),
  'agora_live_id.*' =>__('api_messages.data empty'),
+ 'converterId.*' =>__('api_messages.data empty'),
     ];
     
 }

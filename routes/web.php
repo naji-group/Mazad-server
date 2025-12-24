@@ -13,7 +13,7 @@ use App\Http\Controllers\Web\GoogleAuthController;
 // });
 Route::get('/google/auth/{marketer_id}', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('/google/oauth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
-Route::get('/livepush/redirect', [GoogleAuthController::class, 'livepush_redirect']);
+//Route::get('/livepush/redirect', [GoogleAuthController::class, 'livepush_redirect']);
 Route::get('/storagelink', function () {
     $exitCode = Artisan::call('storage:link');
     return 'ok';
@@ -46,12 +46,12 @@ Route::post('saveToken', [NotifyController::class, 'savetoken'])->name('saveToke
  Route::post('sendbytoken', [NotifyController::class, 'sendbytoken']);
  Route::get('testnotify', [NotifyController::class, 'testnotify']);
 
- Route::prefix('restream')->group(function () {
-  Route::get('login/{marketer_id}', [RestreamController::class, 'login']);
-  Route::get('redirect', [RestreamController::class, 'redirectfromReastream']);
-  //Route::get('tokenredirect', [RestreamController::class, 'tokenRedirect']);
+//  Route::prefix('restream')->group(function () {
+//   Route::get('login/{marketer_id}', [RestreamController::class, 'login']);
+//   Route::get('redirect', [RestreamController::class, 'redirectfromReastream']);
+//   //Route::get('tokenredirect', [RestreamController::class, 'tokenRedirect']);
   
- });
+//  });
 /*
 Route::prefix('marketer')->group(function () {
     Route::get('/login', [MarketerAuthController::class, 'showLoginForm'])->name('marketer.login');
