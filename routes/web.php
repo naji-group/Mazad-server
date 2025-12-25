@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\RestreamController;
+use App\Http\Controllers\Web\FacebookAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\NotifyController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\Web\GoogleAuthController;
 // });
 Route::get('/google/auth/{marketer_id}', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('/google/oauth/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+
+Route::get('/facebook/oauth/', [FacebookAuthController::class, 'handleFacebookCallback']);
 //Route::get('/livepush/redirect', [GoogleAuthController::class, 'livepush_redirect']);
 Route::get('/storagelink', function () {
     $exitCode = Artisan::call('storage:link');

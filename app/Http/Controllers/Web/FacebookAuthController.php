@@ -1,0 +1,106 @@
+<?php
+
+namespace App\Http\Controllers\Web;
+
+use App\Http\Controllers\Controller;
+use App\Models\MarketerSocial;
+use App\Models\Social;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+class FacebookAuthController extends Controller
+{
+//     public function livepush_redirect(Request $request)
+//     {    
+//         $data = $request->json();
+// \Log::info('livepush response', [
+//         'data' =>$data,
+//     ]);
+//    return response()->json($data) ;
+//     }
+    // public function redirectToFacebook($marketer_id)
+    // {
+    //     $state=$marketer_id;
+    //     $scope = implode(' ', [
+    //         'https://www.googleapis.com/auth/youtube.force-ssl',
+    //         'https://www.googleapis.com/auth/youtube.readonly',
+    //         'https://www.googleapis.com/auth/yt-analytics.readonly',
+    //     ]);
+    //     $params = http_build_query([
+    //         'client_id' => config('services.google.client_id'),
+    //         'redirect_uri' =>  config('services.google.redirect_uri')  ,
+    //         'response_type' => 'code',
+    //         'access_type' => 'offline',
+    //         'prompt' => 'consent',
+    //         'scope' => $scope,
+    //         'state' => $state
+    //     ]);
+
+    //     return redirect("https://accounts.google.com/o/oauth2/v2/auth?$params");
+    // }
+/*
+'scope' => [ 'https://www.googleapis.com/auth/youtube.readonly',
+            'https://www.googleapis.com/auth/yt-analytics.readonly',
+            'https://www.googleapis.com/auth/youtube.force-ssl',],
+*/
+public function handleFacebookCallback(Request $request)
+{
+    // $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+    //     'code' => $request->code,
+    //     'client_id' => config('ser[]\789+]rvices.google.client_secret'),
+    //     'redirect_uri' => config('services.google.redirect_uri'),
+    //     'grant_type' => 'authorization_code',
+    // ]);
+
+    $tokens = $request->json();
+
+    \Log::info('facebook ', [
+        'data' =>$tokens,
+    ]);
+
+   // return redirect('com.ae.zawed://oauthcallback?success=1');
+ //   return redirect()->away($deepLink);
+ return view('site.app-pages.success-auth');
+    //   return response()->json([
+    //         'success' => true,
+    //         'access_token' => $tokens['access_token'],
+    //         'refresh_token' => $tokens['refresh_token'] ?? null,
+    //         'expires_in' => $tokens['expires_in'],
+    //         'state'=>$marketerId,  
+    //     ]) ;
+}
+
+// public function refreshTokenIfNeeded($marketersocial)
+// {
+//     // إذا لم يقل عن 5 دقائق على الانتهاء → نجدد
+//     if ($marketersocial->expires_in_date && $marketersocial->expires_in_date->diffInMinutes(now()) <= 10) {
+
+//         $clientId     = config('services.google.client_id');
+//         $clientSecret = config('services.google.client_secret');
+
+//         $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+//             'grant_type'    => 'refresh_token',
+//             'refresh_token' => $marketersocial->refresh_token,
+//             'client_id'     => $clientId,
+//             'client_secret' => $clientSecret,
+//         ]);
+
+//         if ($response->failed()) {
+//             \Log::error("Google Token Refresh FAILED", $response->json());
+//             return false;
+//         }
+//         $data = $response->json();
+//         // حدث التوكين ووقت الانتهاء
+//         $marketersocial->access_token = $data['access_token'];
+//         $marketersocial->expires_in = $data['expires_in'];
+//         $marketersocial->expires_in_date = now()->addSeconds($data['expires_in']);
+//         $marketersocial->save();
+//         \Log::info("Google Access Token Refreshed Successfully");
+//         return true;
+//     }
+
+//     return false;
+// }
+
+
+}
