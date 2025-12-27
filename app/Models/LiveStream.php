@@ -76,6 +76,10 @@ $conv=$res['duration_str'];
     {
         return $this->hasMany(LivestreamSocial::class, 'live_stream_id');
     }
+    public function auctions(): HasMany
+    {
+        return $this->hasMany(Auction::class, 'live_video_id');
+    }
 }
 trait SortableLiveDuration
 {

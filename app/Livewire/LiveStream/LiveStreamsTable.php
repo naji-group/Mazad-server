@@ -2,6 +2,7 @@
 
 namespace App\Livewire\LiveStream;
 
+use App\Filament\Pages\LiveStreamPage;
 use App\Models\LiveStream;
  
 use Livewire\Component;
@@ -86,8 +87,11 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
                 EditAction::make(),
                 Action::make('details')
                -> label('تفاصيل')
-                ->url(fn (): string => route('filament.admin.pages.livestreams'))
-            ])
+              //  ->url(fn (LiveStream $record): string => route('filament.admin.pages.livestream',['id'=>$record->id]))
+              ->url(fn (LiveStream $record) =>
+              LiveStreamPage::getUrl(['id' => $record->id])
+          )
+              ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

@@ -24,7 +24,7 @@ class StaticPage extends Page
    public function mount( ): void
    {
 
-    $this->settings=Setting::where('category','pages')->orWhere('category','home')->get();
+    $this->settings=Setting::where('category','pages')->orWhere('category','home')->orderBy('sequence')->get();
     
    }
    public static function getNavigationIcon(): string | BackedEnum | Htmlable | null

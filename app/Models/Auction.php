@@ -27,5 +27,9 @@ class Auction extends Model
     {
         return $this->belongsTo(Social::class, 'social_id')->withDefault();
     }
+    public function livestream(): BelongsTo
+    {
+        return $this->belongsTo(LiveStream::class, 'live_video_id')->withDefault();
+    }
 
 }
