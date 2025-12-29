@@ -49,9 +49,9 @@ class LiveController extends Controller
             $livestream->is_active = 1;
             $livestream->save();
             $resArr['agora_live_id'] = $livestream->id;
-            \Log::info('agora', [
-                'data' => $resArr,
-            ]);
+            // \Log::info('agora', [
+            //     'data' => $resArr,
+            // ]);
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.live created'), "data" => $resArr]
             );
@@ -207,9 +207,9 @@ class LiveController extends Controller
 
 
 
-                \Log::info('facebook', [
-                    'data' => "-" //$liveData,
-                ]);
+                // \Log::info('facebook', [
+                //     'data' => "-" //$liveData,
+                // ]);
                 /*
                 'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
                 'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
@@ -466,11 +466,11 @@ class LiveController extends Controller
             $uid = $formdata['uid'];
             $youtubeStreamKey = $formdata['youtubeStreamKey'];
             // $accessToken = $formdata['youtube_access_token'];
-            \Log::info('youtube vars validated', [
-                'data' => $channelName . '-' .
-                    $uid . '-' .
-                    $youtubeStreamKey,
-            ]);
+            // \Log::info('youtube vars validated', [
+            //     'data' => $channelName . '-' .
+            //         $uid . '-' .
+            //         $youtubeStreamKey,
+            // ]);
 
             // إعداد المتغيرات من env
             $appId = config('services.agora.app_id');
@@ -541,9 +541,9 @@ class LiveController extends Controller
                     'Content-Type' => 'application/json',
                 ])->post("https://api.agora.io/{$region}/v1/projects/{$appId}/rtmp-converters", $body);
 
-                \Log::info('youtube', [
-                    'data' => 'sendto:' . 'https://api.agora.io',
-                ]);
+                // \Log::info('youtube', [
+                //     'data' => 'sendto:' . 'https://api.agora.io',
+                // ]);
                 // التحقق من النتيجة
                 if ($response->failed()) {
 
@@ -558,9 +558,9 @@ class LiveController extends Controller
                         500
                     );
                 }
-                \Log::info('youtube live success', [
-                    'data' => $response->json(),
-                ]);
+                // \Log::info('youtube live success', [
+                //     'data' => $response->json(),
+                // ]);
                 //بدء جلب التعليقات
                 $stream = LiveStream::find($formdata['agora_live_id']);
                 $social = Social::where('code', 'youtube')->first();
