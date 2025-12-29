@@ -83,10 +83,10 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                // ViewAction::make(),
+                // EditAction::make(),
                 Action::make('details')
-               -> label('تفاصيل')
+               -> label('الاحصائيات')
               //  ->url(fn (LiveStream $record): string => route('filament.admin.pages.livestream',['id'=>$record->id]))
               ->url(fn (LiveStream $record) =>
               LiveStreamPage::getUrl(['id' => $record->id])
