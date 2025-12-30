@@ -36,7 +36,8 @@ class LiveStream extends Model
         'jaco_is_active',     
        'start_date',
 'end_date',
-
+'duration',
+'duration_str',
 
     ];
 

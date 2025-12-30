@@ -80,6 +80,10 @@ Route::post('/end', [LiveController::class, 'endLiveStream']);
 // Route::post('restream/stop-comment', [RestreamController::class, 'restream_comment_stop']); 
  
     });
+    Route::prefix('statistics')->group(function () {     
+        Route::post('all', [SocialAnalyticController::class, 'live_list']);
+        Route::post('live', [SocialAnalyticController::class, 'live_comment']);
+    });
     Route::prefix('auction')->group(function () {
         Route::post('add', [AuctionController::class, 'store']);
         Route::post('view', [AuctionController::class, 'view']);
