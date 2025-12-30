@@ -6,6 +6,7 @@ use App\Models\Auction;
 use App\Models\LiveStream;
 use App\Models\Social;
 //use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\CreateAction;
 use Livewire\Component;
 
 use Filament\Actions\BulkActionGroup;
@@ -157,6 +158,9 @@ class CommentsTable extends Component implements HasActions, HasSchemas, HasTabl
             ->recordActions([
                 EditAction::make(),
             ])
+            ->headerActions([
+                CreateAction::make("add")->label("اضافة مزايدة")
+             ])
         ;
     }
 

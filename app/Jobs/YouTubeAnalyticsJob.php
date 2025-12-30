@@ -39,8 +39,7 @@ class YouTubeAnalyticsJob implements ShouldQueue
     }
 
     public function get_YT_analytic_method( )
-    {
-       
+    {       
         $livestream_id=$this->sts_model->live_stream_id;
      $livestream=LiveStream::find($livestream_id);
      $social=Social::where('code','youtube')->first();
@@ -52,13 +51,13 @@ $service = new YouTubeAnalyticsService($accessToken,$msocial->refresh_token);
 // جلب الإحصائيات الأساسية
 $basicStats = $service->getVideoStats($videoId);
 //تحديد مدة البث
-$start_date=$this->sts_model->start_date;
-$end_date=$this->sts_model->end_date;
- $help_ctrlr=new HelpController();
- $datediff_res=$help_ctrlr->date_diff($start_date,$end_date);
-//حفظ الاحصائيات 
- $this->sts_model->duration=$datediff_res['duration_seconds'];
- $this->sts_model->duration_str=$datediff_res['duration_str'];
+// $start_date=$this->sts_model->start_date;
+// $end_date=$this->sts_model->end_date;
+//  $help_ctrlr=new HelpController();
+//  $datediff_res=$help_ctrlr->date_diff($start_date,$end_date);
+// //حفظ الاحصائيات 
+//  $this->sts_model->duration=$datediff_res['duration_seconds'];
+//  $this->sts_model->duration_str=$datediff_res['duration_str'];
  
 $this->sts_model->live_stream_id=$livestream_id;
 $this->sts_model->social_id=$social->id;

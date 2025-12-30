@@ -5,6 +5,7 @@ namespace App\Livewire\LiveStream;
 use App\Filament\Pages\LiveStreamPage;
 use App\Models\LiveStream;
  
+use Filament\Actions\CreateAction;
 use Livewire\Component;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -95,7 +96,8 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])
+             
             ]);
     }
 
