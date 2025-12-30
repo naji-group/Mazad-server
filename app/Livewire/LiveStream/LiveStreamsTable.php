@@ -61,7 +61,7 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
                     ->dateTime()
                     ->sortable()
                     ->searchable(), 
-                    TextColumn::make('live_duration')
+                    TextColumn::make('duration_str')
                     ->label('مدة البث')
                   
                     ->sortable(query: function (Builder $query, string $direction): Builder {
