@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StatisticsRequest;
 use App\Http\Resources\LiveStreamResource;
-use App\Http\Resources\LiveStreamsResource;
+//use App\Http\Resources\LiveStreamsResource;
 use App\Jobs\YouTubeAnalyticsJob;
 use App\Models\LiveStream;
 use App\Models\LivestreamSocial;
@@ -130,7 +130,7 @@ class SocialAnalyticController extends Controller
         if ($validator->fails()) {
 
             return response()->json(
-                ["success" => 0, "message" => __('api_messages.user not found'), "data" => $validator->errors()]
+                ["success" => 0, "message" => __('api_messages.data empty'), "data" => $validator->errors()]
                 ,
                 422
             );
@@ -169,7 +169,7 @@ class SocialAnalyticController extends Controller
             ]
             ;
             return response()->json(
-                ["success" => 1, "message" => __('api_messages.form.success save'), "data" => ["livestreams" => $list, "pagination" => $pagination]]
+                ["success" => 1, "message" =>'', "data" => ["livestreams" => $list, "pagination" => $pagination]]
             );
 
         }
@@ -187,7 +187,7 @@ class SocialAnalyticController extends Controller
         if ($validator->fails()) {
 
             return response()->json(
-                ["success" => 0, "message" => __('api_messages.user not found'), "data" => $validator->errors()]
+                ["success" => 0, "message" => __('api_messages.data empty'), "data" => $validator->errors()]
                 ,
                 422
             );
@@ -196,7 +196,7 @@ class SocialAnalyticController extends Controller
             $list="";
             $pagination="";
             return response()->json(
-                ["success" => 1, "message" => __('api_messages.form.success save'), "data" => ["livestreams" => $list, "pagination" => $pagination]]
+                ["success" => 1, "message" => '', "data" => ["livestreams" => $list, "pagination" => $pagination]]
             );
 
         }
