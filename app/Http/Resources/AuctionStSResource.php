@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AuctionResource extends JsonResource
+class AuctionStSResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,13 +19,15 @@ class AuctionResource extends JsonResource
     public function toArray(Request $request): array
     {         
         return [
-            'image_url'=>$this->social?->image_url,
-            'social_name'=>$this->social?->name,
+            'id' => $this->id,  
+            'marketer_username' => $this->marketer->username,
             'customer_name'=>$this->customer_name,
+            'social_name'=>$this->social?->name,
+            'image_url'=>$this->social?->image_url,
+           
             'price'=>$this->price,
-            'id' => $this->id,       
-            'is_active'=> $this->is_active, 
-              
+           
+            'created_at'  =>$this->created_at,                 
         ];
     }
 }
