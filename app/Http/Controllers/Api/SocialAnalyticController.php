@@ -214,7 +214,6 @@ class SocialAnalyticController extends Controller
                         'views_count',
                         'likes_count',
 
-
                         'dislike_count',
                         'favorite_count',
                         // 'duration',
@@ -270,6 +269,7 @@ class SocialAnalyticController extends Controller
         
             $all_sts = [
                 "marketer" => ["label" => "المسوق", "value" => $livestream->marketer->username],
+                "status" => ["label" => "الحالة", "value" => $livestream->is_active],
                 "start_date" => ["label" => "تاريخ البدء", "value" => $livestream->start_date],
                 "end_date" => ["label" => "تاريخ الانتهاء", "value" => $livestream->end_date],
                 "duration" => ["label" => "المدة", "value" => $livestream->duration_str],
@@ -309,6 +309,7 @@ class SocialAnalyticController extends Controller
                 $social_sts_arr = ["label" => "احصائيات " . $social->name, "value" =>  $social_sts];
                 $all_sections[]=$social_sts_arr;
             }
+            $all_social_sts_arr = ["label" => "  احصائيات المنصات" , "value" =>  $all_sections];
             $auction = $auction_query->paginate($perPage, ['*'], 'page', $page);
             $list = AuctionStSResource::collection($auction);
             $pagination = [
@@ -321,7 +322,7 @@ class SocialAnalyticController extends Controller
             ];
             //  $auction
             return response()->json(
-                ["success" => 1, "message" => '', "data" => ["statistics" => [$all_sts_arr],["social_statistics"=>$all_sections], "livestreams" => $livestream, "auction" => $list, "pagination" => $pagination]]
+                ["success" => 1, "message" => '', "data" => ["live_statistics" => $all_sts_arr,"social_statistics"=>$all_social_sts_arr,  "auctions" => $list, "pagination" => $pagination]]
             );
 
         }
