@@ -247,7 +247,14 @@ class SocialAnalyticController extends Controller
                 )
                 ->where('id', $livestream_id)->where('marketer_id', $user_id)->first()
             ;
-
+if(!$livestream){
+ 
+    return response()->json(
+        ["success" => 0, "message" => 'not found', "data" => ""]
+        ,
+        404
+    );
+}
             $auction_query = Auction::where('live_video_id', $livestream_id)->where('marketer_id', $user_id)
                 ->with(['marketer:id,full_name,username,is_active', 'social:id,name,code,icon'])
                 ->select(
