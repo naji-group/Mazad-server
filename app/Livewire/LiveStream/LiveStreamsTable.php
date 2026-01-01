@@ -98,7 +98,9 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
                     DeleteBulkAction::make(),
                 ])
              
-            ]);
+            ])
+            ->emptyStateHeading('لا يوجد بثوث')
+            ;
     }
 
 }

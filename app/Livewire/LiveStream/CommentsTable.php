@@ -161,6 +161,7 @@ class CommentsTable extends Component implements HasActions, HasSchemas, HasTabl
             ->headerActions([
                 CreateAction::make("add")->label("اضافة مزايدة")
              ])
+             ->emptyStateHeading('لا يوجد مزايدات')
         ;
     }
 

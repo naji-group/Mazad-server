@@ -47,6 +47,8 @@ class LiveController extends Controller
             $livestream->marketer_id = auth('api_marketers')->user()->id;
 
             $livestream->is_active = 1;
+            $livestream->start_date = now();
+           
             $livestream->save();
             $resArr['agora_live_id'] = $livestream->id;
             // \Log::info('agora', [
