@@ -12,9 +12,9 @@ if (!username || !livestream_id || !jwt_token) {
     console.error("Usage: node listener.js <username> <livestream_id> <jwt_token>");
     process.exit(1);
 }
-logger.info("Listener started...");
-logger.info(`Username: ${username}`);
-logger.info(`Stream ID: ${livestream_id}`);
+// logger.info("Listener started...");
+// logger.info(`Username: ${username}`);
+// logger.info(`Stream ID: ${livestream_id}`);
 // إنشاء وكيل HTTPS يعطل التحقق من الشهادة
 const agent = new https.Agent({
     rejectUnauthorized: false
@@ -32,7 +32,7 @@ client.connect().then(state => {
 client.on(WebcastEvent.CHAT, async (data) => {
 
     //console.log(data.user.uniqueId + ": " + data.comment);
-    console.log(data.comment);
+   // console.log(data.comment);
     logger.info(`Connected to room comment: ${data.comment}`);
    // logger.info(`data to room comment: ${JSON.stringify(data, null, 2)}`);
     const commentData = {
@@ -62,4 +62,87 @@ client.on(WebcastEvent.CHAT, async (data) => {
         console.error("Error sending comment:", e.message);
         logger.error("Error sending comment:" + e.message);
     }
+});
+
+/**
+ *  
+ * @param {Object} statisticData  
+ */
+async function sendStatisticData(statisticData) {
+    try {
+         
+        const response = await axios.post(
+            "https://zawed.ae/api/live/tiktok/fetchstatistic",
+            statisticData,
+            {
+                headers: { Authorization: `Bearer ${jwt_token}` },
+                httpsAgent: agent // استخدام الوكيل لهذا الطلب فقط
+            }
+        );
+        
+      //  console.log("✅ Statistic sent successfully:", response.status);
+        return response;
+        
+    } catch (error) {
+       // console.error("❌ Error sending statistic:", error.message);
+        logger.error("Error sending statistic: " + error.message);
+        
+        // يمكنك إعادة رمي الخطأ أو إرجاع null
+        throw error; // أو return null;
+    }
+}
+
+//LIKE
+client.on(WebcastEvent.LIKE, async (data) => {   
+   // console.log(data);
+    logger.info(data);   
+    
+    const statisticData = {
+        type: "LIKE",
+        count: data.likeCount,     
+        livestream_id: livestream_id,
+    }; 
+    // استخدام الدالة
+    await sendStatisticData(statisticData);
+});
+
+//FOLLOW
+client.on(WebcastEvent.FOLLOW, async (data) => {
+  //  console.log(data.uniqueId, 'followed!');
+    logger.info(data);    
+    
+    const statisticData = {
+        type: "FOLLOW",
+        count: 1,     
+        livestream_id: livestream_id,
+    };   
+    await sendStatisticData(statisticData);
+});
+//SHARE
+client.on(WebcastEvent.SHARE,async (data) => {
+    //console.log(data.uniqueId, "shared the stream!");
+    logger.info(data);     
+    const statisticData = {
+        type: "SHARE",
+        count: 1,     
+        livestream_id: livestream_id,
+    };      
+    await sendStatisticData(statisticData);
+
+});
+
+// connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
+//     console.log(`${data.uniqueId} joins the stream!`);
+// });
+
+//VIEWER
+client.on(WebcastEvent.ROOM_USER,async (data) => {
+  //  console.log(`Viewer Count: ${data.viewerCount}`);
+    logger.info(data);        
+    const statisticData = {
+        type: "VIEWER",
+        count: data.viewerCount,     
+        livestream_id: livestream_id,
+    };     
+    await sendStatisticData(statisticData);
 });

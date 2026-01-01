@@ -2,14 +2,14 @@
 
 use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\LiveController;
-use App\Http\Controllers\Api\RestreamController;
+//use App\Http\Controllers\Api\RestreamController;
 use App\Http\Controllers\Api\SocialAnalyticController;
 use App\Http\Controllers\Api\TikTokController;
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MarketerController;
  
-use Laravel\Socialite\Facades\Socialite;
+//use Laravel\Socialite\Facades\Socialite;
 use App\Http\Middleware\Api\SetLocale;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -36,9 +36,7 @@ Route::post('resetpassword', [MarketerController::class, 'resetpassword']);
 // Route::post('/tiktok/stop', [TikTokController::class, 'stopListener']);
 //Route::post('/live/tiktok/fetchcomment', [TikTokController::class, 'fetch_comment']); 
 //endtest
-Route::middleware('auth_marketer:api_marketers')->group(function () {
- 
-   
+Route::middleware('auth_marketer:api_marketers')->group(function () {  
 
     Route::prefix('marketer')->group(function () {
         Route::post('updateprofile', [MarketerController::class, 'updateprofile']);
@@ -70,6 +68,8 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
         Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 
        Route::post('tiktok/fetchcomment', [TikTokController::class, 'fetch_comment']); 
+       Route::post('tiktok/fetchstatistic', [TikTokController::class, 'fetch_statistic']); 
+     
         Route::post('jaco/start-push', [LiveController::class, 'jaco_push']);
         Route::post('jaco/stop-push', [LiveController::class, 'jaco_stop_push']); 
         

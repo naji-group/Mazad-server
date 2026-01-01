@@ -21,6 +21,8 @@ class LivestreamSocial extends Model
         'duration_str',
         'start_date',
         'end_date',
+        'followers_count',
+        'shares_count',
     ];
     public function livestream(): BelongsTo
     {
