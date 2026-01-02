@@ -8,6 +8,7 @@ use BackedEnum;
 use Illuminate\Contracts\Support\Htmlable;
 
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
+use App\Filament\Pages\LiveStreamPage;
 class AllLiveStreamsPage extends Page
 {
     protected string $view = 'filament.pages.all-live-streams-page';
@@ -17,23 +18,22 @@ class AllLiveStreamsPage extends Page
   
 protected static ?string $title = 'البث المباشر';
 protected static ?string $modelLabel = 'البث المباشر';
-protected static ?string $navigationLabel = 'البثوث المباشر';
-protected static ?string $pluralModelLabel = 'البثوث المباشر';
+protected static ?string $navigationLabel = 'البثوث المباشرة';
+protected static ?string $pluralModelLabel = 'البثوث المباشرة';
 
 public function mount( ): void
 {
 
-
- 
 }
 public static function getNavigationIcon(): string | BackedEnum | Htmlable | null
 {
     return 'heroicon-o-document';
 }
+ 
 public static function isActive(): bool
 {
-    
-    return request()->routeIs('filament.pages.all-live-streams-page');
+ 
+   return (request()->routeIs('filament.pages.all-live-streams-page'));
 }
 public function getBreadcrumbs(): array
 {

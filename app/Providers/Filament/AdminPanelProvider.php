@@ -41,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
           ->brandLogo(config('filesystems.disks.public.url').'/images/logo.png')
           ->darkModeBrandLogo(config('filesystems.disks.public.url').'/images/logo-dark.png')
             ->brandLogoHeight('50px')
-            ->favicon(config('filesystems.disks.public.url').'/images/logo.jpeg')
+            ->favicon(config('filesystems.disks.public.url').'/images/logo.png')
            
             ->pages([
                 Dashboard::class,

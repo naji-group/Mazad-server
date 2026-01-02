@@ -19,7 +19,7 @@ class LiveStreamPage extends Page
 protected static ?string $title = 'البث المباشر';
 protected static ?string $modelLabel = 'البث المباشر';
 //protected static ?string $navigationLabel = 'البثوث المباشر';
-protected static ?string $pluralModelLabel = 'البثوث المباشر';
+protected static ?string $pluralModelLabel = 'البثوث المباشرة';
 public LiveStream $livestream;
 
 public function mount(int $id): void
@@ -30,17 +30,16 @@ public function mount(int $id): void
         \Log::info('livrest',[ $this->livestream->is_active]);
     }
  
-public static function isActive(): bool
-{
+// public static function isActive(): bool
+// {
     
-    return request()->routeIs('filament.pages.all-live-streams-page');
-}
+//     return request()->routeIs('filament.pages.all-live-streams-page');
+// }
 public function getBreadcrumbs(): array
 {
     return [
         route('filament.admin.pages.dashboard') => 'لوحة التحكم',    
-    'البثوث المباشرة',
-    
+    AllLiveStreamsPage::getUrl()=> 'البثوث المباشرة'
     ];
 }
 }
