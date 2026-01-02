@@ -4,6 +4,7 @@ namespace App\Livewire\LiveStream;
 
 use App\Models\Auction;
 use App\Models\LiveStream;
+use App\Models\Marketer;
 use App\Models\Social;
 //use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Actions\CreateAction;
@@ -29,8 +30,17 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 
 use Illuminate\Contracts\View\View;
+use Filament\Forms\Components\Section;
+
+use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Grid;
 
 use Illuminate\Database\Eloquent\Builder;
+
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Schema;
 
 // use Filament\Actions\Action;
 // use Filament\Tables\Filters\SelectFilter;
@@ -136,15 +146,16 @@ class CommentsTable extends Component implements HasActions, HasSchemas, HasTabl
 
                         // إضافة All في الأعلى
                         //return ['all' => 'الكل'] + $options;
-                      return  $options;
+                        return $options;
                     })
-                   // ->default(['all'])
+                    // ->default(['all'])
                     ->modifyQueryUsing(function (Builder $query, $state) {
-                      // \Log::info("state", ["stat" => $state]);
+                        // \Log::info("state", ["stat" => $state]);
                         // إذا لم يتم اختيار أي شيء → عرض كل السجلات
-                        if (empty($state) || empty($state['values']) 
-                        //|| in_array('all', $state['values'])
-                    ) {
+                        if (
+                            empty($state) || empty($state['values'])
+                            //|| in_array('all', $state['values'])
+                        ) {
                             return; // تجاهل الفلترة
                         }
 
@@ -152,19 +163,94 @@ class CommentsTable extends Component implements HasActions, HasSchemas, HasTabl
                         $query->whereIn('social_id', $ids);
 
                     })
-                   // ->isCollapsed(false)
+                    // ->isCollapsed(false)
                     ->placeholder('اختر منصة/منصات')
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
             ])
             ->headerActions([
-                CreateAction::make("add")->label("اضافة مزايدة")
-             ])
-             ->emptyStateHeading('لا يوجد مزايدات')
+                CreateAction::make("add")
+                    ->label("اضافة مزايدة")
+                    ->modalHeading("اضافة مزايدة")
+                    ->form($this->getFormSchema())
+
+                    ->action(function (array $data): void {
+                        $this->create($data);
+
+                    })
+
+            ])
+            ->emptyStateHeading('لا يوجد مزايدات')
         ;
     }
+    /*
+     'marketer_id',
+            'live_video_id',
+            'is_active',
+            'price',
+            'social_id',
+            'customer_name',
+            'customer_link',
+    */
 
+    protected function getFormSchema(): array
+    {
+          return [        
+            Grid::make()
+                ->schema([
+                    Select::make('marketer_id')
+                        ->label('المسوق')
+                        ->options(Marketer::query()->pluck('username', 'id'))
+                        ->columnSpan(1)
+                        ->required()
+                        ->searchable(),
+                    TextInput::make('customer_name')
+                        ->label('اسم المزاود')
+                        ->required()
+                        ->columnSpan(1),
+                    TextInput::make('price')
+                    ->required()
+                        ->numeric()
+                        ->label('السعر')
+                        ->columnSpan(1),
+                    Select::make('social_id')
+                        ->label('المنصة')
+                        ->options(Social::query()->orderBy('sequence')->pluck('name', 'id'))
+                        ->required()
+                        ->searchable(),
+                ])->columns(2)->columnSpanFull()
+        ];
+    }
+    public function create(array $data)
+    {
+        //  if ($data['image']) {
+
+        //  foreach ($data['image'] as $image) {
+        $auction = new Auction();
+
+        // foreach (config('app.available_locales') as $locale) {
+        //     $auction->setTranslation('title_tr', $locale, $data["title_tr_$locale"]);
+        //     $auction->setTranslation('content_tr', $locale, $data["content_tr_$locale"]);
+        //     }
+        // 'live_video_id',
+        // 'is_active',
+        $auction->live_video_id= $this->livestream->id;
+        $auction->is_active=1;
+        $auction->marketer_id = $data['marketer_id'];
+
+        $auction->customer_name = $data['customer_name'];
+        // $auction->has_img = $data['has_img'];
+
+        $auction->price = $data['price'];
+        $auction->social_id = $data['social_id'];
+        // $auction->has_img = 1;
+
+        //  $auction->home_section_id = $this->auction->id;
+        $auction->save();
+
+       
+    }
     // private function getAllAuctionsCount(): int
     // {
     //     return Auction::where('live_video_id', $this->livestream_id)->count();

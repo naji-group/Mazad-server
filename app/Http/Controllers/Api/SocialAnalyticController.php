@@ -247,14 +247,14 @@ class SocialAnalyticController extends Controller
                 )
                 ->where('id', $livestream_id)->where('marketer_id', $user_id)->first()
             ;
-if(!$livestream){
- 
-    return response()->json(
-        ["success" => 0, "message" => 'not found', "data" => ""]
-        ,
-        404
-    );
-}
+            if (!$livestream) {
+
+                return response()->json(
+                    ["success" => 0, "message" => 'not found', "data" => ""]
+                    ,
+                    404
+                );
+            }
             $auction_query = Auction::where('live_video_id', $livestream_id)->where('marketer_id', $user_id)
                 ->with(['marketer:id,full_name,username,is_active', 'social:id,name,code,icon'])
                 ->select(
@@ -267,13 +267,13 @@ if(!$livestream){
                     'customer_name',
                     'created_at'
                     //  'customer_link',
-                );        
+                );
 
             $socials = Social::orderBy('sequence')->where('is_active', 1)->get();
             $all_count = $auction_query->count();
             $comments_min = $auction_query->min('price');
             $comments_max = $auction_query->max('price');
-        
+
             $all_sts = [
                 "marketer" => ["label" => "المسوق", "value" => $livestream->marketer->username],
                 "status" => ["label" => "الحالة", "value" => $livestream->is_active],
@@ -287,36 +287,41 @@ if(!$livestream){
             ];
             $all_sts_arr = ["label" => "معلومات البث", "value" => $all_sts];
             $all_sections = [];
-      
+
             foreach ($socials as $social) {
                 $comment_social1 = clone $auction_query;
-                $comment_social= $comment_social1->where('social_id', $social->id);
-                        
+                $comment_social = $comment_social1->where('social_id', $social->id);
+
                 $comments_count = $comment_social->count();
-               // return  $comments_count
+                // return  $comments_count
                 $comments_min = $comment_social->min('price');
                 $comments_max = $comment_social->max('price');
                 //analytic
                 $social_analytic = $livestream->livestreamsocials->where("social_id", $social->id)->first();
- 
-                $social_sts = [                    
+
+                $social_sts = [
                     "start_date" => ["label" => "تاريخ البدء", "value" => $social_analytic?->start_date],
                     "end_date" => ["label" => "تاريخ الانتهاء", "value" => $social_analytic?->end_date],
                     "duration" => ["label" => "المدة", "value" => $social_analytic?->duration_str],
                     "real_comments_count" => ["label" => "التعليقات", "value" => $social_analytic?->real_comments_count],
                     "views_count" => ["label" => "المشاهدات", "value" => $social_analytic?->views_count],
                     "likes_count" => ["label" => "الاعجابات", "value" => $social_analytic?->likes_count],
-                    "dislike_count" => ["label" => "عدم الاعجاب", "value" => $social_analytic?->dislike_count],
-                    "favorite_count" => ["label" => "المفضلة", "value" => $social_analytic?->favorite_count],                  
-                    "auction_count" => ["label" => "عدد المزايدات", "value" => $comments_count],
-                    "auction_min" => ["label" => "ادنى سعر", "value" => $comments_min],
-                    "auction_max" => ["label" => "اعلى سعر", "value" => $comments_max],
- //"comments"=>$auction_query->get
                 ];
-                $social_sts_arr = ["label" => "احصائيات " . $social->name, "value" =>  $social_sts];
-                $all_sections[]=$social_sts_arr;
+                if ($social->code == "tiktok") {
+                    $social_sts["followers_count"] = ["label" => "المتابعين", "value" => $social_analytic?->followers_count];
+                    $social_sts["shares_count"] = ["label" => "المشاركات", "value" => $social_analytic?->shares_count];
+                } else {
+                    $social_sts["dislike_count"] = ["label" => "عدم الاعجاب", "value" => $social_analytic?->dislike_count];
+                    $social_sts["favorite_count"] = ["label" => "المفضلة", "value" => $social_analytic?->favorite_count];
+                }
+                $social_sts["auction_count"] = ["label" => "عدد المزايدات", "value" => $comments_count];
+                $social_sts["auction_min"] = ["label" => "ادنى سعر", "value" => $comments_min];
+                $social_sts["auction_max"] = ["label" => "اعلى سعر", "value" => $comments_max];
+
+                $social_sts_arr = ["label" => "احصائيات " . $social->name, "value" => $social_sts];
+                $all_sections[] = $social_sts_arr;
             }
-            $all_social_sts_arr = ["label" => "  احصائيات المنصات" , "value" =>  $all_sections];
+            $all_social_sts_arr = ["label" => "  احصائيات المنصات", "value" => $all_sections];
             $auction = $auction_query->paginate($perPage, ['*'], 'page', $page);
             $list = AuctionStSResource::collection($auction);
             $pagination = [
@@ -329,7 +334,7 @@ if(!$livestream){
             ];
             //  $auction
             return response()->json(
-                ["success" => 1, "message" => '', "data" => ["live_statistics" => $all_sts_arr,"social_statistics"=>$all_social_sts_arr,  "auctions" => $list, "pagination" => $pagination]]
+                ["success" => 1, "message" => '', "data" => ["live_statistics" => $all_sts_arr, "social_statistics" => $all_social_sts_arr, "auctions" => $list, "pagination" => $pagination]]
             );
 
         }

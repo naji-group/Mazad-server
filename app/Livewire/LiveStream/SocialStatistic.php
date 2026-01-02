@@ -94,12 +94,24 @@ class SocialStatistic extends Component implements HasSchemas
                             ->label('عدم الاعجاب')
                             ->state(function () use ($livestreamsocial) {
                                 return $livestreamsocial?->dislike_count ?? '0';
-                            }),
+                            })->hidden($social->code=="tiktok"),
                             TextEntry::make("favorite_count_{$social->id}")
                             ->label('المفضلة')
                             ->state(function () use ($livestreamsocial) {
                                 return $livestreamsocial?->favorite_count ?? '0';
-                            })  ,
+                            })->hidden($social->code=="tiktok")  ,                            
+
+                            TextEntry::make("followers_count_{$social->id}")
+                            ->label('المتابعين')
+                            ->state(function () use ($livestreamsocial) {
+                                return $livestreamsocial?->followers_count ?? '0';
+                            })->hidden($social->code!="tiktok"),
+                            TextEntry::make("shares_count_{$social->id}")
+                            ->label('المشاركات')
+                            ->state(function () use ($livestreamsocial) {
+                                return $livestreamsocial?->shares_count ?? '0';
+                            })->hidden($social->code!="tiktok"),
+                        
                         ])   ->columns(2) ->hidden($social->is_extra==1)  
                    ,  Grid::make( )
                    ->schema([
