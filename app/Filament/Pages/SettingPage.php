@@ -17,8 +17,6 @@ class SettingPage extends Page
        protected static ?string $recordTitleAttribute = 'اعدادات';
        protected static ?int $navigationSort = 6;
      
-
-      
    protected static ?string $title = 'الاعدادات';
    protected static ?string $modelLabel = 'اعدادات';
    protected static ?string $navigationLabel = 'الاعدادات';
@@ -29,7 +27,7 @@ class SettingPage extends Page
    public function mount( ): void
    {
 
-    $this->settings=Setting::whereNot('category','pages')->get();
+    $this->settings=Setting::whereNot('category','pages')->whereNot('category','home')->get();
     
    }
    public static function getNavigationIcon(): string | BackedEnum | Htmlable | null
