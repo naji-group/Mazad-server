@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Support\Enums\IconPosition;
 class MarketersWidget extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1; 
     protected function getStats(): array
     {
         $m_count=Marketer::where('is_active',1)->count();
