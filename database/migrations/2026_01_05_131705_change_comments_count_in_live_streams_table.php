@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('live_streams', function (Blueprint $table) {
-             $table->integer('comments_count')->nullable();
+            $table->integer('comments_count')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('live_streams', function (Blueprint $table) {
-    
+            //
         });
     }
 };
