@@ -38,6 +38,7 @@ class LiveStream extends Model
 'end_date',
 'duration',
 'duration_str',
+'comments_count'
 
     ];
 

@@ -155,6 +155,7 @@ class SocialAnalyticController extends Controller
                     'duration_str',
                     'start_date',
                     'end_date',
+                    'comments_count'
                 )->orderByDesc('start_date')
                 ->paginate($perPage, ['*'], 'page', $page);
             //->simplePaginate(100)

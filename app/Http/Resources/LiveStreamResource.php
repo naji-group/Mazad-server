@@ -25,7 +25,7 @@ class LiveStreamResource extends JsonResource
             'duration_str' => $this->duration_str,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-
+'comments_count'=>$this->comments_count ?? 0,
 
         ];
     }

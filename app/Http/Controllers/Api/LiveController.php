@@ -16,6 +16,7 @@ use App\Http\Requests\Api\LiveStopPushRequest;
 //use App\Http\Requests\Api\LiveStopTiktokRequest;
 use App\Jobs\GetYoutubeLiveChatIdJob;
 //use App\Jobs\SendMarketerNotification;
+use App\Jobs\StreamAnalyticJob;
 use App\Jobs\YouTubeAnalyticsJob;
 use App\Models\LivestreamSocial;
 //use App\Models\Livevar;
@@ -1268,6 +1269,9 @@ class LiveController extends Controller
             $liveStream->duration = $datediff_res['duration_seconds'];
             $liveStream->duration_str = $datediff_res['duration_str'];
             $liveStream->save();
+            // gett total comment
+            StreamAnalyticJob::dispatch($liveStream)->delay(now()->addSecond());
+
             return response()->json(
                 [
                     "success" => 1,

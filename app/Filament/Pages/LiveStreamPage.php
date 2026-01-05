@@ -24,10 +24,10 @@ public LiveStream $livestream;
 
 public function mount(int $id): void
     {
-        \Log::info('livrest',[$id]);
+      //  \Log::info('livrest',[$id]);
 
         $this->livestream = LiveStream::findOrFail($id);
-        \Log::info('livrest',[ $this->livestream->is_active]);
+      //  \Log::info('livrest',[ $this->livestream->is_active]);
     }
  
 // public static function isActive(): bool
