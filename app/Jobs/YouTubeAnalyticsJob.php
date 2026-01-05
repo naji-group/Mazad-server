@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\Api\HelpController;
+use App\Models\LiveComment;
 use App\Models\LiveStream;
 use App\Models\LivestreamSocial;
 use App\Models\MarketerSocial;
@@ -47,7 +48,7 @@ class YouTubeAnalyticsJob implements ShouldQueue
     $videoId = $livestream->youtube_video_id;
     $accessToken=$msocial->access_token;
 $service = new YouTubeAnalyticsService($accessToken,$msocial->refresh_token);
- 
+ $live_comment_count= LiveComment::where('live_stream_id',$livestream->id)->where('social_id',$social->id)->count();
 // جلب الإحصائيات الأساسية
 $basicStats = $service->getVideoStats($videoId);
 //تحديد مدة البث
@@ -61,7 +62,7 @@ $basicStats = $service->getVideoStats($videoId);
  
 $this->sts_model->live_stream_id=$livestream_id;
 $this->sts_model->social_id=$social->id;
-$this->sts_model->real_comments_count=$basicStats['commentCount'];
+$this->sts_model->real_comments_count=$live_comment_count;//$basicStats['commentCount'];
 $this->sts_model->views_count=$basicStats['viewCount'];
 $this->sts_model->likes_count=$basicStats['likeCount'];
 $this->sts_model->dislike_count=$basicStats['dislikeCount'];

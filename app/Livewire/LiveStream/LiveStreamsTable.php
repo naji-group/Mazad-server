@@ -77,7 +77,13 @@ class LiveStreamsTable extends Component  implements  HasActions, HasSchemas, Ha
                     })
                     // ->getStateUsing(fn ($record) => $record->live_duration)
                     ,
-                        
+                    TextColumn::make('comments_count')
+                    ->label('التعليقات')
+                    ->state(function ($record){                         
+                        return $record->comments_count??0;
+                    })
+                    //->searchable()
+                        ->sortable(),     
                                  
             ])->defaultSort('start_date', 'desc')
             ->filters([
