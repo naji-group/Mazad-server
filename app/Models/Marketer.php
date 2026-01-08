@@ -33,6 +33,7 @@ class Marketer extends Authenticatable implements JWTSubject
         'provider_token',
         'provider_refresh_token',
         'firebase_token',
+        'jwt_token'
     ];
  
     protected $appends = ['status_conv', 'local_image_url'];

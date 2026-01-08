@@ -41,7 +41,8 @@ use App\Http\Requests\Api\DeleteMarketerRequest;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Api\MailController;
 use phpDocumentor\Reflection\Types\Object_;
-
+use PhpParser\Node\Stmt\TryCatch;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Jobs\SendMarketerNotification;
 class MarketerController extends Controller
 {
@@ -92,7 +93,9 @@ class MarketerController extends Controller
                 }
                 //ok 
                 $user->login_type = 'local';
-                $user->save();
+            $oldtoken= $user->jwt_token;
+            
+             
                 // $user = Marketer::find($user->id)->update(
                 //     [                       
                 //        'login_type'=>'local',                       
@@ -101,6 +104,11 @@ class MarketerController extends Controller
                 if (!$token = auth('api_marketers')->fromUser($user)) {
                     return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
+                
+                //ok
+                $this->invalidateToken($oldtoken);
+                $user->jwt_token=$token;
+                $user->save();
                 // auth('api_marketers')->login($user);
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.auth.login success'),
@@ -160,7 +168,9 @@ class MarketerController extends Controller
                 $user->image = isset($formdata['image']) ? $formdata['image'] : "";
                 $user->login_type = 'provider';
                 $user->provider = 'google';
-                $user->save();
+
+                $oldtoken= $user->jwt_token;
+              //  $user->save();
                 //  $user = Marketer::find($dbuser->id)->update(
                 //      [
                 //          'name' => $formdata['name'],                        
@@ -176,6 +186,11 @@ class MarketerController extends Controller
 
                     return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
+
+                   //ok
+                   $this->invalidateToken($oldtoken);
+                   $user->jwt_token=$token;
+                   $user->save();
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.auth.login success'), "data" =>
                     // ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
@@ -788,4 +803,25 @@ SendMarketerNotification::dispatch(
             );
         }
     }
+
+    public function invalidateToken($token)
+    {
+        // 1. إضافة إلى القائمة السوداء في JWT
+        try{
+            if($token){
+                JWTAuth::setToken($token)->invalidate();
+            }
+            return true;
+        }
+     catch (\Exception $e) {
+        \Log::error('jwt error', ['error' => $e->getMessage()]);
+        
+        return false;
+      
+        }
+     
+   
+     
+    }
+    
 }
