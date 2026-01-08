@@ -115,6 +115,8 @@ class LiveController extends Controller
             $storrequest->messages()
         );
         if ($validator->fails()) {
+            //
+            \Log::error(' face error', ['error' => $validator->errors()]);
             return response()->json(
                 ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
                 ,
@@ -124,7 +126,8 @@ class LiveController extends Controller
             $fbToken = $request->input('fbToken');
             $rtmpUrl = $request->input('rtmpUrl');
             $channelName = $request->input('channel');
-            $uid = (string) (auth('api_marketers')->user()->id);
+       //     $uid = (string) (auth('api_marketers')->user()->id);
+       $uid =   auth('api_marketers')->user()->id ;
             $platform = 'facebook';
             // $title = $request->input('title', 'My Live Stream');
             // $description = $request->input('description', 'Streaming live');
@@ -346,7 +349,7 @@ class LiveController extends Controller
         );
 
         if ($validator->fails()) {
-            \Log::error('jaco validator error', ['error' => $validator->errors()]);
+            \Log::error('insta validator error', ['error' => $validator->errors()]);
             return response()->json([
                 "success" => 0,
                 "message" => $validator->errors()?->first(),
@@ -355,13 +358,14 @@ class LiveController extends Controller
         } else {
             $channelName = $formdata['channel'];
             $rtmpUrl = $formdata['rtmpUrl'];
-            $uid = (string) (auth('api_marketers')->user()->id);
-
+           // $uid = (string) (auth('api_marketers')->user()->id);
+            $uid =   auth('api_marketers')->user()->id ;
             $platform = "instagram";
             try {
 
                 $response = $this->push_rtmp($channelName, $uid, $rtmpUrl, $platform);
                 if ($response->failed()) {
+                    
                     return response()->json(
                         [
                             "success" => 0,

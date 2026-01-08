@@ -9,7 +9,9 @@ use App\Http\Requests\Api\LiveFetchTiktokStatisticRequest;
 use App\Models\LiveComment;
 use App\Models\LiveStream;
 use App\Models\LivestreamSocial;
+use App\Models\Marketer;
 use App\Models\Social;
+use App\Notifications\MarketerNotification;
 use Illuminate\Http\Request;
 use App\Jobs\SendMarketerNotification;
 use Illuminate\Support\Facades\Validator;
@@ -166,13 +168,24 @@ class TikTokController extends Controller
                     \Log::info('tiktok send noify', [
                         'data' => $newSaved,
                     ]);
-                    SendMarketerNotification::dispatch(
-                        [$stream->marketer_id],
-                        '',
+                    // SendMarketerNotification::dispatch(
+                    //     [$stream->marketer_id],
+                    //     '',
+                    //     '',
+                    //     $newSaved,
+                    //     ['database', 'fcm']
+                    // );
+
+                    $marketers = Marketer::whereIn('id',  [$stream->marketer_id])->get();
+
+                    foreach ($marketers as $marketer) {
+                        $marketer->notify(new MarketerNotification(
+                            '',
                         '',
                         $newSaved,
                         ['database', 'fcm']
-                    );
+                        ));
+                    }
                     //Analytic
 
                     $sts_model = LivestreamSocial::where('live_stream_id', $stream->id)->where('social_id', $social->id)->first();
