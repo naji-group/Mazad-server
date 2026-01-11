@@ -47,7 +47,7 @@ class LivePriceChart extends ChartWidget
     ->limit(10)
     ->get();
 
-\Log::info("auction",$tops->toArray());
+// \Log::info("auction",$tops->toArray());
 
 
 foreach ($tops as $auction) {

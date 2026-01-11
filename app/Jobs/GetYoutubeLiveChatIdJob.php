@@ -99,7 +99,7 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
         //     'data' => 'start job',
         // ]);
         $yt_cntroller=new YTubeController();
-        $yt_cntroller->startListener_method( $this->stream->id);
+        $yt_cntroller->startListener_method($this->stream);
         // FetchLiveCommentsJob::dispatch($this->stream->id, $this->social,$this->marketer_social)
         //     ->delay(now()->addSeconds(1));
     }

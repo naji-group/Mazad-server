@@ -64,11 +64,12 @@ class YTubeController extends Controller
     // }
 
 
-    public function startListener_method( $livestream_id)
+    public function startListener_method( $stream)
     {
-
-        $id = auth('api_marketers')->user()->id;
-        $jwt = auth('api_marketers')->tokenById($id);
+        $livestream_id=$stream->id;
+        $user_id = $stream->marketer_id;
+      //  $user_id = auth('api_marketers')->user()->id;
+        $jwt = auth('api_marketers')->tokenById($user_id);
         $processName = "youtube-{$livestream_id}";
         $pm2 = trim(shell_exec("which pm2"));
 

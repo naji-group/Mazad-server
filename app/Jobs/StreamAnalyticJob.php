@@ -26,6 +26,6 @@ class StreamAnalyticJob implements ShouldQueue
     {
    $count= LiveComment::where('live_stream_id',$this->livestream->id)->count();
    $this->livestream->comments_count=$count;
-   $this->livestream->save;
+   $this->livestream->save();
     }
 }
