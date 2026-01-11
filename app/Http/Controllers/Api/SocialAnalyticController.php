@@ -47,12 +47,12 @@ class SocialAnalyticController extends Controller
 
 
 
-        \Log::info('YouTube Stats done', [
-            'id' => $sts_model->id,
-            'start_date' => $sts_model->start_date,
-            'end_date' => $sts_model->end_date,
+        // \Log::info('YouTube Stats done', [
+        //     'id' => $sts_model->id,
+        //     'start_date' => $sts_model->start_date,
+        //     'end_date' => $sts_model->end_date,
 
-        ]);
+        // ]);
         return response()->json([
             "success" => 1,
             "message" => "ok",

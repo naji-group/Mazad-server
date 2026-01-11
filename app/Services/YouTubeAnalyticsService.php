@@ -36,10 +36,10 @@ class YouTubeAnalyticsService
             // تجديد الـ token باستخدام refresh token
            // $refreshToken = $this->client->getRefreshToken();
            $refreshToken = $refresh_token;
-            Log::info('YouTube ', [
-                'refreshToken' =>   $refreshToken,
+            // Log::info('YouTube ', [
+            //     'refreshToken' =>   $refreshToken,
                 
-            ]);
+            // ]);
             $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
             // ثم احفظ الـ access token الجديد
         }
@@ -63,10 +63,10 @@ class YouTubeAnalyticsService
 
         $item = $response->getItems()[0];
         $stats = $item->getStatistics();
-        Log::info('YouTube Stats', [
-            'VideoStats' => $response->getItems(),
+        // Log::info('YouTube Stats', [
+        //     'VideoStats' => $response->getItems(),
             
-        ]);
+        // ]);
         $duration = $item->getContentDetails()->getDuration();
         $interval = CarbonInterval::make($duration);
 
@@ -98,10 +98,10 @@ $formatted = $interval->format('%H:%I:%S');
         ]);
 
         $rows = $response->getRows();
-        Log::info('YouTube Stats', [
-            'AnalyticsForVideo' =>$rows,
+        // Log::info('YouTube Stats', [
+        //     'AnalyticsForVideo' =>$rows,
             
-        ]);
+        // ]);
         if (empty($rows)) {
             return null;
         }

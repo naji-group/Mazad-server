@@ -696,11 +696,15 @@ class LiveController extends Controller
                 $stream = LiveStream::find($request->input('agora_live_id'));
                 $stream->youtube_is_active = false;
                 $stream->save();
+                //end process
+                $yt_cntroller=new YTubeController();
+                $yt_cntroller->stopListener_method( $stream->id);
+                
                 //Analytic
                 $social = Social::where('code', 'youtube')->first();
                 $sts_model = LivestreamSocial::where('live_stream_id', $stream->id)->where('social_id', $social->id)->first();
                 // $sts_model->end_date = now();
-                // $sts_model->save();
+                // $sts_model->save();                
                 $this->analytic_end($stream->id, 'youtube');
                 YouTubeAnalyticsJob::dispatch($sts_model)->delay(now()->addSecond());
 
@@ -1360,10 +1364,10 @@ class LiveController extends Controller
             ], 404);
         }
 
-        \Log::info('video_id succes', [
-            'data' => $data,
+        // \Log::info('video_id succes', [
+        //     'data' => $data,
 
-        ]);
+        // ]);
         $videoId = $data['items'][0]['id']['videoId'];
 
         // return response()->json([
@@ -1387,10 +1391,10 @@ class LiveController extends Controller
         }
 
         $videoData = $videoResponse->json();
-        \Log::info('ِAccount by channel succes', [
-            'data' => $videoData,
+        // \Log::info('ِAccount by channel succes', [
+        //     'data' => $videoData,
 
-        ]);
+        // ]);
         $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
 
         if (!$liveChatId) {
@@ -1410,10 +1414,10 @@ class LiveController extends Controller
             \Log::error('live chat messages error', ['error' => $chatResponse->json()]);
             return response()->json(['error' => 'Failed to fetch live chat messages', 'details' => $chatResponse->json()], 500);
         }
-        \Log::info('live chat messages', [
-            'data' => $chatResponse->json(),
+        // \Log::info('live chat messages', [
+        //     'data' => $chatResponse->json(),
 
-        ]);
+        // ]);
         $messages = collect($chatResponse->json()['items'] ?? [])->map(function ($msg) {
             $snippet = $msg['snippet'];
             $author = $msg['authorDetails'];

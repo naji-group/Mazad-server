@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\LiveController;
 use App\Http\Controllers\Api\SocialAnalyticController;
 use App\Http\Controllers\Api\TikTokController;
 //use Illuminate\Http\Request;
+use App\Http\Controllers\Api\YTubeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MarketerController;
  
@@ -59,11 +60,13 @@ Route::middleware('auth_marketer:api_marketers')->group(function () {
         Route::post('instagram/end', [LiveController::class, 'end_instagram_live']);
         Route::post('youtube/start-push', [LiveController::class, 'youtube_push']);
         Route::post('youtube/stop-push', [LiveController::class, 'youtube_stop_push']); 
+        Route::post('youtube/fetchcomment', [YTubeController::class, 'fetch_comment']); 
+    
         //test  
-        Route::post('youtube/start-push-test', [LiveController::class, 'youtube_push_test']);
+        // Route::post('youtube/start-push-test', [LiveController::class, 'youtube_push_test']);
  
-        Route::post('youtube/getvideoid', [LiveController::class, 'getYoutubeLiveVideoId']);  
-        Route::post('youtube/analytic', [SocialAnalyticController::class, 'get_YT_analytic']);  
+        // Route::post('youtube/getvideoid', [LiveController::class, 'getYoutubeLiveVideoId']);  
+        // Route::post('youtube/analytic', [SocialAnalyticController::class, 'get_YT_analytic']);  
         //end test
         Route::post('tiktok/start-push', [LiveController::class, 'tiktok_push']);
         Route::post('tiktok/stop-push', [LiveController::class, 'tiktok_stop_push']); 

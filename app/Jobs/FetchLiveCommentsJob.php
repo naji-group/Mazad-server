@@ -35,7 +35,7 @@ protected MarketerSocial $marketer_social;
 
     public function handle(FacebookCommentsService $fbService, YouTubeCommentsService $ytService)
     {
-        \Log::info(" بدء جلب تعليقات".$this->social->code);  
+       // \Log::info(" بدء جلب تعليقات".$this->social->code);  
         $stream = LiveStream::find($this->streamId);     
         if (!$stream || !$stream->is_active) {
             \Log::info(" البث رقم {$this->streamId} غير نشط، تم إيقاف الـ Job.");
@@ -52,7 +52,7 @@ if($this->social->code=="facebook"){
 
        // 2) جلب تعليقات فيسبوك جديدة
        if ($stream->facebook_live_video_id && $stream->facebook_access_token && $stream->facebook_is_active) {
-        \Log::info(" بدء جلب تعليقات فايسبوك الجديدة");
+      //  \Log::info(" بدء جلب تعليقات فايسبوك الجديدة");
         try {
             $fbComments = $fbService->getNewComments($stream->facebook_live_video_id, $stream->facebook_access_token, $lastFb);
 

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
  
+use App\Http\Controllers\Api\YTubeController;
 use App\Models\MarketerSocial;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -94,11 +95,13 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
         $this->stream->save();
         Log::info("تم الحصول على liveChatId بنجاح: ".$liveChatId);
         //  تشغيل Job التعليقات بعد 1 ثانية
-        \Log::info('youtube', [
-            'data' => 'start job',
-        ]);
-        FetchLiveCommentsJob::dispatch($this->stream->id, $this->social,$this->marketer_social)
-            ->delay(now()->addSeconds(1));
+        // \Log::info('youtube', [
+        //     'data' => 'start job',
+        // ]);
+        $yt_cntroller=new YTubeController();
+        $yt_cntroller->startListener_method( $this->stream->id);
+        // FetchLiveCommentsJob::dispatch($this->stream->id, $this->social,$this->marketer_social)
+        //     ->delay(now()->addSeconds(1));
     }
 
     public function getYoutubeVideoId($channelId)
@@ -128,10 +131,10 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
             //    // 'data2' =>  $data2,
             // ], 404);
         }
-        \Log::info('video_id success', [
-            'data' => $data,
+        // \Log::info('video_id success', [
+        //     'data' => $data,
 
-        ]);
+        // ]);
         $videoId = $data['items'][0]['id']['videoId'];
         $res = [
             "success" => 1,
@@ -162,9 +165,9 @@ class GetYoutubeLiveChatIdJob implements ShouldQueue
             return $res;
         }
         $videoData = $videoResponse->json();
-        \Log::info('ِAccount by channel succes', [
-            'data' => $videoData,
-        ]);
+        // \Log::info('ِAccount by channel succes', [
+        //     'data' => $videoData,
+        // ]);
         $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
         if (!$liveChatId) {
             \Log::error(' liveChatId error', ['error' => 'No active live chat found for this video']);

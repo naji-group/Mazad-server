@@ -24,7 +24,7 @@ class FacebookCommentsService
             \Log::error('live chat messages error', ['error' =>  $res->json()]);
             return [];
         }
-        \Log::info( ' facebook comment res', $res->json());
+      //  \Log::info( ' facebook comment res', $res->json());
         $data = $res->json('data', []);
 
         // قاعدة: نعيد من الأقدم إلى الأحدث، ونتخطى التعليقات الموجودة بالفعل (حتى comment_id == sinceCommentId)

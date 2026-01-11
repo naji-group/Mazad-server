@@ -175,7 +175,7 @@ class TikTokController extends Controller
                     //     $newSaved,
                     //     ['database', 'fcm']
                     // );
-
+// send totification
                     $marketers = Marketer::whereIn('id',  [$stream->marketer_id])->get();
 
                     foreach ($marketers as $marketer) {
