@@ -12,7 +12,7 @@ const statisticData = {
 };
 
 if ( !livestream_id || !jwt_token) {
-    console.error("Usage: node listener.js <username> <livestream_id> <jwt_token>");
+    console.error("Usage: node listener.js <livestream_id> <jwt_token>");
     process.exit(1);
 }
  
@@ -37,18 +37,24 @@ async function sendStatisticData(statisticData) {
         );
         
       //  console.log("✅ Statistic sent successfully:", response.status);
-        return response;
+      if (response.data.sent > 0) {
+        return 1;
+      }else{
+        process.exit(1);
+      }
+         
         
     } catch (error) {
        // console.error("❌ Error sending statistic:", error.message);
         logger.error("Error sending statistic: " + error.message);
         
         // يمكنك إعادة رمي الخطأ أو إرجاع null
-        throw error; // أو return null;
+     //   throw error; // أو return null;
+     return 0;
     }
 }
 
- 
+
 
  
 async function runfetchLoop(statisticData) {

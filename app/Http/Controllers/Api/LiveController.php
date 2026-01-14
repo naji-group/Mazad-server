@@ -49,9 +49,10 @@ class LiveController extends Controller
 
             $livestream->is_active = 1;
             $livestream->start_date = now();
-           
-            $livestream->save();
             $resArr['agora_live_id'] = $livestream->id;
+            $livestream->agora_channel=  $resArr['channelName'];
+            $livestream->save();
+         
             // \Log::info('agora', [
             //     'data' => $resArr,
             // ]);

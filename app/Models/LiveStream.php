@@ -15,7 +15,7 @@ class LiveStream extends Model
         'is_active',
         'youtube_live_chat_id',
         'youtube_access_token',
-        
+
         'youtube_refresh_access_token',
         'youtube_channel_id',
         'youtube_video_id',
@@ -32,27 +32,26 @@ class LiveStream extends Model
         'facebook_is_active',
         'instagram_is_active',
         'youtube_is_active',
-        'tiktok_is_active',        
-        'jaco_is_active',     
-       'start_date',
-'end_date',
-'duration',
-'duration_str',
-'comments_count'
-
+        'tiktok_is_active',
+        'jaco_is_active',
+        'start_date',
+        'end_date',
+        'duration',
+        'duration_str',
+        'comments_count',
+        'agora_channel',
     ];
 
     protected $appends = ['live_duration'];
     public function getLiveDurationAttribute()
     {
         $conv = "";
-        if($this->start_date && $this->end_date)      
-   {
-$help=new HelpController();
-$res=$help->date_diff($this->start_date,$this->end_date);
-$conv=$res['duration_str'];
-   }
-       return $conv;
+        if ($this->start_date && $this->end_date) {
+            $help = new HelpController();
+            $res = $help->date_diff($this->start_date, $this->end_date);
+            $conv = $res['duration_str'];
+        }
+        return $conv;
     }
 
 
@@ -61,7 +60,7 @@ $conv=$res['duration_str'];
     //     if (!$this->start_date) {
     //         return 0;
     //     }
-        
+
     //     $endDate = $this->end_date ?? now();
     //     return $this->start_date->diffInSeconds($endDate);
     // }

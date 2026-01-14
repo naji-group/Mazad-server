@@ -133,7 +133,7 @@ class YTubeController extends Controller
             $platform_code = 'youtube';
             $stream = LiveStream::find($request->livestream_id);
 
-          if( $stream->youtube_is_active){
+          if( $stream->youtube_is_active &&  $stream->is_active ){
             try {
                 
             $ytService=new  YouTubeCommentsService ();
@@ -211,11 +211,14 @@ class YTubeController extends Controller
                     }                
             } catch (\Exception $e) {
                 \Log::warning('youtube save comment failed: ' . $e->getMessage());
-                return ["sent" => false];
+                 
+                return response()->json(["sent" => 2]);
             }
-
+            return response()->json(["sent" => 1]);
+          }else{
+            return response()->json(["sent" => 0]);
           }
-            return ["sent" => true];
+             
         }
     }
 
