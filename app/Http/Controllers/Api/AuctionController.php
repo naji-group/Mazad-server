@@ -55,16 +55,16 @@ class AuctionController extends Controller
 
             //$auction->customer_link=$formdata['customer_link'] ;
             $auction->save();
-            try {
-                $livestream = LiveStream::find($auction->live_video_id);
-                if ($livestream->is_active && $livestream->agora_channel) {
-                    $chatCrlr = new ChatController();
-                    $chatCrlr->updateOverlay($livestream->agora_channel, $auction->customer_name, $auction->price, $auction->social_id);
-                }
-            } catch (\Exception $e) {
-                \Log::error('overlay error', ['error' => $e->getMessage()]);
+            // try {
+            //     $livestream = LiveStream::find($auction->live_video_id);
+            //     if ($livestream->is_active && $livestream->agora_channel) {
+            //         $chatCrlr = new ChatController();
+            //         $chatCrlr->updateOverlay($livestream->agora_channel, $auction->customer_name, $auction->price, $auction->social_id);
+            //     }
+            // } catch (\Exception $e) {
+            //     \Log::error('overlay error', ['error' => $e->getMessage()]);
 
-            }
+            // }
             return response()->json(
                 ["success" => 1, "message" => __('api_messages.form.success save'), "data" => $auction->id]
             );
