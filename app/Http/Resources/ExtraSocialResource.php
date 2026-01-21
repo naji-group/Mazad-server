@@ -22,7 +22,7 @@ class ExtraSocialResource extends JsonResource
             'id' => $this->id,
             'image_url'=>$this->image_url,            
             'name'=>$this->name,
-                    
+            'is_extra'=>$this->is_extra,                    
         ];
     }
 }

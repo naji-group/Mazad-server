@@ -147,7 +147,7 @@ class AuctionController extends Controller
         // $lang=app()->getLocale();
 
 
-        $list = Social::where('is_active', 1)->where('is_extra', true)->orderBy('sequence')->get();
+        $list = Social::where('is_active', 1)->orderBy('sequence')->get();
 
         return response()->json(
             ["success" => 1, "data" => ExtraSocialResource::collection($list), "message" => '']
