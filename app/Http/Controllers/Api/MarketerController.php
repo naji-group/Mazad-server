@@ -22,7 +22,7 @@ use App\Http\Requests\Api\StoreMarketerRequest;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Api\UpdateMarketerRequest;
- 
+
 use Illuminate\Support\Facades\Storage;
 use File;
 use Illuminate\Support\Carbon;
@@ -93,9 +93,9 @@ class MarketerController extends Controller
                 }
                 //ok 
                 $user->login_type = 'local';
-            $oldtoken= $user->jwt_token;
-            
-             
+                $oldtoken = $user->jwt_token;
+
+
                 // $user = Marketer::find($user->id)->update(
                 //     [                       
                 //        'login_type'=>'local',                       
@@ -104,16 +104,19 @@ class MarketerController extends Controller
                 if (!$token = auth('api_marketers')->fromUser($user)) {
                     return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
-                
+
                 //ok
                 $this->invalidateToken($oldtoken);
-                $user->jwt_token=$token;
+                $user->jwt_token = $token;
                 $user->save();
                 // auth('api_marketers')->login($user);
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.auth.login success'),
-                     "data" =>
-                      ['token' => $token,'id'=>$user->id,'username'=>$user->username,'full_name'=>$user->full_name,'local_image_url'=>$user->local_image_url]]
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.auth.login success'),
+                        "data" =>
+                            ['token' => $token, 'id' => $user->id, 'username' => $user->username, 'full_name' => $user->full_name, 'local_image_url' => $user->local_image_url]
+                    ]
                 );
 
             }
@@ -169,8 +172,8 @@ class MarketerController extends Controller
                 $user->login_type = 'provider';
                 $user->provider = 'google';
 
-                $oldtoken= $user->jwt_token;
-              //  $user->save();
+                $oldtoken = $user->jwt_token;
+                //  $user->save();
                 //  $user = Marketer::find($dbuser->id)->update(
                 //      [
                 //          'name' => $formdata['name'],                        
@@ -187,14 +190,97 @@ class MarketerController extends Controller
                     return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
                 }
 
-                   //ok
-                   $this->invalidateToken($oldtoken);
-                   $user->jwt_token=$token;
-                   $user->save();
+                //ok
+                $this->invalidateToken($oldtoken);
+                $user->jwt_token = $token;
+                $user->save();
                 return response()->json(
-                    ["success" => 1, "message" => __('api_messages.auth.login success'), "data" =>
-                    // ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
-                     ['token' => $token,'id'=>$user->id,'username'=>$user->username,'full_name'=>$user->full_name,'local_image_url'=>$user->local_image_url]]
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.auth.login success'),
+                        "data" =>
+                            // ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
+                            ['token' => $token, 'id' => $user->id, 'username' => $user->username, 'full_name' => $user->full_name, 'local_image_url' => $user->local_image_url]
+                    ]
+                );
+            } else {
+                return response()->json(
+                    ["success" => 0, "message" => __('api_messages.auth.name.fail'), "data" => []]
+                    ,
+                    401
+                );
+            }
+        }
+    }
+
+
+    function loginproviderapple(Request $request)
+    {
+
+        $formdata = $request->all();
+        $storrequest = new LoginMarketerProviderRequest();
+        //  $storrequest->request()=$formdata ;
+        //   $storrequest=  $formdata ;
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            $message = "";
+            if ($validator->errors()->keys()[0] == "email") {
+                $message = $validator->errors()->first();
+            } else {
+                $message = __('api_messages.auth.fail login');
+            }
+            return response()->json(
+                ["success" => 0, "message" => $message, "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            $user_email = $formdata['email'];
+            // $googleUser = Socialite::driver($provider)->stateless()->user();
+            $user = Marketer::where('email', $user_email)->where('is_active', 1)->first();
+
+            if ($user) {
+                $user->name = isset($formdata['name']) ? $formdata['name'] : "";
+                $user->provider_token = isset($formdata['provider_token']) ? $formdata['provider_token'] : "";
+                $user->provider_user_id = isset($formdata['provider_user_id']) ? $formdata['provider_user_id'] : "";
+                $user->image = isset($formdata['image']) ? $formdata['image'] : "";
+                $user->login_type = 'provider';
+                $user->provider = 'apple';
+
+                $oldtoken = $user->jwt_token;
+                //  $user->save();
+                //  $user = Marketer::find($dbuser->id)->update(
+                //      [
+                //          'name' => $formdata['name'],                        
+                //         // 'email' => $googleUser->getEmail(),
+                //          'provider_token' =>  isset($formdata['provider_token'])?$formdata['provider_token']:"",  
+                //          'provider_user_id' => isset( $formdata['provider_user_id'])?$formdata['provider_user_id']:"",                        
+                //          'image' => isset($formdata['image'])?$formdata['image']:"",
+                //          'login_type'=>'provider',
+                //          'provider' => 'google',
+                //      ]
+                //  );
+                if (!$token = auth('api_marketers')->fromUser($user)) {
+
+                    return response()->json(["success" => 0, "message" => __('api_messages.auth.fail login'), "data" => []], 401);
+                }
+
+                //ok
+                $this->invalidateToken($oldtoken);
+                $user->jwt_token = $token;
+                $user->save();
+                return response()->json(
+                    [
+                        "success" => 1,
+                        "message" => __('api_messages.auth.login success'),
+                        "data" =>
+                            // ['token' => $token,'id'=>$user->id,'full_name'=>$user->full_name]]
+                            ['token' => $token, 'id' => $user->id, 'username' => $user->username, 'full_name' => $user->full_name, 'local_image_url' => $user->local_image_url]
+                    ]
                 );
             } else {
                 return response()->json(
@@ -776,28 +862,28 @@ class MarketerController extends Controller
                 422
             );
         } else {
-            $date=now();
+            $date = now();
             $marketer_id = $formdata['id'];
             //save token in client 
-            $marketer= Marketer::find($marketer_id);
-          //  $marketer->unreadNotifications->markAsRead();
+            $marketer = Marketer::find($marketer_id);
+            //  $marketer->unreadNotifications->markAsRead();
 //$marketer->notifications()->delete();//حذف
 //ارسال اشعار
-SendMarketerNotification::dispatch(
-   [$marketer_id],
-    'عرض جديد 🎉',
-    'تم إضافة عرض جديد، يرجى المتابعة'.'-'.$date,
-    ['order_id' => 123] 
-);
-           // $marketer->notify(new MarketerNotification('عنوان', 'نص الإشعار'.'-'.$date, ['id'=>$marketer->id]));
-          
-            $notifications =$marketer
-            ->notifications()
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->orderByRaw('read_at IS NULL DESC')
-            ->orderBy('created_at', 'desc')
-            ->get();
-           
+            SendMarketerNotification::dispatch(
+                [$marketer_id],
+                'عرض جديد 🎉',
+                'تم إضافة عرض جديد، يرجى المتابعة' . '-' . $date,
+                ['order_id' => 123]
+            );
+            // $marketer->notify(new MarketerNotification('عنوان', 'نص الإشعار'.'-'.$date, ['id'=>$marketer->id]));
+
+            $notifications = $marketer
+                ->notifications()
+                ->where('created_at', '>=', Carbon::now()->subDays(30))
+                ->orderByRaw('read_at IS NULL DESC')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             return response()->json(
                 ["success" => 1, "message" => 'تم ارسال الاشعار', "data" => MarketerNotificationResource::collection($notifications)]
             );
@@ -807,21 +893,20 @@ SendMarketerNotification::dispatch(
     public function invalidateToken($token)
     {
         // 1. إضافة إلى القائمة السوداء في JWT
-        try{
-            if($token){
+        try {
+            if ($token) {
                 JWTAuth::setToken($token)->invalidate();
             }
             return true;
+        } catch (\Exception $e) {
+            \Log::error('jwt error', ['error' => $e->getMessage()]);
+
+            return false;
+
         }
-     catch (\Exception $e) {
-        \Log::error('jwt error', ['error' => $e->getMessage()]);
-        
-        return false;
-      
-        }
-     
-   
-     
+
+
+
     }
-    
+
 }
