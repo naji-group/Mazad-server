@@ -25,7 +25,7 @@ export function createLogger(livestreamId = "default",source="tik") {
         ),
         transports: [
             new winston.transports.File({ filename: logFile }),
-            new winston.transports.Console()
+         //   new winston.transports.Console()
         ]
     });
 }

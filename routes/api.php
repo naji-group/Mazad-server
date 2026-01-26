@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuctionController;
+use App\Http\Controllers\Api\JacoController;
 use App\Http\Controllers\Api\LiveController;
 //use App\Http\Controllers\Api\RestreamController;
 use App\Http\Controllers\Api\SocialAnalyticController;
@@ -23,6 +24,12 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::post('loginmarketerbyapple', [MarketerController::class, 'loginproviderapple']);
     Route::post('resetpassword', [MarketerController::class, 'resetpassword']);
 
+    //test jaco
+    Route::prefix('jaco')->group(function () {
+        Route::post('/start', [JacoController::class, 'startListener']);
+        Route::post('/stop', [JacoController::class, 'stopListener']);
+        Route::post('/fetchcomment', [JacoController::class, 'fetch_comment']);
+    });
     // Route::prefix('restream')->group(function () {
 //     Route::post('profile', [RestreamController::class, 'getUserProfile']);
 
