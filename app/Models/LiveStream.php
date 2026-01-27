@@ -40,6 +40,10 @@ class LiveStream extends Model
         'duration_str',
         'comments_count',
         'agora_channel',
+        'facebook_page_id',
+        'facebook_page_token',
+
+        'facebook_refresh_access_token',
     ];
 
     protected $appends = ['live_duration'];

@@ -21,7 +21,7 @@ const statisticData = {
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: "new",//false
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -55,8 +55,8 @@ const statisticData = {
   console.log('wait done');
   await new Promise(r => setTimeout(r, 50000));
   console.log('wait done');
-  await new Promise(r => setTimeout(r, 50000));
-  console.log('wait done');
+  // await new Promise(r => setTimeout(r, 50000));
+  // console.log('wait done');
   // اطبع كل HTML الصفحة
   // const html = await page.content();
   // console.log(html);
@@ -79,7 +79,7 @@ const statisticData = {
   comments.forEach(async comment => {
     const timestampMs = Date.now();
 
-    commentData = {
+    const commentData = {
       author_name: comment.username,
       comment: comment.message,
       createtime: comment.time,
@@ -87,7 +87,7 @@ const statisticData = {
 
       livestream_id: livestream_id,
     };
-    await sendStatisticData(statisticData);
+    await sendStatisticData(commentData);
   });
 
   // مراقبة التعليقات الجديدة
@@ -117,7 +117,7 @@ const statisticData = {
           console.log(nickname);
           if (message) {
 
-            commentData = {
+            const commentData = {
               author_name: nickname,
               comment: message,
               createtime: new Date().toISOString(),
@@ -154,7 +154,7 @@ async function sendStatisticData(statisticData) {
       "https://zawed.ae/api/jaco/fetchcomment",
       statisticData,
       {
-        headers: { Authorization: `Bearer ${jwt_token}` },
+        //    headers: { Authorization: `Bearer ${jwt_token}` },
         httpsAgent: agent // استخدام الوكيل لهذا الطلب فقط
       }
     );

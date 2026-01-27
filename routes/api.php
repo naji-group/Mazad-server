@@ -63,6 +63,8 @@ Route::middleware(SetLocale::class)->group(function () {
             Route::post('generate_live_token', [LiveController::class, 'generate_live_token']);
             Route::post('savefaceaccesstoken', [LiveController::class, 'savefaceaccesstoken']);
             Route::post('facebook/create', [LiveController::class, 'create_facebook_live']);
+            Route::post('facebook/start', [LiveController::class, 'start_facebook_live']);
+            Route::post('facebook/endlive', [LiveController::class, 'end_facebook']);
             Route::post('facebook/end', [LiveController::class, 'end_facebook_live']);
             Route::post('instagram/create', [LiveController::class, 'create_instagram_live']);
             Route::post('instagram/end', [LiveController::class, 'end_instagram_live']);

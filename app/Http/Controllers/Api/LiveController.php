@@ -8,12 +8,14 @@ use App\Http\Requests\Api\LiveCreateRequest;
 use App\Http\Requests\Api\LiveEndFacebookRequest;
 //use App\Http\Requests\Api\LiveEndInstagramRequest;
 use App\Http\Requests\Api\LiveEndRequest;
+use App\Http\Requests\Api\LiveStartFaceRequest;
 use App\Http\Requests\Api\LiveStartJacoRequest;
 use App\Http\Requests\Api\LiveStartPushRequest;
 use App\Http\Requests\Api\LiveStartRequest;
 use App\Http\Requests\Api\LiveStartTiktokRequest;
 use App\Http\Requests\Api\LiveStopPushRequest;
 //use App\Http\Requests\Api\LiveStopTiktokRequest;
+use App\Jobs\GetFacebookVideoIdJob;
 use App\Jobs\GetYoutubeLiveChatIdJob;
 //use App\Jobs\SendMarketerNotification;
 use App\Jobs\StreamAnalyticJob;
@@ -48,8 +50,8 @@ class LiveController extends Controller
             $livestream->marketer_id = auth('api_marketers')->user()->id;
 
             $livestream->is_active = 1;
-            $livestream->start_date = now();           
-            $livestream->agora_channel=  $resArr['channelName'];
+            $livestream->start_date = now();
+            $livestream->agora_channel = $resArr['channelName'];
             $livestream->save();
             $resArr['agora_live_id'] = $livestream->id;
             // \Log::info('agora', [
@@ -126,8 +128,8 @@ class LiveController extends Controller
             $fbToken = $request->input('fbToken');
             $rtmpUrl = $request->input('rtmpUrl');
             $channelName = $request->input('channel');
-       //     $uid = (string) (auth('api_marketers')->user()->id);
-       $uid =   auth('api_marketers')->user()->id ;
+            //     $uid = (string) (auth('api_marketers')->user()->id);
+            $uid = auth('api_marketers')->user()->id;
             $platform = 'facebook';
             // $title = $request->input('title', 'My Live Stream');
             // $description = $request->input('description', 'Streaming live');
@@ -252,9 +254,190 @@ class LiveController extends Controller
 
         }
     }
+    //new
+    public function start_facebook_live(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LiveStartFaceRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            //
+            \Log::error(' face error', ['error' => $validator->errors()]);
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            $fbToken = $request->input('fbToken');
+            $rtmpUrl = $request->input('rtmpUrl');
+            $channelName = $request->input('channel');
+            //     $uid = (string) (auth('api_marketers')->user()->id);
+            $uid = auth('api_marketers')->user()->id;
+            $platform = 'facebook';
+            // $title = $request->input('title', 'My Live Stream');
+            // $description = $request->input('description', 'Streaming live');
+            try {
+                $response = $this->push_rtmp($channelName, $uid, $rtmpUrl, $platform);
+                if ($response->failed()) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.live create failed'),
+                            "data" => $response->json(),
+                        ]
+                        ,
+                        500
+                    );
+                }
+                //🔹 1. الحصول على الصفحات التابعة للمستخدم
+                $pagesRes = Http::get("https://graph.facebook.com/v19.0/me/accounts", [
+                    'access_token' => $fbToken,
+                ]);
 
+                $pages = $pagesRes->json();
+                \Log::info('facebook accounts pages', [
+                    'data' => $pages
+                ]);
+                if (empty($pages['data']) || count($pages['data']) === 0) {
+                    return response()->json(
+                        [
+                            "success" => 0,
+                            "message" => __('api_messages.No pages found'),
+                            "data" => 'No pages found for this user.'
+                        ]
+                        ,
+                        404
+                    );
+                }
+                // 🔹 نختار الصفحة الأولى (أو يمكنك تعديل الكود لاختيار صفحة محددة)
+                $page = $pages['data'][0];
+                $pageId = $page['id'];
+                $pageToken = $page['access_token'];
+                $stream = LiveStream::find($request->input('agora_live_id'));
+                $social = Social::where('code', 'facebook')->first();
+                $marketer_social = MarketerSocial::where('marketer_id', auth('api_marketers')->user()->id)->where('social_id', $social->id)->first();
+                $stream->facebook_page_id = $pageId;
+                $stream->facebook_page_token = $pageToken;
+                $stream->facebook_live_video_id = $liveVideoId ?? null;
+                $stream->facebook_access_token = $fbToken;
+
+                $stream->facebook_is_active = true;
+                $stream->save();
+
+
+                //Analytic
+                $this->analytic_start($stream->id, $social->id);
+
+                //start job
+                // جدولة job يبدأ فورًا ويعيد جدولة نفسه كل 10 ثواني
+                GetFacebookVideoIdJob::dispatch($stream, $social, $marketer_social)->delay(now()->addSecond());
+
+                //FetchLiveCommentsJob::dispatch($stream->id, $social, $marketer_social)->delay(now()->addSeconds(1));
+
+                // \Log::info('facebook', [
+                //     'data' => "-" //$liveData,
+                // ]);
+                /*
+                'facebook_live_video_id' => $formdata['facebook_live_video_id'] ?? null,
+                'facebook_access_token' => $formdata['facebook_access_token'] ?? null,
+                */
+                // 🔹 4. الإرجاع
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live created'), "data" => ""]//$liveData]
+                    //     [
+                    //     'page_id' => $pageId,
+                    //     'page_name' => $page['name'],
+                    //     'live_video_id' => $liveData['id'] ?? null,
+                    //     'stream_url' => $liveData['stream_url'] ?? null,
+                    //     'secure_stream_url' => $liveData['secure_stream_url'] ?? null,
+                    // ]
+                );
+            } catch (\Exception $e) {
+                \Log::error(' face error', ['error' => $e->getMessage()]);
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ]
+                    ,
+                    500
+                );
+            }
+
+        }
+    }
+    //new end
+    public function end_facebook(Request $request)
+    {
+        $formdata = $request->all();
+        $storrequest = new LiveEndFacebookRequest();
+        $validator = Validator::make(
+            $formdata,
+            $storrequest->rules(),
+            $storrequest->messages()
+        );
+        if ($validator->fails()) {
+            return response()->json(
+                ["success" => 0, "message" => $validator->errors()?->first(), "data" => $validator->errors()]
+                ,
+                422
+            );
+        } else {
+            // $liveVideoId = $request->live_video_id;
+            $converterId = $formdata['converterId'];
+            // $pageToken = $request->page_token;
+            try {
+                $response = $this->stop_push_rtmp($converterId);
+                // $livevar = Livevar::where('marketer_id', auth('api_marketers')->user()->id)->where('live_video_id', $liveVideoId)->first();
+                // $pageToken = $livevar->second_value;
+                // $response = Http::post("https://graph.facebook.com/v19.0/{$liveVideoId}", [
+                //     'end_live_video' => true,
+                //     'access_token' => $pageToken,
+                // ]);
+                // if ($response->failed()) {
+                //     return response()->json(
+                //         [
+                //             "success" => 0,
+                //             "message" => __('api_messages.Operation failed'),
+                //             "data" => $response->json()
+                //         ],
+                //         500
+                //     );
+                // }
+
+
+                $stream = LiveStream::find($request->input('agora_live_id'));
+                $stream->facebook_is_active = false;
+                $stream->save();
+                //end process
+                $face_cntroller = new FaceController();
+                $face_cntroller->stopListener_method($stream->id);
+                $this->analytic_end($stream->id, 'facebook');
+                return response()->json(
+                    ["success" => 1, "message" => __('api_messages.live stoped'), "data" => $response->json()]
+                );
+            } catch (\Exception $e) {
+                // أي خطأ آخر غير متوقع
+                return response()->json(
+                    [
+                        "success" => 0,
+                        "message" => __('api_messages.Operation failed'),
+                        "data" => $e->getMessage()
+                    ],
+                    500
+                );
+            }
+        }
+    }
     /**
      * إنهاء بث مباشر موجود facebook
+     *    //
      */
     public function end_facebook_live(Request $request)
     {
@@ -299,11 +482,6 @@ class LiveController extends Controller
                 $stream->facebook_is_active = false;
                 $stream->save();
 
-                //Analytic
-                //   $social = Social::where('code', 'facebook')->first();
-                //   $sts_model = LivestreamSocial::where('live_stream_id', $stream->id)->where('social_id', $social->id)->first();
-                //   $sts_model->end_date = now();
-                //   $sts_model->save();
                 $this->analytic_end($stream->id, 'facebook');
                 return response()->json(
                     ["success" => 1, "message" => __('api_messages.live stoped'), "data" => $response->json()]
@@ -358,14 +536,14 @@ class LiveController extends Controller
         } else {
             $channelName = $formdata['channel'];
             $rtmpUrl = $formdata['rtmpUrl'];
-           // $uid = (string) (auth('api_marketers')->user()->id);
-            $uid =   auth('api_marketers')->user()->id ;
+            // $uid = (string) (auth('api_marketers')->user()->id);
+            $uid = auth('api_marketers')->user()->id;
             $platform = "instagram";
             try {
 
                 $response = $this->push_rtmp($channelName, $uid, $rtmpUrl, $platform);
                 if ($response->failed()) {
-                    
+
                     return response()->json(
                         [
                             "success" => 0,
@@ -697,9 +875,9 @@ class LiveController extends Controller
                 $stream->youtube_is_active = false;
                 $stream->save();
                 //end process
-                $yt_cntroller=new YTubeController();
-                $yt_cntroller->stopListener_method( $stream->id);
-                
+                $yt_cntroller = new YTubeController();
+                $yt_cntroller->stopListener_method($stream->id);
+
                 //Analytic
                 $social = Social::where('code', 'youtube')->first();
                 $sts_model = LivestreamSocial::where('live_stream_id', $stream->id)->where('social_id', $social->id)->first();
@@ -1268,9 +1446,9 @@ class LiveController extends Controller
                 ], 500);
             }
 
-           // $liveStream->update(['is_active' => false, 'end_date' => now()]);
-            $liveStream->is_active=false;
-            $liveStream->end_date=now();
+            // $liveStream->update(['is_active' => false, 'end_date' => now()]);
+            $liveStream->is_active = false;
+            $liveStream->end_date = now();
             $help_ctrlr = new HelpController();
             $datediff_res = $help_ctrlr->date_diff($liveStream->start_date, $liveStream->end_date);
             //حفظ الاحصائيات 
@@ -1290,155 +1468,7 @@ class LiveController extends Controller
         }
 
     }
-    //test
-    public function getYoutubeLiveVideoId(Request $request)
-    {
 
-        $accessToken = $request->access_token;
-
-        if (!$accessToken) {
-            return response()->json(['error' => 'Missing access_token'], 400);
-        }
-
-
-        $response = Http::withToken($accessToken)
-            ->get('https://www.googleapis.com/youtube/v3/channels', [
-                'part' => 'id',
-                'mine' => 'true'
-            ]);
-
-        $json = $response->json();
-
-        // التحقق من النتيجة
-        if (!$response->successful() || empty($json['items'])) {
-            \Log::error(' channel ID error', ['error' => $json]);
-
-            return response()->json([
-                'error' => 'Could not fetch channel ID',
-                'details' => $json
-            ], 400);
-        }
-        \Log::info('channel id succes', [
-            'data' => $response->json(),
-
-        ]);
-        // استخراج الـ channel_id
-        $channelId = $json['items'][0]['id'];
-        //
-        $apiKey = config('services.youtube.key2');
-        //التاكد
-        // $response = Http::get('https://www.googleapis.com/youtube/v3/channels', [
-        //     'part' => 'snippet',
-        //     'id' => $channelId,
-        //     'key' =>  $apiKey
-        // ]);
-        // $data2 = $response->json();
-        // \Log::info('ِAccount by channel succes', [
-        //     'data' =>  $data2,
-
-        // ]);
-
-        //
-
-
-
-
-        // طلب البحث عن أي بث مباشر نشط الآن
-        $response = Http::get("https://www.googleapis.com/youtube/v3/search", [
-            'part' => 'snippet',
-            'channelId' => $channelId,
-            'eventType' => 'live',
-            'type' => 'video',
-            'key' => $apiKey
-        ]);
-
-        $data = $response->json();
-
-        if (empty($data['items'])) {
-            \Log::error(' videoId ID error', ['error' => $data]);
-            return response()->json([
-                'success' => false,
-                'message' => 'لا يوجد بث مباشر حاليًا',
-                'data' => $data,
-                // 'data2' =>  $data2,
-            ], 404);
-        }
-
-        // \Log::info('video_id succes', [
-        //     'data' => $data,
-
-        // ]);
-        $videoId = $data['items'][0]['id']['videoId'];
-
-        // return response()->json([
-        //     'success' => true,
-        //     'video_id' => $videoId
-        // ]);
-
-
-
-
-        // 🔹 الخطوة 1: جلب liveChatId من الفيديو
-        $videoResponse = Http::withToken($accessToken)
-            ->get('https://www.googleapis.com/youtube/v3/videos', [
-                'part' => 'liveStreamingDetails',
-                'id' => $videoId,
-            ]);
-
-        if ($videoResponse->failed()) {
-            \Log::error(' liveChatId error', ['error' => $videoResponse->json()]);
-            return response()->json(['error' => 'Failed to fetch liveChatId', 'details' => $videoResponse->json()], 500);
-        }
-
-        $videoData = $videoResponse->json();
-        // \Log::info('ِAccount by channel succes', [
-        //     'data' => $videoData,
-
-        // ]);
-        $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
-
-        if (!$liveChatId) {
-            \Log::error(' liveChatId error', ['error' => 'No active live chat found for this video']);
-            return response()->json(['error' => 'No active live chat found for this video'], 404);
-        }
-
-        // 🔹 الخطوة 2: جلب الرسائل من live chat
-        $chatResponse = Http::withToken($accessToken)
-            ->get('https://www.googleapis.com/youtube/v3/liveChat/messages', [
-                'liveChatId' => $liveChatId,
-                'part' => 'id,snippet,authorDetails',
-                'maxResults' => 50,
-            ]);
-
-        if ($chatResponse->failed()) {
-            \Log::error('live chat messages error', ['error' => $chatResponse->json()]);
-            return response()->json(['error' => 'Failed to fetch live chat messages', 'details' => $chatResponse->json()], 500);
-        }
-        // \Log::info('live chat messages', [
-        //     'data' => $chatResponse->json(),
-
-        // ]);
-        $messages = collect($chatResponse->json()['items'] ?? [])->map(function ($msg) {
-            $snippet = $msg['snippet'];
-            $author = $msg['authorDetails'];
-            return [
-                'author' => $author['displayName'],
-                'profile_image' => $author['profileImageUrl'],
-                'message' => $snippet['displayMessage'],
-                'published_at' => $snippet['publishedAt'],
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'video_id' => $videoId,
-            'live_chat_id' => $liveChatId,
-            'comments' => $messages,
-            //  'comments' => $chatResponse->json()
-        ]);
-
-
-    }
 
     public function getYoutubechanneld($accessToken)
     {
@@ -1597,6 +1627,156 @@ class LiveController extends Controller
         $sts_model->save();
         return true;
     }
+    //test
+    // public function getYoutubeLiveVideoId(Request $request)
+    // {
+
+    //     $accessToken = $request->access_token;
+
+    //     if (!$accessToken) {
+    //         return response()->json(['error' => 'Missing access_token'], 400);
+    //     }
+
+
+    //     $response = Http::withToken($accessToken)
+    //         ->get('https://www.googleapis.com/youtube/v3/channels', [
+    //             'part' => 'id',
+    //             'mine' => 'true'
+    //         ]);
+
+    //     $json = $response->json();
+
+    //     // التحقق من النتيجة
+    //     if (!$response->successful() || empty($json['items'])) {
+    //         \Log::error(' channel ID error', ['error' => $json]);
+
+    //         return response()->json([
+    //             'error' => 'Could not fetch channel ID',
+    //             'details' => $json
+    //         ], 400);
+    //     }
+    //     \Log::info('channel id succes', [
+    //         'data' => $response->json(),
+
+    //     ]);
+    //     // استخراج الـ channel_id
+    //     $channelId = $json['items'][0]['id'];
+    //     //
+    //     $apiKey = config('services.youtube.key2');
+    //     //التاكد
+    //     // $response = Http::get('https://www.googleapis.com/youtube/v3/channels', [
+    //     //     'part' => 'snippet',
+    //     //     'id' => $channelId,
+    //     //     'key' =>  $apiKey
+    //     // ]);
+    //     // $data2 = $response->json();
+    //     // \Log::info('ِAccount by channel succes', [
+    //     //     'data' =>  $data2,
+
+    //     // ]);
+
+    //     //
+
+
+
+
+    //     // طلب البحث عن أي بث مباشر نشط الآن
+    //     $response = Http::get("https://www.googleapis.com/youtube/v3/search", [
+    //         'part' => 'snippet',
+    //         'channelId' => $channelId,
+    //         'eventType' => 'live',
+    //         'type' => 'video',
+    //         'key' => $apiKey
+    //     ]);
+
+    //     $data = $response->json();
+
+    //     if (empty($data['items'])) {
+    //         \Log::error(' videoId ID error', ['error' => $data]);
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'لا يوجد بث مباشر حاليًا',
+    //             'data' => $data,
+    //             // 'data2' =>  $data2,
+    //         ], 404);
+    //     }
+
+    //     // \Log::info('video_id succes', [
+    //     //     'data' => $data,
+
+    //     // ]);
+    //     $videoId = $data['items'][0]['id']['videoId'];
+
+    //     // return response()->json([
+    //     //     'success' => true,
+    //     //     'video_id' => $videoId
+    //     // ]);
+
+
+
+
+    //     // 🔹 الخطوة 1: جلب liveChatId من الفيديو
+    //     $videoResponse = Http::withToken($accessToken)
+    //         ->get('https://www.googleapis.com/youtube/v3/videos', [
+    //             'part' => 'liveStreamingDetails',
+    //             'id' => $videoId,
+    //         ]);
+
+    //     if ($videoResponse->failed()) {
+    //         \Log::error(' liveChatId error', ['error' => $videoResponse->json()]);
+    //         return response()->json(['error' => 'Failed to fetch liveChatId', 'details' => $videoResponse->json()], 500);
+    //     }
+
+    //     $videoData = $videoResponse->json();
+    //     // \Log::info('ِAccount by channel succes', [
+    //     //     'data' => $videoData,
+
+    //     // ]);
+    //     $liveChatId = $videoData['items'][0]['liveStreamingDetails']['activeLiveChatId'] ?? null;
+
+    //     if (!$liveChatId) {
+    //         \Log::error(' liveChatId error', ['error' => 'No active live chat found for this video']);
+    //         return response()->json(['error' => 'No active live chat found for this video'], 404);
+    //     }
+
+    //     // 🔹 الخطوة 2: جلب الرسائل من live chat
+    //     $chatResponse = Http::withToken($accessToken)
+    //         ->get('https://www.googleapis.com/youtube/v3/liveChat/messages', [
+    //             'liveChatId' => $liveChatId,
+    //             'part' => 'id,snippet,authorDetails',
+    //             'maxResults' => 50,
+    //         ]);
+
+    //     if ($chatResponse->failed()) {
+    //         \Log::error('live chat messages error', ['error' => $chatResponse->json()]);
+    //         return response()->json(['error' => 'Failed to fetch live chat messages', 'details' => $chatResponse->json()], 500);
+    //     }
+    //     // \Log::info('live chat messages', [
+    //     //     'data' => $chatResponse->json(),
+
+    //     // ]);
+    //     $messages = collect($chatResponse->json()['items'] ?? [])->map(function ($msg) {
+    //         $snippet = $msg['snippet'];
+    //         $author = $msg['authorDetails'];
+    //         return [
+    //             'author' => $author['displayName'],
+    //             'profile_image' => $author['profileImageUrl'],
+    //             'message' => $snippet['displayMessage'],
+    //             'published_at' => $snippet['publishedAt'],
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'video_id' => $videoId,
+    //         'live_chat_id' => $liveChatId,
+    //         'comments' => $messages,
+    //         //  'comments' => $chatResponse->json()
+    //     ]);
+
+
+    // }
+
     //tiktok with record
 
     //     public function tiktok_push(Request $request)
